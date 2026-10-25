@@ -17,6 +17,9 @@ jobs:
   build:
     if: github.ref == 'refs/heads/dev/phase-01-exterior'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
     steps:
       - name: Checkout source and actual LFS assets
         uses: actions/checkout@v6
