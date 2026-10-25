@@ -57,6 +57,7 @@ export default function App() {
   const state = useSyncExternalStore(journey.subscribe, journey.getSnapshot);
   const [entries, setEntries] = useState<Entry[]>([]),
     [published, setPublished] = useState<Entry[]>([]),
+    [publishedLoading, setPublishedLoading] = useState(true),
     [publishedError, setPublishedError] = useState(""),
     [loading, setLoading] = useState(true),
     [storageError, setStorageError] = useState(""),
@@ -88,11 +89,14 @@ export default function App() {
     }
   }, [refresh]);
   const loadPublic = useCallback(async () => {
+    setPublishedLoading(true);
     setPublishedError("");
     try {
       setPublished(await loadPublishedContent());
     } catch (e) {
       setPublishedError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setPublishedLoading(false);
     }
   }, []);
   useEffect(() => {
@@ -648,6 +652,7 @@ export default function App() {
               entries={entries}
               published={published}
               loading={loading}
+              publishedLoading={publishedLoading}
               error={storageError}
               onSelect={(id) => navigate(activeKind, id)}
               onSave={save}

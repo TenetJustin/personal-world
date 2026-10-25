@@ -74,6 +74,7 @@ type Props = {
   onDelete: (id: string) => Promise<void>;
   onRestore: (entries: Entry[]) => Promise<void>;
   published?: Entry[];
+  publishedLoading?: boolean;
   onDirty: (dirty: boolean) => void;
 };
 export function Library({
@@ -88,6 +89,7 @@ export function Library({
   onRestore,
   onDirty,
   published = [],
+  publishedLoading = false,
 }: Props) {
   const [source, setSource] = useState<"drafts" | "published" | null>(null),
     [publication, setPublication] = useState(false),
@@ -121,6 +123,7 @@ export function Library({
   );
   const getDraft = (id: string) =>
     Object.hasOwn(drafts, id) ? drafts[id] : undefined;
+  const awaitingPublic = publishedLoading && source !== "drafts" && !active;
   const draft =
     active && (isPublished ? active : (getDraft(active.id) ?? active));
   const url = useBlobURL(active?.blob);
@@ -493,7 +496,11 @@ export function Library({
               </select>
             </label>
           </div>
-          {loading && !isPublished ? (
+          {awaitingPublic ? (
+            <p className="list-empty" role="status">
+              正在读取公开资料…
+            </p>
+          ) : loading && !isPublished ? (
             <p className="list-empty">正在打开本地资料库…</p>
           ) : items.length === 0 ? (
             <p className="list-empty">
@@ -546,7 +553,11 @@ export function Library({
           </p>
         </aside>
         <section className="record-detail" aria-label="资料内容">
-          {!active || !draft ? (
+          {awaitingPublic ? (
+            <div className="empty-detail">
+              <p role="status">正在读取公开资料…</p>
+            </div>
+          ) : !active || !draft ? (
             <div className="empty-detail">
               <span className="empty-icon">
                 {kind === "notes"
