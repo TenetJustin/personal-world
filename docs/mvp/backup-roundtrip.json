@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "records": 4,
+  "beforeOrigin": "http://127.0.0.1:5178",
+  "afterOrigin": "http://127.0.0.1:5179",
+  "exactRecordEquality": true,
+  "attachments": [
+    {
+      "kind": "photos",
+      "bytes": 32563,
+      "sha256": "61257e44b33ceb90742cf1735d5c461af64f3ce63bbd9d19fbfbdc58ea7d95ed"
+    },
+    {
+      "kind": "resume",
+      "bytes": 609,
+      "sha256": "bdb62eb26a79d91d1042a13258fc03c94b3cba851010869272e8cbecd701a4cf"
+    }
+  ],
+  "note": "Real UI import/export/restore; original fixture files, not personal data."
+}

@@ -1,0 +1,14 @@
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 87 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                              0.61 kB │ gzip:   0.44 kB
+dist/assets/pdf.worker.min-CjEcRF4W.mjs  1,264.34 kB
+dist/assets/ExteriorStudy-ClNDXRNN.css       3.73 kB │ gzip:   1.42 kB
+dist/assets/index-A6pMqGMV.css              15.45 kB │ gzip:   4.48 kB
+dist/assets/ExteriorStudy-FLT1KLwV.js        6.22 kB │ gzip:   2.78 kB
+dist/assets/index-BM-ki1Db.js              228.98 kB │ gzip:  73.69 kB
+dist/assets/PDFReader-BhkdRNPH.js          437.44 kB │ gzip: 131.24 kB
+dist/assets/Exterior-yf1rbtm4.js           954.95 kB │ gzip: 260.18 kB
+✓ built in 1.11s

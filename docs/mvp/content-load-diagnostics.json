@@ -1,0 +1,85 @@
+{
+  "revision": "local-library-mvp",
+  "time": "2026-10-25T14:18:59.831Z",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "viewport": {
+    "width": 1280,
+    "height": 720,
+    "dpr": 2
+  },
+  "route": "/notes/:record/",
+  "navigation": {
+    "domContentLoadedMs": 38.70000001788139,
+    "loadMs": 42.80000001192093
+  },
+  "resourceCount": 2,
+  "resourceTransferBytes": 78737,
+  "resourceEncodedBytes": 78137,
+  "resources": [
+    {
+      "path": "/assets/index-D2MTFUed.js",
+      "durationMs": 18.799999982118607,
+      "transferBytes": 73957,
+      "encodedBytes": 73657
+    },
+    {
+      "path": "/assets/index-A6pMqGMV.css",
+      "durationMs": 8,
+      "transferBytes": 4780,
+      "encodedBytes": 4480
+    }
+  ],
+  "world": {
+    "recordedAt": "2026-10-25T14:18:59.831Z",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "screen": {
+      "width": 1470,
+      "height": 956,
+      "devicePixelRatio": 2
+    },
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "renderBuffer": null,
+    "quality": "standard",
+    "sceneRevision": "phase-01b-candidate",
+    "reflectionPolicy": "structural scene; micro-grass and nested glass transmission excluded",
+    "spatialBatches": true,
+    "assetStages": {},
+    "samples": 0,
+    "durationSeconds": 0,
+    "averageFPS": null,
+    "p50ms": null,
+    "p95ms": null,
+    "p99ms": null,
+    "maxCalls": null,
+    "maxTriangles": null,
+    "assetPreparationMs": 0,
+    "navigationToFirstFrameMs": 0,
+    "firstSceneReadyMs": 0,
+    "reducedMotion": false,
+    "textureMemoryNote": "Counts are not bytes. See asset manifest for size estimates.",
+    "visibilityExclusions": 0,
+    "errors": [],
+    "camera": null,
+    "resources": [
+      {
+        "url": "/assets/index-D2MTFUed.js",
+        "durationMs": 18.799999982118607,
+        "transferBytes": 73957,
+        "encodedBytes": 73657,
+        "decodedBytes": 228718
+      },
+      {
+        "url": "/assets/index-A6pMqGMV.css",
+        "durationMs": 8,
+        "transferBytes": 4780,
+        "encodedBytes": 4480,
+        "decodedBytes": 15448
+      }
+    ],
+    "frames": []
+  },
+  "note": "本地诊断不含资料正文及附件。FPS 仅在显式启动 3D 采样后有值；桌面暂停 WebGL，不能将暂停状态称为 60 FPS。"
+}

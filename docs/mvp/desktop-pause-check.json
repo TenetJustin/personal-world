@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "durationSeconds": 37.489,
+  "startRenderedFrames": 3599,
+  "endRenderedFrames": 3599,
+  "entryToFirstFrameMs": 1460.800000011921,
+  "assetPreparationMs": 769.5,
+  "note": "Final standalone loopback server; library desktop visible; retained Canvas frame count did not increase."
+}

@@ -1,0 +1,335 @@
+{
+  "revision": "local-library-mvp",
+  "time": "2026-10-25T14:43:14.585Z",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "viewport": {
+    "width": 1280,
+    "height": 720,
+    "dpr": 2
+  },
+  "route": "/notes/",
+  "navigation": {
+    "domContentLoadedMs": 27.599999994039536,
+    "loadMs": 29.299999982118607
+  },
+  "resourceCount": 19,
+  "resourceTransferBytes": 37550603,
+  "resourceEncodedBytes": 37544903,
+  "resources": [
+    {
+      "path": "/assets/index-BM-ki1Db.js",
+      "durationMs": 8.099999994039536,
+      "transferBytes": 229283,
+      "encodedBytes": 228983
+    },
+    {
+      "path": "/assets/index-A6pMqGMV.css",
+      "durationMs": 7.4000000059604645,
+      "transferBytes": 15748,
+      "encodedBytes": 15448
+    },
+    {
+      "path": "/assets/Exterior-yf1rbtm4.js",
+      "durationMs": 4.700000017881393,
+      "transferBytes": 955249,
+      "encodedBytes": 954949
+    },
+    {
+      "path": "/assets/rocks.glb",
+      "durationMs": 12.400000005960464,
+      "transferBytes": 922984,
+      "encodedBytes": 922684
+    },
+    {
+      "path": "/assets/fir-full.glb",
+      "durationMs": 32.599999994039536,
+      "transferBytes": 4352356,
+      "encodedBytes": 4352056
+    },
+    {
+      "path": "/assets/grass-dense.glb",
+      "durationMs": 15.099999994039536,
+      "transferBytes": 1353216,
+      "encodedBytes": 1352916
+    },
+    {
+      "path": "/assets/cabin.glb?v=01b-architecture-02",
+      "durationMs": 119.69999998807907,
+      "transferBytes": 13932176,
+      "encodedBytes": 13931876
+    },
+    {
+      "path": "/assets/alps-background.hdr",
+      "durationMs": 41,
+      "transferBytes": 6531794,
+      "encodedBytes": 6531494
+    },
+    {
+      "path": "/assets/environment.json",
+      "durationMs": 4.200000017881393,
+      "transferBytes": 368,
+      "encodedBytes": 68
+    },
+    {
+      "path": "/assets/fir-full-dimensions.json",
+      "durationMs": 5,
+      "transferBytes": 423,
+      "encodedBytes": 123
+    },
+    {
+      "path": "/assets/alps-lighting.hdr",
+      "durationMs": 12,
+      "transferBytes": 410407,
+      "encodedBytes": 410107
+    },
+    {
+      "path": "/assets/forest-color.webp",
+      "durationMs": 53.900000005960464,
+      "transferBytes": 2164690,
+      "encodedBytes": 2164390
+    },
+    {
+      "path": "/assets/meadow-normal.webp",
+      "durationMs": 58.900000005960464,
+      "transferBytes": 2972072,
+      "encodedBytes": 2971772
+    },
+    {
+      "path": "/assets/fir-full-impostor-0.png",
+      "durationMs": 50.19999998807907,
+      "transferBytes": 457166,
+      "encodedBytes": 456866
+    },
+    {
+      "path": "/assets/meadow-rough.webp",
+      "durationMs": 51.39999997615814,
+      "transferBytes": 335418,
+      "encodedBytes": 335118
+    },
+    {
+      "path": "/assets/fir-full-impostor-1.png",
+      "durationMs": 59.69999998807907,
+      "transferBytes": 454166,
+      "encodedBytes": 453866
+    },
+    {
+      "path": "/assets/fir-full-impostor-3.png",
+      "durationMs": 59.79999998211861,
+      "transferBytes": 422736,
+      "encodedBytes": 422436
+    },
+    {
+      "path": "/assets/fir-full-impostor-2.png",
+      "durationMs": 59.79999998211861,
+      "transferBytes": 433523,
+      "encodedBytes": 433223
+    },
+    {
+      "path": "/assets/meadow-color.webp",
+      "durationMs": 58.69999998807907,
+      "transferBytes": 1606828,
+      "encodedBytes": 1606528
+    }
+  ],
+  "world": {
+    "recordedAt": "2026-10-25T14:43:14.585Z",
+    "renderedFrames": 3599,
+    "entryToFirstFrameMs": 1460.800000011921,
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "screen": {
+      "width": 1470,
+      "height": 956,
+      "devicePixelRatio": 2
+    },
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "renderBuffer": {
+      "width": 1280,
+      "height": 720,
+      "cssWidth": 0,
+      "cssHeight": 0
+    },
+    "quality": "standard",
+    "sceneRevision": "phase-01b-candidate",
+    "reflectionPolicy": "structural scene; micro-grass and nested glass transmission excluded",
+    "spatialBatches": true,
+    "assetStages": {
+      "/assets/fir-full.glb": "decoded",
+      "/assets/rocks.glb": "decoded",
+      "/assets/grass-dense.glb": "decoded",
+      "/assets/cabin.glb?v=01b-architecture-02": "decoded"
+    },
+    "samples": 0,
+    "durationSeconds": 0,
+    "averageFPS": null,
+    "p50ms": null,
+    "p95ms": null,
+    "p99ms": null,
+    "maxCalls": null,
+    "maxTriangles": null,
+    "assetPreparationMs": 769.5,
+    "navigationToFirstFrameMs": 1763.5,
+    "firstSceneReadyMs": 769.5,
+    "geometryCount": 51,
+    "textureCount": 32,
+    "reducedMotion": false,
+    "textureMemoryNote": "Counts are not bytes. See asset manifest for size estimates.",
+    "visibilityExclusions": 0,
+    "errors": [],
+    "camera": {
+      "position": [
+        6.476411198692226,
+        2.65,
+        -4.31098328155989
+      ],
+      "quaternion": [
+        -0.017286860513268044,
+        -0.30065639793596377,
+        -0.005450526183353335,
+        0.9535602689909488
+      ],
+      "fov": 48,
+      "near": 0.1,
+      "far": 3000
+    },
+    "resources": [
+      {
+        "url": "/assets/index-BM-ki1Db.js",
+        "durationMs": 8.099999994039536,
+        "transferBytes": 229283,
+        "encodedBytes": 228983,
+        "decodedBytes": 228983
+      },
+      {
+        "url": "/assets/index-A6pMqGMV.css",
+        "durationMs": 7.4000000059604645,
+        "transferBytes": 15748,
+        "encodedBytes": 15448,
+        "decodedBytes": 15448
+      },
+      {
+        "url": "/assets/Exterior-yf1rbtm4.js",
+        "durationMs": 4.700000017881393,
+        "transferBytes": 955249,
+        "encodedBytes": 954949,
+        "decodedBytes": 954949
+      },
+      {
+        "url": "/assets/rocks.glb",
+        "durationMs": 12.400000005960464,
+        "transferBytes": 922984,
+        "encodedBytes": 922684,
+        "decodedBytes": 922684
+      },
+      {
+        "url": "/assets/fir-full.glb",
+        "durationMs": 32.599999994039536,
+        "transferBytes": 4352356,
+        "encodedBytes": 4352056,
+        "decodedBytes": 4352056
+      },
+      {
+        "url": "/assets/grass-dense.glb",
+        "durationMs": 15.099999994039536,
+        "transferBytes": 1353216,
+        "encodedBytes": 1352916,
+        "decodedBytes": 1352916
+      },
+      {
+        "url": "/assets/cabin.glb?v=01b-architecture-02",
+        "durationMs": 119.69999998807907,
+        "transferBytes": 13932176,
+        "encodedBytes": 13931876,
+        "decodedBytes": 13931876
+      },
+      {
+        "url": "/assets/alps-background.hdr",
+        "durationMs": 41,
+        "transferBytes": 6531794,
+        "encodedBytes": 6531494,
+        "decodedBytes": 6531494
+      },
+      {
+        "url": "/assets/environment.json",
+        "durationMs": 4.200000017881393,
+        "transferBytes": 368,
+        "encodedBytes": 68,
+        "decodedBytes": 68
+      },
+      {
+        "url": "/assets/fir-full-dimensions.json",
+        "durationMs": 5,
+        "transferBytes": 423,
+        "encodedBytes": 123,
+        "decodedBytes": 123
+      },
+      {
+        "url": "/assets/alps-lighting.hdr",
+        "durationMs": 12,
+        "transferBytes": 410407,
+        "encodedBytes": 410107,
+        "decodedBytes": 410107
+      },
+      {
+        "url": "/assets/forest-color.webp",
+        "durationMs": 53.900000005960464,
+        "transferBytes": 2164690,
+        "encodedBytes": 2164390,
+        "decodedBytes": 2164390
+      },
+      {
+        "url": "/assets/meadow-normal.webp",
+        "durationMs": 58.900000005960464,
+        "transferBytes": 2972072,
+        "encodedBytes": 2971772,
+        "decodedBytes": 2971772
+      },
+      {
+        "url": "/assets/fir-full-impostor-0.png",
+        "durationMs": 50.19999998807907,
+        "transferBytes": 457166,
+        "encodedBytes": 456866,
+        "decodedBytes": 456866
+      },
+      {
+        "url": "/assets/meadow-rough.webp",
+        "durationMs": 51.39999997615814,
+        "transferBytes": 335418,
+        "encodedBytes": 335118,
+        "decodedBytes": 335118
+      },
+      {
+        "url": "/assets/fir-full-impostor-1.png",
+        "durationMs": 59.69999998807907,
+        "transferBytes": 454166,
+        "encodedBytes": 453866,
+        "decodedBytes": 453866
+      },
+      {
+        "url": "/assets/fir-full-impostor-3.png",
+        "durationMs": 59.79999998211861,
+        "transferBytes": 422736,
+        "encodedBytes": 422436,
+        "decodedBytes": 422436
+      },
+      {
+        "url": "/assets/fir-full-impostor-2.png",
+        "durationMs": 59.79999998211861,
+        "transferBytes": 433523,
+        "encodedBytes": 433223,
+        "decodedBytes": 433223
+      },
+      {
+        "url": "/assets/meadow-color.webp",
+        "durationMs": 58.69999998807907,
+        "transferBytes": 1606828,
+        "encodedBytes": 1606528,
+        "decodedBytes": 1606528
+      }
+    ],
+    "frames": []
+  },
+  "note": "本地诊断不含资料正文及附件。FPS 仅在显式启动 3D 采样后有值；桌面暂停 WebGL，不能将暂停状态称为 60 FPS。"
+}

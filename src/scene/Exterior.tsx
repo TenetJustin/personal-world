@@ -5,8 +5,22 @@ import { createCameraPath } from "./cameraPath";
 import { buildWorld } from "./World";
 import { SHOTS, INSPECTION_SHOTS, clamp } from "./landscape";
 import { runtime } from "./runtime";
+import { Interior } from "./Interior";
+export type Place = "exterior" | "interior" | "desk";
+const indoorPose = (v: [number, number, number]) =>
+  new THREE.Vector3(...v)
+    .applyAxisAngle(new THREE.Vector3(0, 1, 0), (-35 * Math.PI) / 180)
+    .add(new THREE.Vector3(8, 0, -3));
+const ROOM = {
+  position: indoorPose([1.9, 2.95, 2.4]),
+  target: indoorPose([-1.8, 2.5, -1.7]),
+};
+const DESK = {
+  position: indoorPose([-2, 2.65, -0.2]),
+  target: indoorPose([-2, 2.58, -2.13]),
+};
 
-function Stage() {
+function Stage({ place = "exterior" }: { place?: Place }) {
   const { scene, gl, camera } = useThree();
   const [ready, setReady] = useState(false);
   const world = useRef<Awaited<ReturnType<typeof buildWorld>> | null>(null);
@@ -41,6 +55,7 @@ function Stage() {
         world.current = w;
         runtime.loadingMs = performance.now() - runtime.started;
         runtime.ready = true;
+        window.dispatchEvent(new Event("world-ready"));
         const s = new URLSearchParams(location.search).get("shot");
         runtime.requestedShot = s === "B" ? "B" : "A";
         if (s === "C" || s === "D" || s === "E") runtime.inspectionShot = s;
@@ -114,8 +129,14 @@ function Stage() {
     }
     cam.position.copy(point.current);
     cam.lookAt(look.current);
+    if (place !== "exterior") {
+      const pose = place === "desk" ? DESK : ROOM;
+      cam.position.copy(pose.position);
+      cam.lookAt(pose.target);
+    }
     cam.fov =
       inspection?.fov ?? THREE.MathUtils.lerp(SHOTS.A.fov, SHOTS.B.fov, t);
+    if (place !== "exterior") cam.fov = place === "desk" ? 48 : 58;
     cam.near = 0.1;
     cam.far = 3000;
     cam.updateProjectionMatrix();
@@ -126,6 +147,7 @@ function Stage() {
     const now = performance.now();
     gl.info.reset();
     gl.render(scene, cam);
+    runtime.renderedFrames++;
     if (!runtime.firstFrameMs) runtime.firstFrameMs = performance.now();
     if (
       runtime.recording &&
@@ -152,13 +174,37 @@ function Stage() {
       window.dispatchEvent(new Event("capture-ready"));
     }
   }, 1);
-  return null;
+  return <Interior />;
 }
-export function Exterior() {
+const CAMERA_OPTIONS = {
+  position: [...SHOTS.A.position] as [number, number, number],
+  fov: 42,
+  near: 0.1,
+  far: 3000,
+};
+export function Exterior({
+  place = "exterior",
+  paused = false,
+}: {
+  place?: Place;
+  paused?: boolean;
+}) {
   const high = new URLSearchParams(location.search).get("quality") === "high";
   runtime.quality = high ? "high" : "standard";
   return (
     <Canvas
+      frameloop={paused ? "never" : "always"}
+      onCreated={({ gl }) => {
+        gl.domElement.addEventListener("webglcontextlost", (event) => {
+          event.preventDefault();
+          window.dispatchEvent(
+            new CustomEvent("world-error", {
+              detail:
+                "3D 显示连接已中断，资料仍保存在本地。可继续浏览资料或刷新恢复场景。",
+            }),
+          );
+        });
+      }}
       shadows
       dpr={
         new URLSearchParams(location.search).has("benchmark")
@@ -167,12 +213,7 @@ export function Exterior() {
             ? 1.5
             : 1
       }
-      camera={{
-        position: [...SHOTS.A.position],
-        fov: 42,
-        near: 0.1,
-        far: 3000,
-      }}
+      camera={CAMERA_OPTIONS}
       gl={{
         antialias: true,
         alpha: false,
@@ -180,7 +221,7 @@ export function Exterior() {
         preserveDrawingBuffer: false,
       }}
     >
-      <Stage />
+      <Stage place={place} />
     </Canvas>
   );
 }

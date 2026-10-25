@@ -62,3 +62,9 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
+
+# Generated PDF.js runtime fonts / maps (copied from pinned npm dependency)
+/public/pdfjs/
+# User data must stay outside source control
+/personal-data/
+/personal-world-*.json

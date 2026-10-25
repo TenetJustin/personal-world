@@ -2,6 +2,7 @@ import type { PerspectiveCamera, WebGLRenderer } from "three";
 export type Shot = "A" | "B";
 export const runtime = {
   ready: false,
+  renderedFrames: 0,
   assetStages: {} as Record<string, string>,
   progress: 0,
   moving: false,
@@ -36,6 +37,10 @@ export const runtime = {
     const gl = this.renderer;
     return {
       recordedAt: new Date().toISOString(),
+      renderedFrames: this.renderedFrames,
+      entryToFirstFrameMs: this.firstFrameMs
+        ? this.firstFrameMs - this.started
+        : null,
       userAgent: navigator.userAgent,
       screen: { width: screen.width, height: screen.height, devicePixelRatio },
       viewport: { width: innerWidth, height: innerHeight },
