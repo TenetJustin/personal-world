@@ -1,0 +1,194 @@
+[
+  {
+    "file": "public/assets/cabin-v3-shell.glb",
+    "bytes": 13903316,
+    "meshes": 7,
+    "materials": [
+      "06 / blackened hardware",
+      "07 / recessed lime mortar",
+      "04 / natural granite masonry",
+      "01 / warm weathered pine",
+      "02 / oiled timber joinery",
+      "03 / charcoal standing-seam zinc",
+      "05 / architectural clear glass - nonmetal"
+    ],
+    "textures": [
+      {
+        "name": "nor_gl",
+        "size": [
+          2048,
+          2048
+        ],
+        "mime": "image/webp"
+      },
+      {
+        "name": "rock_wall_02-graded",
+        "size": [
+          2048,
+          2048
+        ],
+        "mime": "image/webp"
+      },
+      {
+        "name": "Rough",
+        "size": [
+          2048,
+          2048
+        ],
+        "mime": "image/webp"
+      },
+      {
+        "name": "nor_gl",
+        "size": [
+          2048,
+          2048
+        ],
+        "mime": "image/webp"
+      },
+      {
+        "name": "rough_wood-graded",
+        "size": [
+          2048,
+          2048
+        ],
+        "mime": "image/webp"
+      },
+      {
+        "name": "Rough",
+        "size": [
+          2048,
+          2048
+        ],
+        "mime": "image/webp"
+      }
+    ]
+  },
+  {
+    "file": "public/assets/cabin-interior-v3.glb",
+    "bytes": 13578412,
+    "meshes": 23,
+    "materials": [
+      "V3 / black cast iron",
+      "V3 / honey oak joinery",
+      "V3 / cotton bedding",
+      "V3 / dark bronze hardware",
+      "V3 / warm lamp diffuser",
+      "V3 / muted sage cabinetry",
+      "V3 / natural oiled pine",
+      "V3 / cream glazed stoneware",
+      "V3 / book spine 3",
+      "V3 / book spine 2",
+      "V3 / oatmeal linen upholstery",
+      "V3 / natural masonry",
+      "V3 / brushed stainless",
+      "V3 / honed limestone worktop",
+      "V3 / off white crockery",
+      "V3 / book spine 0",
+      "V3 / woven wool rug",
+      "V3 / moss wool cushions",
+      "V3 / book paper edges",
+      "V3 / banked ember glow",
+      "V3 / book spine 1",
+      "V3 / book spine 4",
+      "V3 / cognac leather reading chair"
+    ],
+    "textures": [
+      {
+        "name": "nor_gl",
+        "size": [
+          2048,
+          2048
+        ],
+        "mime": "image/webp"
+      },
+      {
+        "name": "V3 - honey oak joinery",
+        "size": [
+          2048,
+          2048
+        ],
+        "mime": "image/webp"
+      },
+      {
+        "name": "Rough",
+        "size": [
+          2048,
+          2048
+        ],
+        "mime": "image/webp"
+      },
+      {
+        "name": "fine-weave-normal",
+        "size": [
+          1024,
+          1024
+        ],
+        "mime": "image/webp"
+      },
+      {
+        "name": "V3 - cotton bedding-weave",
+        "size": [
+          1024,
+          1024
+        ],
+        "mime": "image/webp"
+      },
+      {
+        "name": "V3 - natural oiled pine",
+        "size": [
+          2048,
+          2048
+        ],
+        "mime": "image/webp"
+      },
+      {
+        "name": "V3 - oatmeal linen upholstery-weave",
+        "size": [
+          1024,
+          1024
+        ],
+        "mime": "image/webp"
+      },
+      {
+        "name": "nor_gl",
+        "size": [
+          2048,
+          2048
+        ],
+        "mime": "image/webp"
+      },
+      {
+        "name": "V3 - natural masonry",
+        "size": [
+          2048,
+          2048
+        ],
+        "mime": "image/webp"
+      },
+      {
+        "name": "Rough",
+        "size": [
+          2048,
+          2048
+        ],
+        "mime": "image/webp"
+      },
+      {
+        "name": "V3 - woven wool rug-weave",
+        "size": [
+          1024,
+          1024
+        ],
+        "mime": "image/webp"
+      },
+      {
+        "name": "V3 - moss wool cushions-weave",
+        "size": [
+          1024,
+          1024
+        ],
+        "mime": "image/webp"
+      }
+    ]
+  }
+]

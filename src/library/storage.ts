@@ -140,7 +140,9 @@ export async function decodeBackup(file: Blob): Promise<Entry[]> {
         : await decodeAttachment(r.thumbnailData);
     if (
       r.images !== undefined &&
-      (!Array.isArray(r.images) || r.images.length > 12)
+      (!Array.isArray(r.images) ||
+        r.images.length >
+          (r.kind === "projects" ? 12 : r.kind === "notes" ? 1 : 50))
     )
       throw new Error("项目图片数量无效");
     const images =

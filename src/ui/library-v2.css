@@ -149,3 +149,32 @@
     font-size: 1rem;
   }
 }
+.editor .privacy-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.editor .privacy-choice input {
+  width: auto;
+  margin-top: 4px;
+}
+.reading > .profile-media {
+  display: block;
+  max-width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  border-radius: 10px;
+  margin: 20px 0;
+}
+.reading > .profile-preview {
+  border: 0;
+  padding: 0;
+}
+.editor select {
+  padding: 8px;
+  border: 1px solid #cbd2d6;
+  background: white;
+  color: #334337;
+  border-radius: 6px;
+  font: inherit;
+}

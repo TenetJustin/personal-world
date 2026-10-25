@@ -6,7 +6,7 @@ import {
   validateEntry,
   mergeEntries,
 } from "./model.ts";
-import { dataURL } from "./storage.ts";
+import { dataURL, prepareImage } from "./storage.ts";
 export type PublicRecord = Omit<
   Entry,
   "blob" | "thumbnail" | "images" | "deletedAt"
@@ -48,6 +48,14 @@ const permitted = [
   "demoURL",
   "technology",
   "resume",
+  "fileName",
+  "structuredProfile",
+  "projectDetails",
+  "photoTakenAt",
+  "photoLocation",
+  "photoLocationPublic",
+  "isAlbumCover",
+  "coverImageId",
 ] as const;
 export async function createPublicPackage(
   entries: Entry[],
@@ -66,16 +74,42 @@ export async function createPublicPackage(
     const r = Object.fromEntries(
       permitted.filter((k) => e[k] !== undefined).map((k) => [k, e[k]]),
     ) as unknown as PublicRecord;
-    if (e.blob) r.attachment = await dataURL(e.blob);
-    if (e.thumbnail) r.thumbnailData = await dataURL(e.thumbnail);
+    if (!e.photoLocationPublic) {
+      delete r.photoLocation;
+      delete r.photoLocationPublic;
+    }
+    const publicBlob = async (blob: Blob) =>
+      blob.type.startsWith("image/") && typeof document !== "undefined"
+        ? (await prepareImage(blob)).blob
+        : blob;
+    if (e.blob) {
+      const clean = await publicBlob(e.blob);
+      r.attachment = await dataURL(clean);
+      if (clean.type !== e.blob.type && r.fileName)
+        r.fileName = r.fileName.replace(/\.[^.]+$/, "") + ".webp";
+    }
+    if (e.thumbnail)
+      r.thumbnailData = await dataURL(await publicBlob(e.thumbnail));
+    const referenced = e.structuredProfile
+      ? new Set([
+          e.structuredProfile.about.avatarId,
+          ...e.structuredProfile.awards.flatMap((a) => a.imageIds),
+        ])
+      : e.kind === "notes"
+        ? new Set([e.coverImageId])
+        : null;
     if (e.images)
       r.images = await Promise.all(
-        e.images.map(async (x) => ({
-          id: x.id,
-          name: x.name,
-          attachment: await dataURL(x.blob),
-          ...(x.thumbnail ? { thumbnailData: await dataURL(x.thumbnail) } : {}),
-        })),
+        e.images
+          .filter((x) => !referenced || referenced.has(x.id))
+          .map(async (x) => ({
+            id: x.id,
+            name: x.name,
+            attachment: await dataURL(await publicBlob(x.blob)),
+            ...(x.thumbnail
+              ? { thumbnailData: await dataURL(await publicBlob(x.thumbnail)) }
+              : {}),
+          })),
       );
     records.push(r);
   }
@@ -134,9 +168,13 @@ export async function loadPublishedContent(base = SITE_BASE): Promise<Entry[]> {
       throw new Error("公开记录含有未知字段或未审核的本地数据");
     if (
       record.images &&
-      (!Array.isArray(record.images) || record.images.length > 12)
+      (!Array.isArray(record.images) ||
+        record.images.length >
+          (record.kind === "projects" ? 12 : record.kind === "notes" ? 1 : 50))
     )
       throw new Error("公开项目图片数量无效");
+    if (record.photoLocation && record.photoLocationPublic !== true)
+      throw new Error("公开照片地点缺少明确同意");
     const blob = record.attachment
       ? await attachment(record.attachment)
       : undefined;

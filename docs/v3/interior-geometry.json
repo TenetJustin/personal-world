@@ -1,0 +1,71 @@
+{
+  "blender": "5.2.2 LTS",
+  "master": "assets/architecture/cabin-interior-v3.blend",
+  "originalExteriorSha256": "a23eefcc65ee59c86c062034079c1728aada1c31eae355c7259a672743af41af",
+  "newShellRemovesOnly": "upper floor structural slab",
+  "objectCount": 824,
+  "collections": [
+    "Structure",
+    "Stair and guards",
+    "Workspace",
+    "Living",
+    "Fireplace",
+    "Kitchen",
+    "Dining",
+    "Upper bedroom",
+    "Upper reading",
+    "Lighting",
+    "Anchors"
+  ],
+  "floorY": 1.37,
+  "upperY": 4.25,
+  "upperSlabUnderside": 4.03,
+  "stair": {
+    "minX": -5.45,
+    "maxX": -4.3,
+    "bottomZ": -3.45,
+    "topZ": 0.3,
+    "rise": 0.18,
+    "run": 0.25,
+    "treads": 15,
+    "risers": 16
+  },
+  "upperPlates": [
+    [
+      -5.82,
+      5.82,
+      -4.32,
+      -3.47
+    ],
+    [
+      -5.82,
+      -5.55,
+      -3.47,
+      0.3
+    ],
+    [
+      -4.2,
+      5.82,
+      -3.47,
+      0.3
+    ],
+    [
+      -5.82,
+      5.82,
+      0.3,
+      1.65
+    ]
+  ],
+  "stairOpening": {
+    "minX": -5.55,
+    "maxX": -4.2,
+    "minZ": -3.47,
+    "maxZ": 0.3
+  },
+  "desktopSurface": [
+    -3.6,
+    2.13,
+    2.95
+  ],
+  "license": "Original geometry + original weave maps + registered CC0 rough_wood / rock_wall_02"
+}

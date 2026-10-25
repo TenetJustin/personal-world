@@ -24,6 +24,14 @@ import {
   validateAttachment,
   prepareImage,
 } from "../library/storage";
+import {
+  PROJECT_FIELDS,
+  entryMarkdown,
+  emptyProjectDetails,
+  publicationState,
+  type ProjectDetails,
+} from "../library/profile";
+import { ProfilePreview, ProfileImage } from "./ProfilePreview";
 import { PublicationPanel } from "./PublicationPanel";
 import "./library-v2.css";
 import { Markdown } from "./Markdown";
@@ -64,6 +72,9 @@ function Thumbnail({ entry }: { entry: Entry }) {
   );
 }
 type Props = {
+  workspace?: boolean;
+  onOpenWorkspace?: () => void;
+  onOpenProfile?: () => void;
   kind: Kind;
   selected: string | null;
   entries: Entry[];
@@ -79,6 +90,9 @@ type Props = {
 };
 export function Library({
   kind,
+  workspace,
+  onOpenWorkspace,
+  onOpenProfile,
   selected,
   entries,
   loading,
@@ -95,14 +109,9 @@ export function Library({
     [publication, setPublication] = useState(false),
     [group, setGroup] = useState(""),
     [sort, setSort] = useState("updated");
-  const isPublished =
-    source === "published" ||
-    (source === null &&
-      published.length > 0 &&
-      (!entries.some((e) => !e.deletedAt) ||
-        (!!selected &&
-          published.some((e) => e.id === selected) &&
-          !entries.some((e) => e.id === selected))));
+  const [localWorkspace, setLocalWorkspace] = useState(false);
+  const inWorkspace = workspace ?? localWorkspace;
+  const isPublished = !inWorkspace || source === "published";
   const visibleEntries = isPublished ? published : entries;
   const [query, setQuery] = useState(""),
     [editing, setEditing] = useState(false),
@@ -123,7 +132,7 @@ export function Library({
   );
   const getDraft = (id: string) =>
     Object.hasOwn(drafts, id) ? drafts[id] : undefined;
-  const awaitingPublic = publishedLoading && source !== "drafts" && !active;
+  const awaitingPublic = publishedLoading && isPublished && !active;
   const draft =
     active && (isPublished ? active : (getDraft(active.id) ?? active));
   const url = useBlobURL(active?.blob);
@@ -300,14 +309,18 @@ export function Library({
     <div className="library-app">
       <div className="source-switch" aria-label="资料来源">
         <button
-          aria-pressed={!isPublished}
+          aria-pressed={inWorkspace && !isPublished}
           onClick={() => {
+            if (!inWorkspace) {
+              if (onOpenWorkspace) onOpenWorkspace();
+              else setLocalWorkspace(true);
+            }
             setSource("drafts");
             setTrash(false);
             onSelect(null);
           }}
         >
-          本地草稿
+          {inWorkspace ? "本地草稿" : "进入本地编辑工作区"}
         </button>
         <button
           aria-pressed={isPublished}
@@ -323,8 +336,11 @@ export function Library({
         <span>
           {isPublished
             ? "所有访客可见 · 只读"
-            : "仅保存在此浏览器 · 不会自动公开"}
+            : "LOCAL EDITOR · 仅此浏览器，非管理员登录"}
         </span>
+        {!isPublished && onOpenProfile && (
+          <button onClick={onOpenProfile}>个人资料填写中心</button>
+        )}
         {!isPublished && (
           <button onClick={() => setPublication((v) => !v)}>
             审核公开内容
@@ -734,8 +750,110 @@ export function Library({
                       />
                     </label>
                   )}
+                  <label>
+                    公开准备状态
+                    <select
+                      value={draft.publicationStatus ?? "draft"}
+                      onChange={(e) =>
+                        update(
+                          "publicationStatus",
+                          e.target.value as "draft" | "ready",
+                        )
+                      }
+                    >
+                      <option value="draft">
+                        本地草稿（默认，不自动公开）
+                      </option>
+                      <option value="ready">已准备好，仍需审核导出</option>
+                    </select>
+                    <small>{publicationState(active, published)}</small>
+                  </label>
+                  {kind === "photos" && (
+                    <>
+                      <label>
+                        图片时间
+                        <input
+                          type="datetime-local"
+                          value={draft.photoTakenAt ?? ""}
+                          onChange={(e) =>
+                            update("photoTakenAt", e.target.value)
+                          }
+                        />
+                      </label>
+                      <label>
+                        地点（选填，默认仅本地）
+                        <input
+                          value={draft.photoLocation ?? ""}
+                          onChange={(e) =>
+                            update("photoLocation", e.target.value)
+                          }
+                        />
+                      </label>
+                      <label className="privacy-choice">
+                        <input
+                          type="checkbox"
+                          checked={draft.photoLocationPublic ?? false}
+                          onChange={(e) =>
+                            update("photoLocationPublic", e.target.checked)
+                          }
+                        />
+                        公开时一并包含这个地点（默认不勾选）
+                      </label>
+                      <label className="privacy-choice">
+                        <input
+                          type="checkbox"
+                          checked={draft.isAlbumCover ?? false}
+                          onChange={(e) =>
+                            update("isAlbumCover", e.target.checked)
+                          }
+                        />
+                        设为相册封面
+                      </label>
+                      <p className="quiet">
+                        公开图片会重新编码以移除
+                        EXIF；本地原图与完整备份可能保留原始元数据，请妥善保管。
+                      </p>
+                    </>
+                  )}
+                  {kind === "notes" && (
+                    <ProjectImages
+                      entry={draft}
+                      editing
+                      onChange={(images) =>
+                        setDrafts((old) => ({
+                          ...old,
+                          [draft.id]: {
+                            ...(old[draft.id] ?? draft),
+                            images,
+                            coverImageId: images[0]?.id ?? "",
+                          },
+                        }))
+                      }
+                      onError={setMessage}
+                      onBusy={setBusy}
+                    />
+                  )}
                   {kind === "projects" && (
                     <>
+                      {(
+                        Object.keys(PROJECT_FIELDS) as (keyof ProjectDetails)[]
+                      ).map((key) => (
+                        <label key={key}>
+                          {PROJECT_FIELDS[key]}
+                          <textarea
+                            rows={3}
+                            maxLength={100_000}
+                            value={draft.projectDetails?.[key] ?? ""}
+                            onChange={(e) =>
+                              update("projectDetails", {
+                                ...emptyProjectDetails(),
+                                ...draft.projectDetails,
+                                [key]: e.target.value,
+                              })
+                            }
+                          />
+                        </label>
+                      ))}
                       <label>
                         技术栈
                         <input
@@ -864,6 +982,33 @@ export function Library({
                   </p>
                   <h1>{active.title}</h1>
                   {active.tags && <p className="tags">{active.tags}</p>}
+                  <p className="quiet">
+                    创建 {new Date(active.createdAt).toLocaleDateString()} ·
+                    更新 {new Date(active.updatedAt).toLocaleDateString()} ·{" "}
+                    {isPublished
+                      ? "已发布"
+                      : publicationState(active, published)}
+                  </p>
+                  {active.coverImageId && (
+                    <ProfileImage
+                      entry={active}
+                      id={active.coverImageId}
+                      alt={`${active.title} 封面`}
+                    />
+                  )}
+                  {active.structuredProfile && (
+                    <ProfilePreview entry={active} />
+                  )}
+                  {kind === "photos" && (
+                    <p className="quiet">
+                      {active.album && `相册：${active.album} · `}
+                      {active.photoTakenAt &&
+                        `图片时间：${active.photoTakenAt} · `}
+                      {active.photoLocation &&
+                        `地点：${active.photoLocation}${!isPublished && !active.photoLocationPublic ? "（仅本地）" : ""}`}
+                      {active.isAlbumCover && " · 相册封面"}
+                    </p>
+                  )}
                   {kind === "photos" && url && (
                     <a
                       href={url}
@@ -895,6 +1040,20 @@ export function Library({
                   {kind === "projects" && (
                     <>
                       <ProjectImages entry={active} />
+                      {active.projectDetails &&
+                        (
+                          Object.keys(
+                            PROJECT_FIELDS,
+                          ) as (keyof ProjectDetails)[]
+                        ).map(
+                          (key) =>
+                            active.projectDetails?.[key] && (
+                              <section key={key}>
+                                <h2>{PROJECT_FIELDS[key]}</h2>
+                                <Markdown text={active.projectDetails[key]} />
+                              </section>
+                            ),
+                        )}
                       <p className="tags">{active.technology}</p>
                       {(
                         [
@@ -961,22 +1120,9 @@ export function Library({
                       className="text-button"
                       onClick={() =>
                         downloadFile(
-                          new Blob(
-                            [
-                              `# ${active.title}\n\n${active.body}${
-                                active.resume
-                                  ? "\n\n" +
-                                    Object.entries(RESUME_LABELS)
-                                      .map(
-                                        ([key, label]) =>
-                                          `## ${label}\n\n${active.resume?.[key as keyof ResumeSections] ?? ""}`,
-                                      )
-                                      .join("\n\n")
-                                  : ""
-                              }${active.url ? `\n\n${active.url}` : ""}`,
-                            ],
-                            { type: "text/markdown;charset=utf-8" },
-                          ),
+                          new Blob([entryMarkdown(active)], {
+                            type: "text/markdown;charset=utf-8",
+                          }),
                           `${active.title.replace(/[\\/:*?"<>|]/g, "-")}.md`,
                         )
                       }
@@ -1016,11 +1162,14 @@ function ProjectImages({
 }) {
   const [processing, setProcessing] = useState(false);
   const images = entry.images ?? [];
+  const maxImages = entry.kind === "notes" ? 1 : 12;
   return (
     <div className="project-gallery">
       {editing && (
         <label>
-          项目封面与截图（第一张为封面，最多 12 张）
+          {entry.kind === "notes"
+            ? "随笔封面（选填，最多 1 张）"
+            : "项目封面与截图（第一张为封面，最多 12 张）"}
           <input
             type="file"
             multiple
@@ -1033,8 +1182,8 @@ function ProjectImages({
               onBusy?.(true);
               void (async () => {
                 try {
-                  if (images.length + files.length > 12)
-                    throw new Error("每个项目最多 12 张图片");
+                  if (images.length + files.length > maxImages)
+                    throw new Error(`此类资料最多 ${maxImages} 张图片`);
                   const added = [];
                   for (const file of files) {
                     const prepared = await prepareImage(file);

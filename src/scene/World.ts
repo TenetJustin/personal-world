@@ -16,6 +16,7 @@ import { createLake } from "./water";
 import { runtime } from "./runtime";
 import { meadowClump } from "./meadow";
 import { assetURL } from "../site";
+import { addEnvironmentCollider, resetEnvironmentColliders } from "./locomotion";
 import { CABIN, cabinToWorld } from "./architecture";
 
 const texLoader = new THREE.TextureLoader();
@@ -33,6 +34,7 @@ function instanced(
   shadow = true,
   cell = 48,
   layer = 0,
+  physical: "trunk" | "rock" | null = null,
 ) {
   source.updateWorldMatrix(true, true);
   const dummy = new THREE.Object3D();
@@ -48,9 +50,14 @@ function instanced(
     batch.push(p);
     batches.set(key, batch);
   }
+  if(physical === "trunk")positions.forEach((p,i)=>{const y=groundHeight(p.x,p.z),r=.29*p.s;addEnvironmentCollider({id:`tree-${p.x}-${p.z}-${i}`,minX:p.x-r,maxX:p.x+r,minZ:p.z-r,maxZ:p.z+r,minY:y,maxY:y+7*p.s});});
   source.traverse((o) => {
     if (!(o instanceof THREE.Mesh)) return;
     const geo = bakeGeometry(o);
+    if(physical === "rock"){
+      geo.computeBoundingBox();
+      positions.forEach((p,i)=>{dummy.position.set(p.x,groundHeight(p.x,p.z),p.z);dummy.rotation.set(0,p.r,0);dummy.scale.setScalar(p.s);dummy.updateMatrix();const b=geo.boundingBox!.clone().applyMatrix4(dummy.matrix);addEnvironmentCollider({id:`rock-${o.name}-${i}`,minX:b.min.x,maxX:b.max.x,minZ:b.min.z,maxZ:b.max.z,minY:b.min.y,maxY:b.max.y});});
+    }
     for (const batch of batches.values()) {
       const m = new THREE.InstancedMesh(geo, o.material, batch.length);
       m.layers.set(layer);
@@ -74,6 +81,7 @@ export async function buildWorld(
   renderer: THREE.WebGLRenderer,
   quality: "standard" | "high",
 ) {
+  resetEnvironmentColliders();
   const rng = random();
   const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
   const loadModel = (url: string) => {
@@ -102,7 +110,7 @@ export async function buildWorld(
     loadModel("assets/fir-full.glb"),
     loadModel("assets/rocks.glb"),
     loadModel("assets/grass-dense.glb"),
-    loadModel("assets/cabin.glb?v=sprint-v2-open-door"),
+    loadModel("assets/cabin-v3-shell.glb"),
     loadModel("assets/cabin-door.glb"),
     new HDRLoader().loadAsync(
       assetURL(
@@ -299,6 +307,7 @@ export async function buildWorld(
       s: 0.8 + (i % 4) * 0.1,
       r: rng() * 6.28,
     })),
+    true,48,0,"trunk",
   );
   const mids: { x: number; z: number; s: number; r: number }[] = [];
   const clusters = [
@@ -324,7 +333,7 @@ export async function buildWorld(
       mids.push({ x, z, s: 0.67 + rng() * 0.75, r: rng() * 6.28 });
     }
   }
-  instanced(scene, mid, mids, false);
+  instanced(scene, mid, mids, false,48,0,"trunk");
   // Distant original full-tree atlas; only beyond the traversable zone.
   for (let n = 0; n < 4; n++) {
     const ps: { x: number; z: number; s: number }[] = [];
@@ -419,7 +428,7 @@ export async function buildWorld(
       ps.push({ x, z, s: 0.22 + rng() * 0.75, r: rng() * 6.28 });
     }
     // Isolate each normalized scan; object name and geometry survive export.
-    instanced(scene, source, ps, true);
+    instanced(scene, source, ps, true,48,0,"rock");
   });
   const windTime = { value: 0 };
   for (const material of new Set(

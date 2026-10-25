@@ -75,12 +75,16 @@ export function PublicationPanel({
                   {LABELS[e.kind]} · {e.title}
                 </strong>
                 <small>
-                  {e.body.slice(0, 180) || "无正文"}
+                  {e.structuredProfile
+                    ? `${e.structuredProfile.about.displayName} · ${e.structuredProfile.about.headline} · ${e.structuredProfile.about.introZH.slice(0, 100)}`
+                    : e.projectDetails?.summaryZH ||
+                      e.body.slice(0, 180) ||
+                      "无正文"}
                   {e.blob ? ` · 附件：${e.fileName}` : ""}
                   {e.images?.length ? ` · ${e.images.length} 张项目图片` : ""}
                 </small>
                 <small>
-                  公开范围：此条所有已保存字段、正文及附件。请在资料阅读视图完整检查。
+                  公开范围：此条已保存正文、结构化资料和已引用附件。照片地点仅在单独勾选后包含。请在阅读视图或填写中心预览完整检查。
                 </small>
               </span>
             </label>
@@ -89,6 +93,10 @@ export function PublicationPanel({
           <p>还没有本地草稿。请先添加真实资料，再选择公开范围。</p>
         )}
       </div>
+      <p>
+        公开图片会重新编码并移除
+        EXIF；原图仍保留在本地备份。取消使用的旧头像与荣誉图片不会公开。照片地点默认不公开，只有资料编辑中明确勾选才会包含。
+      </p>
       <label className="review-consent">
         <input
           type="checkbox"

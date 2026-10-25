@@ -1,3 +1,9 @@
+import {
+  validateProfile,
+  emptyProjectDetails,
+  type StructuredProfile,
+  type ProjectDetails,
+} from "./profile.ts";
 import { appURL, sitePath } from "../site.ts";
 export const KINDS = ["notes", "photos", "projects", "resume"] as const;
 export type Kind = (typeof KINDS)[number];
@@ -50,6 +56,14 @@ export type Entry = {
   thumbnail?: Blob;
   images?: ImageAttachment[];
   resume?: ResumeSections;
+  structuredProfile?: StructuredProfile;
+  projectDetails?: ProjectDetails;
+  publicationStatus?: "draft" | "ready";
+  photoTakenAt?: string;
+  photoLocation?: string;
+  photoLocationPublic?: boolean;
+  isAlbumCover?: boolean;
+  coverImageId?: string;
 };
 export const MAX_FILE = 25 * 1024 * 1024;
 export const MAX_LIBRARY = 100 * 1024 * 1024;
@@ -155,11 +169,14 @@ export function validateEntry(value: unknown): Entry {
   }
   if (r.images !== undefined) {
     if (
-      r.kind !== "projects" ||
+      !["projects", "resume", "notes"].includes(r.kind as string) ||
       !Array.isArray(r.images) ||
-      r.images.length > 12
+      r.images.length >
+        (r.kind === "projects" ? 12 : r.kind === "notes" ? 1 : 50)
     )
-      throw new Error("项目最多保存 12 张图片");
+      throw new Error(
+        "图片数量或资料类型无效（项目 12 张、笔记 1 张、个人资料 50 张）",
+      );
     extra.images = r.images.map((v: Record<string, unknown>) => {
       if (
         !v ||
@@ -200,6 +217,50 @@ export function validateEntry(value: unknown): Entry {
       ]),
     ) as ResumeSections;
   }
+  if (r.publicationStatus !== undefined) {
+    if (!["draft", "ready"].includes(r.publicationStatus as string))
+      throw new Error("公开准备状态无效");
+    extra.publicationStatus = r.publicationStatus as "draft" | "ready";
+  }
+  for (const key of ["photoTakenAt", "photoLocation", "coverImageId"] as const)
+    if (r[key] !== undefined) extra[key] = text(r[key], 1000, key);
+  for (const key of ["photoLocationPublic", "isAlbumCover"] as const)
+    if (r[key] !== undefined) {
+      if (typeof r[key] !== "boolean") throw new Error("照片公开设置无效");
+      extra[key] = r[key];
+    }
+  if (r.projectDetails !== undefined) {
+    if (
+      r.kind !== "projects" ||
+      !r.projectDetails ||
+      typeof r.projectDetails !== "object"
+    )
+      throw new Error("项目详细资料无效");
+    extra.projectDetails = Object.fromEntries(
+      Object.keys(emptyProjectDetails()).map((k) => [
+        k,
+        text(
+          (r.projectDetails as Record<string, unknown>)[k] ?? "",
+          100_000,
+          k,
+        ),
+      ]),
+    ) as ProjectDetails;
+  }
+  if (r.structuredProfile !== undefined) {
+    if (r.kind !== "resume") throw new Error("个人介绍必须保存在履历资料中");
+    extra.structuredProfile = validateProfile(r.structuredProfile);
+  }
+  const mediaIds = new Set(extra.images?.map((i) => i.id) ?? []);
+  if (mediaIds.size !== (extra.images?.length ?? 0))
+    throw new Error("图片 ID 重复");
+  const refs = [
+    extra.coverImageId,
+    extra.structuredProfile?.about.avatarId,
+    ...(extra.structuredProfile?.awards.flatMap((a) => a.imageIds) ?? []),
+  ].filter(Boolean);
+  if (refs.some((ref) => !mediaIds.has(ref!)))
+    throw new Error("封面、头像或荣誉图片引用不存在");
   return {
     ...extra,
     id,
@@ -228,6 +289,10 @@ export function libraryBytes(entries: Entry[]) {
       ) ?? 0) +
       new TextEncoder().encode(
         JSON.stringify(e.resume ?? {}) +
+          JSON.stringify(e.structuredProfile ?? {}) +
+          JSON.stringify(e.projectDetails ?? {}) +
+          (e.photoLocation ?? "") +
+          (e.photoTakenAt ?? "") +
           (e.technology ?? "") +
           (e.category ?? "") +
           (e.album ?? ""),

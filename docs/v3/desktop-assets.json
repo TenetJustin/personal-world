@@ -1,0 +1,44 @@
+[
+  {
+    "file": "public/desktop-v3/lake-silk.svg",
+    "sha256": "9f7a1da3d59aa7ff50f76a43ca09711657cfcba6d27f34e92cb68b4ab7f13c12",
+    "bytes": 3005,
+    "source": "Original project SVG artwork; no Apple artwork copied",
+    "date": "2026-10-26"
+  },
+  {
+    "file": "public/desktop-v3/notes.svg",
+    "sha256": "b24fd437959aef78dfe32c2e3fbe3026b38e9bed687882a226f82bfb4f73d0cd",
+    "bytes": 827,
+    "source": "Original project SVG artwork; no Apple artwork copied",
+    "date": "2026-10-26"
+  },
+  {
+    "file": "public/desktop-v3/photos.svg",
+    "sha256": "ef8253fd8e7c78d52f077e6a66c9b1c522fe35bc92d0b44fa522fac8df548870",
+    "bytes": 977,
+    "source": "Original project SVG artwork; no Apple artwork copied",
+    "date": "2026-10-26"
+  },
+  {
+    "file": "public/desktop-v3/profile.svg",
+    "sha256": "41ab0e065eb9a48f7bcbefe9cefd6d00f01bfda65d3cb7d4b189702a0eaf356a",
+    "bytes": 868,
+    "source": "Original project SVG artwork; no Apple artwork copied",
+    "date": "2026-10-26"
+  },
+  {
+    "file": "public/desktop-v3/projects.svg",
+    "sha256": "4576dc72c1b9d8194baa8501622bc2fb21e9e7cf5e8802137d87a45b2e054d32",
+    "bytes": 840,
+    "source": "Original project SVG artwork; no Apple artwork copied",
+    "date": "2026-10-26"
+  },
+  {
+    "file": "public/desktop-v3/resume.svg",
+    "sha256": "ed73ee7e1f5c8b80853717aeaff2a5bce02f64a079089fa186280a9d8c80af7c",
+    "bytes": 830,
+    "source": "Original project SVG artwork; no Apple artwork copied",
+    "date": "2026-10-26"
+  }
+]

@@ -1,4 +1,5 @@
 import { readFile, readdir } from "node:fs/promises";
+import sharp from "sharp";
 import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 import { validatePublicPackage } from "./import_public_content.mjs";
@@ -53,6 +54,15 @@ export async function validatePublicContent(directory = "public/content") {
     const data = await readFile(resolve(root, path));
     if (createHash("sha256").update(data).digest("hex") !== match[1])
       throw new Error("Public attachment hash mismatch");
+    if (match[2] !== "pdf") {
+      const metadata = await sharp(data, {
+        limitInputPixels: 80_000_000,
+      }).metadata();
+      if (metadata.exif || metadata.xmp || metadata.iptc)
+        throw new Error(
+          "Public images must not contain EXIF/XMP/IPTC; re-import the reviewed package to remove private metadata",
+        );
+    }
     referenced.add(path);
     return `data:${mime[match[2]]};base64,${data.toString("base64")}`;
   };
