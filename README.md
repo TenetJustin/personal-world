@@ -6,6 +6,14 @@ Phase 01B 照片级精修保存点 `d85f349`，视觉问题仍保留，功能贯
 
 网站：**https://tenetjustin.github.io/personal-world/**。直接资料入口：**https://tenetjustin.github.io/personal-world/notes/**。部署与线上验证见 [发布回执](docs/sprint-v2/deployment-success.json)。
 
+## V3（进行中，独立分支）
+
+V3 接管、MacBook 模型、WASD/碰撞、双层木屋、桌面与资料中心的实现和验证记录见
+[`docs/v3/DEEPSEEK_HANDOFF.md`](docs/v3/DEEPSEEK_HANDOFF.md)；
+性能见 [`docs/v3/performance.md`](docs/v3/performance.md)，
+验证与截图见 [`docs/v3/verification.md`](docs/v3/verification.md)。
+V3 开发分支为 `feat/v3-deepseek-integration`，未合并 `main`。
+
 ## 本地运行
 
 ```sh
