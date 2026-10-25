@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-25T19:49:41.768Z",
+  "scope": "Local production build, tour view, 1440×900 CSS, DPR 1, standard quality, 2s warm-up + 15s collection, no recording tool running during the sample.",
+  "environment": {
+    "hardware": "MacBook Air Mac17,3 — Apple M5, 10 CPU / 10 GPU cores, 24 GB RAM",
+    "os": "macOS",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)"
+  },
+  "scene": "tour",
+  "autoGuideSeconds": 39.521,
+  "samples": 1861,
+  "durationSeconds": 39.015200000017884,
+  "averageFPS": 47.69935819883397,
+  "p50ms": 19.900000005960464,
+  "p95ms": 29,
+  "p99ms": 30.600000023841858,
+  "maxDrawCalls": 452,
+  "maxTriangles": 19707888,
+  "resourceEncodedBytes": 51989042,
+  "resourceTransferBytes": 51996574,
+  "geometryCount": 91,
+  "textureCount": 52,
+  "entryToFirstFrameMs": 1391.0999999940395,
+  "assetPreparationMs": 683.5999999940395,
+  "renderBuffer": {
+    "width": 1440,
+    "height": 900,
+    "cssWidth": 1440,
+    "cssHeight": 900
+  },
+  "assetStages": {
+    "/assets/cabin-interior-v3.glb": "decoded interior V3",
+    "assets/fir-full.glb": "decoded",
+    "assets/rocks.glb": "decoded",
+    "assets/grass-dense.glb": "decoded",
+    "assets/cabin-v3-shell.glb": "decoded",
+    "assets/cabin-door.glb": "decoded"
+  },
+  "screenProjection": {
+    "quad": [
+      [
+        657.3219684408593,
+        410.06851785604283
+      ],
+      [
+        782.6780315591395,
+        410.0685178560427
+      ],
+      [
+        781.5991490316687,
+        489.24413799307285
+      ],
+      [
+        658.4008509683298,
+        489.24413799307285
+      ]
+    ],
+    "width": 1440,
+    "height": 900,
+    "valid": true,
+    "maxCornerErrorPixels": 0
+  },
+  "errors": [],
+  "limitations": [
+    "Loopback loading is not public internet latency; caches were not purged.",
+    "Resource timing bytes include application resources, not GPU memory.",
+    "The page was headed with a real Metal GPU; other machines will differ."
+  ]
+}
