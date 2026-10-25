@@ -155,10 +155,15 @@ node scripts/check_pages_build.mjs /personal-world/
 6. 合并后务必在真实浏览器重测：`?debug=1` + `scripts/v3-measure.mjs --scene desk`，确认没有因其他改动引入额外 draw call。
 7. 发布前再次确认 `.github/workflows/pages.yml` 仍只从 `dev/phase-01-exterior` 构建，且 `VITE_BASE_PATH=/personal-world/`。
 
-## 8. 提交记录
+## 8. 提交记录与部署
 
 - `070ebec` recover(v3): preserve Codex feat/immersive-v3 working tree
-- 后续提交（集成、MacBook、碰撞修复、证据与文档）见 `git log --oneline`。
+- `8a70d8f` feat(v3): integrate desktop, profile centre, MacBook and WASD exploration
+- `b325403` test(v3): add real-browser screenshots, recordings and performance samples
+- `a533be1` docs(v3): handoff, verification matrix, measured performance and licences
+- 分支：`feat/v3-deepseek-integration`，已推送远端；同一提交快进到 `dev/phase-01-exterior` 并成功部署。
+- 线上：<https://tenetjustin.github.io/personal-world/>，工作流 #4 build/deploy 均 success；
+  线上无痕浏览器复核见 [`deployment.md`](./deployment.md)。
 
 ## 9. 下一步优先级
 
