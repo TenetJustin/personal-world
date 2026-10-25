@@ -2,11 +2,13 @@ import type { PerspectiveCamera, WebGLRenderer } from "three";
 export type Shot = "A" | "B";
 export const runtime = {
   ready: false,
+  assetStages: {} as Record<string, string>,
   progress: 0,
   moving: false,
   motion: false,
   quality: "standard" as "standard" | "high",
   requestedShot: null as Shot | null,
+  inspectionShot: null as "C" | "D" | "E" | null,
   moveTarget: null as number | null,
   camera: null as PerspectiveCamera | null,
   renderer: null as WebGLRenderer | null,
@@ -46,6 +48,14 @@ export const runtime = {
           }
         : null,
       quality: this.quality,
+      sceneRevision: "phase-01b-candidate",
+      reflectionPolicy: new URLSearchParams(location.search).has(
+        "fullReflection",
+      )
+        ? "full"
+        : "structural scene; micro-grass and nested glass transmission excluded",
+      spatialBatches: !new URLSearchParams(location.search).has("unbatched"),
+      assetStages: this.assetStages,
       samples: a.length,
       durationSeconds: sum / 1000,
       averageFPS: sum ? (a.length * 1000) / sum : null,

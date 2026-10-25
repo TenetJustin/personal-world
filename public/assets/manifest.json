@@ -1,5 +1,6 @@
 {
-  "generatedAt": "2026-10-25T07:50:37.946Z",
+  "generatedAt": "2026-10-25T12:59:39.807Z",
+  "sceneRevision": "phase-01b-candidate",
   "files": [
     {
       "file": "alps-background-4k.hdr",
@@ -26,13 +27,24 @@
       "sha256": "4315b29d32ab4c34b1d3d88f1947f3a9d1de4a5bbe00ab9534d284d10d137f48"
     },
     {
+      "file": "cabin-blockout.glb",
+      "sourceIds": [
+        "original-architecture-phase01b",
+        "rough_wood",
+        "rock_wall_02"
+      ],
+      "bytes": 1168528,
+      "sha256": "2bcab62cf4ae71f87caabd7f7a374d14d02d8559997b994e3361a8da91dd3011"
+    },
+    {
       "file": "cabin.glb",
       "sourceIds": [
-        "original-exterior",
-        "rough_wood"
+        "original-architecture-phase01b",
+        "rough_wood",
+        "rock_wall_02"
       ],
-      "bytes": 3758512,
-      "sha256": "be720f7e2c509f92d0e45beb53194c26875f420c217557ed2de1f6dfd1f05268"
+      "bytes": 13931876,
+      "sha256": "63520dbf8ef9d3d352a6247329bfa864b3ddb4857ecf83fd64872d9870982119"
     },
     {
       "file": "environment.json",
@@ -43,52 +55,58 @@
       "sha256": "2c05da7dcc290a26b4d547dd1f5c2e340825bfaa9631f197477e87ef6fee89c1"
     },
     {
-      "file": "fir-dimensions.json",
+      "file": "fir-full-dimensions.json",
       "sourceIds": [
+        "fir_tree_01_A",
         "fir_tree_01"
       ],
-      "bytes": 125,
-      "sha256": "a0927627386de216e3cb3afbb88f297a514d68e2c0f31b457e949f4567c55083"
+      "bytes": 123,
+      "sha256": "46546ca5a1c711c41e427d201ceeb4efd49e2dca19bdc36eb4bddda5161b3f26"
     },
     {
-      "file": "fir-impostor-0.png",
+      "file": "fir-full-impostor-0.png",
       "sourceIds": [
+        "fir_tree_01_A",
         "fir_tree_01"
       ],
-      "bytes": 392653,
-      "sha256": "aa3d08ff6223155e44e3a7d32ef8edab85bd85db1b0e36c013c7796785793e17"
+      "bytes": 456866,
+      "sha256": "d349105084bfb50fcbd7e930b9a1c7935080cf2aa96c0d6becea8d0fd5eac314"
     },
     {
-      "file": "fir-impostor-1.png",
+      "file": "fir-full-impostor-1.png",
       "sourceIds": [
+        "fir_tree_01_A",
         "fir_tree_01"
       ],
-      "bytes": 384301,
-      "sha256": "4ff4ccb6b38d6f748c77a654f3ce701735f3d244f01655b7e35c2847d425a369"
+      "bytes": 453866,
+      "sha256": "2ca14a64835f0b49f5dd1fbe33c6ae3b46c9c6d0b525564383f13b77fb06475f"
     },
     {
-      "file": "fir-impostor-2.png",
+      "file": "fir-full-impostor-2.png",
       "sourceIds": [
+        "fir_tree_01_A",
         "fir_tree_01"
       ],
-      "bytes": 372005,
-      "sha256": "da9edc505291ebc319b75a5117aa50dab5e1afa6f5086c86c409945b9ad863c2"
+      "bytes": 433223,
+      "sha256": "7e7ccb7ba723b4f7c93a3fd2ef7eb2288f34e023d8f5c5d0cbc1affc7bcfdb82"
     },
     {
-      "file": "fir-impostor-3.png",
+      "file": "fir-full-impostor-3.png",
       "sourceIds": [
+        "fir_tree_01_A",
         "fir_tree_01"
       ],
-      "bytes": 399185,
-      "sha256": "0e6f7ab27002f1bff24cea7af897faa03d1ae3d81218fe06243e886bdaedcab8"
+      "bytes": 422436,
+      "sha256": "273501982a9e9a8eebfe03904487b1c08f924236f7fa30e652a92bdbdaa00d86"
     },
     {
-      "file": "fir.glb",
+      "file": "fir-full.glb",
       "sourceIds": [
+        "fir_tree_01_A",
         "fir_tree_01"
       ],
-      "bytes": 11237516,
-      "sha256": "04342db62e315cea02a66660282b7f6560a5a7bc7807d6737cd589801bbd70f9"
+      "bytes": 4352056,
+      "sha256": "f8c248a2d2b255a4ce8abba4dc7040ae31dacb8b4153156f95179d9880deb393"
     },
     {
       "file": "forest-color.webp",
@@ -99,36 +117,36 @@
       "sha256": "a93830705b9f736478e48f8da5ce071710a678c9386f75b40dc2181bf78adb8d"
     },
     {
-      "file": "grass-color.webp",
-      "sourceIds": [
-        "aerial_grass_rock"
-      ],
-      "bytes": 1298044,
-      "sha256": "6e18b8a6e8ce1a60d1289333422d108f7e4fb3eda84c37ab23aad7408d65ddda"
-    },
-    {
-      "file": "grass-normal.webp",
-      "sourceIds": [
-        "aerial_grass_rock"
-      ],
-      "bytes": 2014738,
-      "sha256": "558b488baca83c2b71df0d73570428c025daa42817fd71697e0c659e390ed0a0"
-    },
-    {
-      "file": "grass-rough.webp",
-      "sourceIds": [
-        "aerial_grass_rock"
-      ],
-      "bytes": 1294388,
-      "sha256": "85e9e6b7f7b19c5e9917c98d7b403bfd0331df76f8540d64e0e482b12ad0de4a"
-    },
-    {
-      "file": "grass.glb",
+      "file": "grass-dense.glb",
       "sourceIds": [
         "grass_medium_01"
       ],
-      "bytes": 1039640,
-      "sha256": "c381c7c849f9d3feb69d25376ea5f42bcd8675a9c13a30203f9641a6467729b0"
+      "bytes": 1352916,
+      "sha256": "efda6675860f0652f32c3dcbdbc0f59dfbc30f6f14ec42e12f8f21bb2e271283"
+    },
+    {
+      "file": "meadow-color.webp",
+      "sourceIds": [
+        "grass_ground"
+      ],
+      "bytes": 1606528,
+      "sha256": "13b74ce2ac6ed5bfa418c5c7449c6961bea16fdfc1f0b56f7dd52b224169f091"
+    },
+    {
+      "file": "meadow-normal.webp",
+      "sourceIds": [
+        "grass_ground"
+      ],
+      "bytes": 2971772,
+      "sha256": "0049fb9aab81ef49541387ab91096833377f2ed27c631db2c66e42e1c8184478"
+    },
+    {
+      "file": "meadow-rough.webp",
+      "sourceIds": [
+        "grass_ground"
+      ],
+      "bytes": 335118,
+      "sha256": "d1eb2d3bfe6bba9e0be1f2d427c97410b4c1cc99064265071a9a1e26628d1962"
     },
     {
       "file": "rocks.glb",

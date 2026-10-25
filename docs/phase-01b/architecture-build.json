@@ -1,0 +1,43 @@
+{
+  "blender": "5.2.2 LTS",
+  "blockout": false,
+  "master": "assets/architecture/cabin-phase01b.blend",
+  "editableMeshObjects": 2453,
+  "collections": [
+    "01 / log shell",
+    "02 / gable ends",
+    "03 / floor and framing",
+    "04 / doors and windows",
+    "05 / main roof",
+    "06 / dormers",
+    "07 / porch roof",
+    "08 / porch structure",
+    "09 / masonry",
+    "10 / rails and stairs",
+    "11 / exterior details",
+    "12 / anchors",
+    "13 / browser reference cameras"
+  ],
+  "footprintMeters": [
+    12,
+    9
+  ],
+  "wallThicknessMeters": 0.28,
+  "floorLevelsMeters": [
+    1.35,
+    4.25
+  ],
+  "eaveMeters": 5.1,
+  "ridgeMeters": 8.5,
+  "chimneyHeightMeters": 9.44,
+  "dormerCount": 2,
+  "worldPlacement": {
+    "position": [
+      8,
+      0,
+      -3
+    ],
+    "rotationYDegrees": -35
+  },
+  "notes": "No interior set; structural floor slabs reserve future interior. Real openings; removable named closed door."
+}

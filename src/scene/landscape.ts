@@ -13,20 +13,39 @@ export function landDistance(x: number, z: number) {
     Math.abs(z + 10) - 130 + 0.0006 * (x + 100) ** 2,
   );
 }
+export function cabinLocal(x: number, z: number) {
+  const a = (-35 * Math.PI) / 180,
+    dx = x - 8,
+    dz = z + 3;
+  return {
+    x: Math.cos(a) * dx - Math.sin(a) * dz,
+    z: Math.sin(a) * dx + Math.cos(a) * dz,
+  };
+}
 export function groundHeight(x: number, z: number) {
   const d = landDistance(x, z);
-  const n =
-    Math.sin(x * 0.21 + Math.sin(z * 0.11)) * Math.cos(z * 0.17) * 0.12 +
-    Math.sin(x * 0.91 + z * 0.71) * 0.016;
-  let h = -4.1 + 4.72 * smooth(-10, 7, d) + n * smooth(-3, 4, d);
-  const pad = 1 - smooth(5, 8, Math.max(Math.abs(x), Math.abs(z) * 1.1));
-  h = h * (1 - pad) + 0.65 * pad;
+  const relief =
+    0.22 * Math.sin(x * 0.16 + Math.sin(z * 0.09)) * Math.cos(z * 0.12) +
+    0.13 * Math.sin(z * 0.31 + x * 0.12) +
+    0.035 * Math.sin(x * 1.7 + z * 0.95);
+  let h = -4.1 + 4.72 * smooth(-10, 7, d) + relief * smooth(3, 10, d);
+  h +=
+    0.6 * Math.exp(-((x - 19) ** 2 + (z - 22) ** 2) / 180) * smooth(6, 14, d);
+  const local = cabinLocal(x, z);
+  const pad =
+    1 - smooth(5.5, 9.0, Math.max(Math.abs(local.x) * 0.72, Math.abs(local.z)));
+  h = h * (1 - pad) + (0.64 + 0.008 * (x - 8) - 0.008 * (z + 3)) * pad;
   if (z < -25)
-    h += smooth(-25, -140, z) * (4.5 + 3 * Math.sin(x * 0.025 + z * 0.01)); // terrain stays local; distant relief is a separate layer.
+    h +=
+      smooth(-25, -180, z) *
+      (9 +
+        7 * Math.sin(x * 0.022 + z * 0.013) +
+        4 * Math.sin(x * 0.041 - z * 0.018)) *
+      smooth(6, 30, d);
   return h;
 }
 export function pathX(z: number) {
-  return 0.34 * z + 2;
+  return 8.5 + 3.6 * Math.sin((z - 15) * 0.065);
 }
 export function random(seed = 713) {
   let s = seed >>> 0;
@@ -39,15 +58,32 @@ export const SHOTS = {
   A: {
     id: "S01",
     name: "湖岸远望",
-    position: [6, 2.6, 34] as const,
-    target: [-8, 4.0, 0] as const,
+    position: [6, 2.8, 43] as const,
+    target: [-3, 4.0, -3] as const,
     fov: 48,
   },
   B: {
     id: "S02",
-    name: "接近木屋",
-    position: [7.8, 2.3, 11.8] as const,
-    target: [0, 2.7, 0.2] as const,
-    fov: 47,
+    name: "侧前方接近",
+    position: [15, 3.2, 20] as const,
+    target: [7, 4.1, -3] as const,
+    fov: 48,
+  },
+};
+export const INSPECTION_SHOTS = {
+  C: {
+    position: [-12, 4.0, 16] as const,
+    target: [8, 4.2, -3] as const,
+    fov: 48,
+  },
+  D: {
+    position: [31, 4.8, -1] as const,
+    target: [8, 4.0, -3] as const,
+    fov: 48,
+  },
+  E: {
+    position: [3, 5.0, -29] as const,
+    target: [8, 4.1, -3] as const,
+    fov: 48,
   },
 };

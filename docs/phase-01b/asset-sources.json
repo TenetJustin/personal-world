@@ -1,0 +1,82 @@
+[
+  {
+    "id": "rock_wall_02",
+    "source": "https://polyhaven.com/a/rock_wall_02",
+    "authors": {
+      "Rob Tuytel": "All"
+    },
+    "license": "CC0-1.0",
+    "licenseURL": "https://polyhaven.com/license",
+    "retrievedAt": "2026-10-25",
+    "processing": "PBR texture input, no baked directional shadows added",
+    "files": [
+      {
+        "path": "Diffuse.jpg",
+        "sourceURL": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rock_wall_02/rock_wall_02_diff_2k.jpg",
+        "sha256": "55aa5fd7f309501aeb343a9bbdff09a2643b9c012521452878e76ddc6dffe8ef"
+      },
+      {
+        "path": "nor_gl.jpg",
+        "sourceURL": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rock_wall_02/rock_wall_02_nor_gl_2k.jpg",
+        "sha256": "ef5d7df77085827dc68cffeaf1e417185358f303dd5c11a99cf039b49f8e8ef6"
+      },
+      {
+        "path": "Rough.jpg",
+        "sourceURL": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rock_wall_02/rock_wall_02_rough_2k.jpg",
+        "sha256": "ac6a30dad0325495819b63b87bfd160d499d4c567686be6f268ba24a81722e2c"
+      }
+    ]
+  },
+  {
+    "id": "fir_tree_01_A",
+    "source": "https://polyhaven.com/a/fir_tree_01",
+    "authors": {
+      "Rob Tuytel": "photography",
+      "Rico Cilliers": "modeling"
+    },
+    "license": "CC0-1.0",
+    "licenseURL": "https://polyhaven.com/license",
+    "retrievedAt": "2026-10-25",
+    "processing": "Variant A full crown; original GLTF byte range, existing common source textures.",
+    "files": [
+      {
+        "path": "selected-A.bin",
+        "sourceURL": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/fir_tree_01/fir_tree_01.bin",
+        "byteRange": [
+          0,
+          288330239
+        ],
+        "sha256": "a1ccd7f0e1fb39120fabd0cb0992397ab7f11146a30550413f4f4177a39e3ef1",
+        "fullSourceMD5": "26d2bf6d4d2e32d3524e8fa3760f643f"
+      }
+    ]
+  },
+  {
+    "id": "grass_ground",
+    "source": "https://polyhaven.com/a/grass_ground",
+    "authors": {
+      "Charlotte Baglioni": "All"
+    },
+    "license": "CC0-1.0",
+    "licenseURL": "https://polyhaven.com/license",
+    "retrievedAt": "2026-10-25",
+    "processing": "PBR texture input, no baked directional shadows added",
+    "files": [
+      {
+        "path": "Diffuse.jpg",
+        "sourceURL": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/grass_ground/grass_ground_diff_2k.jpg",
+        "sha256": "4272bddc71a7fa659d1deeb13a9df8c42e68a5ac8cde7523187e4a081e028258"
+      },
+      {
+        "path": "nor_gl.jpg",
+        "sourceURL": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/grass_ground/grass_ground_nor_gl_2k.jpg",
+        "sha256": "effa95c06af273c974476d9a74a234668a1c9292f60fffb4fa40348d638ee7f3"
+      },
+      {
+        "path": "Rough.jpg",
+        "sourceURL": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/grass_ground/grass_ground_rough_2k.jpg",
+        "sha256": "afaed95537e894b8054db38c81712a6d9504b05b560274526621d91d5a95fbe7"
+      }
+    ]
+  }
+]

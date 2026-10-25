@@ -9,7 +9,10 @@ test("every shipped asset has a matching hash and an explicit licensed or origin
   const sources = JSON.parse(
     await readFile("docs/phase-01/asset-sources.json", "utf8"),
   );
+  const extraSources = JSON.parse(await readFile("docs/phase-01b/asset-sources.json","utf8"));
   const ids = new Set([
+    "original-architecture-phase01b",
+    ...extraSources.map((s: {id: string})=>s.id),
     "original-exterior",
     ...sources.map((s: { id: string }) => s.id),
   ]);

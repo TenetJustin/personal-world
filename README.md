@@ -73,3 +73,9 @@ npm run dev
 - [性能原始数据与技术测试证据](docs/phase-01/tests/)
 
 开发检查：`npm test`、`npm run build`。从源资产重新制作需 Blender 5.2.2，正常浏览器启动只需 Node 与 Git LFS 中的运行资产。制作母版在本机忽略目录中，不声称已经云端备份；详见 [仓库与存储策略](docs/Repository_Policy.md)。
+
+## 当前优先级 · 完整 MVP
+
+2026-10-25 用户已批准贯通全部后续 Phase，暂缓照片级画质门禁。Phase 01B 的建筑和环境候选保存于 [保存点](docs/phase-01b/STATUS.md)，其视觉问题作为后续 backlog，不阻挡资料功能。
+
+MVP 优先支持浏览器本地的真实 Notes、Photos、Projects、Resume，以及导入、编辑、浏览和备份；不开发账户 / 云同步。继续保持 Private，不合并 main，不公开部署。

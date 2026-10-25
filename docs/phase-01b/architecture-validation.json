@@ -1,0 +1,96 @@
+{
+  "status": "PASS",
+  "blender": "5.2.2 LTS",
+  "metersPerUnit": 1,
+  "openingProbes": [
+    {
+      "opening": "front window L",
+      "structuralWallProbe": "PASS",
+      "localOrigin": [
+        -3.8,
+        -4.95,
+        2.9
+      ],
+      "localDirection": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "opening": "front window R",
+      "structuralWallProbe": "PASS",
+      "localOrigin": [
+        3.7,
+        -4.95,
+        2.9
+      ],
+      "localDirection": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "opening": "entry",
+      "structuralWallProbe": "PASS",
+      "localOrigin": [
+        1.11,
+        -4.95,
+        2.5
+      ],
+      "localDirection": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "opening": "side window front",
+      "structuralWallProbe": "PASS",
+      "localOrigin": [
+        6.4,
+        -1.65,
+        2.9
+      ],
+      "localDirection": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "opening": "side window rear",
+      "structuralWallProbe": "PASS",
+      "localOrigin": [
+        6.4,
+        1.8,
+        2.9
+      ],
+      "localDirection": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "opening": "upper gable",
+      "structuralWallProbe": "PASS",
+      "localOrigin": [
+        6.4,
+        -2.0,
+        5.95
+      ],
+      "localDirection": [
+        -1,
+        0,
+        0
+      ]
+    }
+  ],
+  "gableLogsUnderRoof": true,
+  "packedTextureCount": 6,
+  "glassMetalness": 0,
+  "glassTransmission": 1.0,
+  "scope": "Structural and packaging verification only; not human visual approval."
+}

@@ -1,0 +1,20 @@
+{
+  "blender": "5.2.2 LTS",
+  "method": "Full source crown occupancy sampled into crossed scanned-twig clusters; trunk-only decimation. Near trees are 3D foliage volumes, not whole-tree billboards.",
+  "lods": [
+    {
+      "name": "fir_full_near",
+      "voxelMeters": 0.28,
+      "sourceOccupiedCells": 6057,
+      "foliageTriangles": 36342,
+      "woodyTriangles": 49814
+    },
+    {
+      "name": "fir_full_mid",
+      "voxelMeters": 0.48,
+      "sourceOccupiedCells": 1764,
+      "foliageTriangles": 10584,
+      "woodyTriangles": 17711
+    }
+  ]
+}

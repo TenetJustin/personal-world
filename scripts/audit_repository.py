@@ -1,5 +1,5 @@
 from pathlib import Path
-import subprocess,json,re
+import subprocess,json,re,sys
 root=Path(__file__).resolve().parents[1]
 files=[f for f in subprocess.check_output(['git','diff','--cached','--name-only','-z'],cwd=root).decode().split('\0')if f]
 assert files,'Nothing staged; cannot claim the staging audit passed'
@@ -8,10 +8,11 @@ patterns=[rb'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----',rb'\bghp_[A-Za-z
 hits=[]
 for f in files:
  if Path(f).suffix.lower() not in ['.md','.ts','.tsx','.js','.json','.py','.html','.css','.mjs','.txt']:continue
+ if not (root/f).exists():continue
  b=(root/f).read_bytes()
  if any(re.search(p,b)for p in patterns):hits.append(f)
 assert not forbidden and not hits,(forbidden,hits)
 assert subprocess.check_output(['git','branch','--show-current'],cwd=root).decode().strip()=='dev/phase-01-exterior'
 assert not subprocess.check_output(['git','diff','819f15b6a1fdf8c9eb0ad377e357dcd36f825b51','--','docs/planning'],cwd=root)
 r={'date':'2026-10-25','checkedStagedFiles':len(files),'forbiddenPaths':forbidden,'credentialPatternMatches':hits,'phase00PlanningChanged':False,'branch':'dev/phase-01-exterior','note':'Explicit staging, ignore, license manifest and local-only runtime also checked. Pattern scanning is not a mathematical guarantee.'}
-(root/'docs/phase-01/tests/repository-safety.json').write_text(json.dumps(r,indent=2)+'\n');print(r)
+(root/(sys.argv[1] if len(sys.argv)>1 else 'docs/phase-01/tests/repository-safety.json')).write_text(json.dumps(r,indent=2)+'\n');print(r)

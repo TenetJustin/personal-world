@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { createCameraPath } from "./cameraPath";
 import { buildWorld } from "./World";
-import { SHOTS, clamp } from "./landscape";
+import { SHOTS, INSPECTION_SHOTS, clamp } from "./landscape";
 import { runtime } from "./runtime";
 
 function Stage() {
@@ -23,6 +23,8 @@ function Stage() {
     let resource: typeof world.current = null;
     runtime.renderer = gl;
     runtime.camera = camera as THREE.PerspectiveCamera;
+    camera.layers.enable(1);
+    camera.layers.enable(2);
     gl.info.autoReset = false;
     gl.toneMapping = THREE.AgXToneMapping;
     gl.toneMappingExposure = 1.0;
@@ -41,6 +43,7 @@ function Stage() {
         runtime.ready = true;
         const s = new URLSearchParams(location.search).get("shot");
         runtime.requestedShot = s === "B" ? "B" : "A";
+        if (s === "C" || s === "D" || s === "E") runtime.inspectionShot = s;
         setReady(true);
       })
       .catch((e) => {
@@ -100,11 +103,19 @@ function Stage() {
       if (t === 1) runtime.moving = false;
     }
     const t = runtime.progress;
+    const inspection = runtime.inspectionShot
+      ? INSPECTION_SHOTS[runtime.inspectionShot]
+      : null;
     path.current.getPointAt(t, point.current);
     look.current.lerpVectors(lookA.current, lookB.current, t);
+    if (inspection) {
+      point.current.fromArray(inspection.position);
+      look.current.fromArray(inspection.target);
+    }
     cam.position.copy(point.current);
     cam.lookAt(look.current);
-    cam.fov = THREE.MathUtils.lerp(SHOTS.A.fov, SHOTS.B.fov, t);
+    cam.fov =
+      inspection?.fov ?? THREE.MathUtils.lerp(SHOTS.A.fov, SHOTS.B.fov, t);
     cam.near = 0.1;
     cam.far = 3000;
     cam.updateProjectionMatrix();
@@ -132,8 +143,11 @@ function Stage() {
     lastFrame.current = now;
     if (runtime.captureRequested) {
       runtime.captureRequested = false;
-      runtime.captureName =
-        t < 0.5 ? "S01-lakeshore.png" : "S02-cabin-approach.png";
+      runtime.captureName = runtime.inspectionShot
+        ? `cabin-angle-${runtime.inspectionShot}.png`
+        : t < 0.5
+          ? "S01-lakeshore.png"
+          : "S02-cabin-approach.png";
       runtime.captureURL = gl.domElement.toDataURL("image/png");
       window.dispatchEvent(new Event("capture-ready"));
     }

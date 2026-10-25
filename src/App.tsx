@@ -77,6 +77,7 @@ export default function App() {
       setError("此浏览器不支持画布录屏，请使用桌面 Chromium。");
       return;
     }
+    runtime.inspectionShot = null;
     runtime.requestedShot = "A";
     runtime.motion = true;
     setFilming(true);
@@ -102,7 +103,11 @@ export default function App() {
       const url = URL.createObjectURL(blob);
       runtime.videoURL = url;
       runtime.videoMime = rec.mimeType;
-      setVideo(url);
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (mounted.current) setVideo(String(reader.result));
+      };
+      reader.readAsDataURL(blob);
       setFilming(false);
     };
     const start = window.setTimeout(() => {
@@ -125,7 +130,7 @@ export default function App() {
       </div>
       <header>
         <a href="/" className="wordmark">
-          NORDIC RETREAT<span>EXTERIOR STUDY · 01</span>
+          NORDIC RETREAT<span>ARCHITECTURAL STUDY · 01B</span>
         </a>
         <div className="chapter">A PRIVATE WORLD, IN PROGRESS</div>
         <button
@@ -173,6 +178,7 @@ export default function App() {
           <button
             disabled={!ready || filming}
             onClick={() => {
+              runtime.inspectionShot = null;
               runtime.requestedShot = "A";
             }}
           >
@@ -181,6 +187,7 @@ export default function App() {
           <button
             disabled={!ready || filming}
             onClick={() => {
+              runtime.inspectionShot = null;
               runtime.requestedShot = "B";
             }}
           >
@@ -190,6 +197,7 @@ export default function App() {
             className="primary"
             disabled={!ready || filming}
             onClick={() => {
+              runtime.inspectionShot = null;
               runtime.motion = !runtime.reducedMotion;
               runtime.moveTarget = runtime.progress > 0.9 ? 0 : 1;
             }}
@@ -205,7 +213,7 @@ export default function App() {
       </footer>
       {tools ? (
         <aside className="tools">
-          <h2>Phase 01 · 证据工具</h2>
+          <h2>Phase 01B · 证据工具</h2>
           <p>
             视觉状态：等待人工验收。性能与画质分开判断。
             {runtime.reducedMotion
@@ -272,6 +280,20 @@ export default function App() {
             >
               导出固定相机参数
             </button>
+          </div>
+          <div className="grid">
+            {(["C", "D", "E"] as const).map((id) => (
+              <button
+                key={id}
+                disabled={!ready || filming}
+                onClick={() => {
+                  runtime.moving = false;
+                  runtime.inspectionShot = id;
+                }}
+              >
+                建筑角度 {id}
+              </button>
+            ))}
           </div>
           <pre id="measurements">
             {JSON.stringify(

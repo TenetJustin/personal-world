@@ -10,7 +10,9 @@
     "test": "node --test tests/*.test.ts",
     "assets:fetch": "python3 scripts/fetch_assets.py",
     "assets:build": "node scripts/build_runtime_assets.mjs",
-    "format": "prettier --write src tests scripts/*.mjs vite.config.ts"
+    "format": "prettier --write src tests scripts/*.mjs vite.config.ts",
+    "assets:fetch:phase01b": "python3 scripts/fetch_assets_phase01b.py",
+    "assets:phase01b": "node scripts/build_phase01b.mjs"
   },
   "dependencies": {
     "@react-three/fiber": "9.4.0",

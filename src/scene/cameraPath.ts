@@ -4,8 +4,8 @@ export function createCameraPath() {
   return new CatmullRomCurve3(
     [
       new Vector3(...SHOTS.A.position),
-      new Vector3(7.8, 2.5, 27),
-      new Vector3(9.5, 2.3, 20),
+      new Vector3(9.0, 2.7, 33),
+      new Vector3(13.0, 2.8, 27),
       new Vector3(...SHOTS.B.position),
     ],
     false,
@@ -13,12 +13,13 @@ export function createCameraPath() {
   );
 }
 export const NEAR_TREE_BASES = [
-  { x: 10, z: -12 },
-  { x: -8, z: -14 },
-  { x: 17, z: 9 },
-  { x: 16, z: 33 },
-  { x: 4, z: -21 },
-  { x: 20, z: -8 },
-  { x: 13, z: 25 },
-  { x: 25, z: 15 },
+  { x: 23, z: 29 },
+  { x: 31, z: 18 },
+  { x: 28, z: -13 },
+  { x: 5, z: -23 },
+  { x: -1, z: -19 },
+  { x: 19, z: -22 },
+  { x: 40, z: -8 },
+  { x: 35, z: 36 },
+  { x: 2, z: 58 },
 ];

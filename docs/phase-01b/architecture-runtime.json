@@ -1,0 +1,64 @@
+{
+  "file": "public/assets/cabin.glb",
+  "bytes": 13931876,
+  "materials": [
+    "06 / blackened hardware",
+    "07 / recessed lime mortar",
+    "04 / natural granite masonry",
+    "01 / warm weathered pine",
+    "02 / oiled timber joinery",
+    "03 / charcoal standing-seam zinc",
+    "05 / architectural clear glass - nonmetal"
+  ],
+  "meshes": 7,
+  "textures": [
+    {
+      "name": "nor_gl",
+      "size": [
+        2048,
+        2048
+      ],
+      "mime": "image/webp"
+    },
+    {
+      "name": "rock_wall_02-graded",
+      "size": [
+        2048,
+        2048
+      ],
+      "mime": "image/webp"
+    },
+    {
+      "name": "Rough",
+      "size": [
+        2048,
+        2048
+      ],
+      "mime": "image/webp"
+    },
+    {
+      "name": "nor_gl",
+      "size": [
+        2048,
+        2048
+      ],
+      "mime": "image/webp"
+    },
+    {
+      "name": "rough_wood-graded",
+      "size": [
+        2048,
+        2048
+      ],
+      "mime": "image/webp"
+    },
+    {
+      "name": "Rough",
+      "size": [
+        2048,
+        2048
+      ],
+      "mime": "image/webp"
+    }
+  ]
+}
