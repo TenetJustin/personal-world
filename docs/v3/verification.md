@@ -38,7 +38,8 @@
 | 天气 Widget | PASS（占位）：显示 “—° / 未连接天气服务”，不编造天气 | `v3-desktop.png` |
 | 日历 Widget | PASS：使用本地真实日期，可翻月，无虚构日程 | `v3-desktop.png` |
 | 个人资料保存 | PASS：保存后刷新仍读取“林岸 / 环境视觉与交互开发者” | 浏览器采样 |
-| 完整备份导出 | PASS：下载 JSON 含 `structuredProfile.about`，格式 `records` | 浏览器采样 |
+| 完整备份导出 | PASS：下载 JSON 含 `structuredProfile.about`，格式 `records`；文件名为访客本地日期 | 浏览器采样 |
+| 备份恢复（全新浏览器） | PASS：全新上下文导入备份 → 预览 1 项 → 合并恢复 → 名称/身份恢复，本地字段保留 | 浏览器采样 |
 | 公开内容安全 | PASS：`validate_public_content.mjs` 只含 1 条原创说明，无私人备份 | 命令输出 |
 | Pages 子路径构建 | PASS：`check_pages_build.mjs /personal-world/` 5 个静态入口、LFS 与 PDF 资源齐全 | 命令输出 |
 | 旧数据兼容 | PASS：v1/v2 备份恢复测试 | `tests/library.test.ts`、`tests/profile.test.ts` |
