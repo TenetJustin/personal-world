@@ -20,6 +20,6 @@
 
 ## 录制说明
 
-`outputs/sprint-v2/webgl-continuous.webm` 是实际浏览器 Canvas captureStream/MediaRecorder 连续100秒原始录制，包含五秒等待、三个观察瞬间与抵达等待；没有离线渲染、补帧或生成图。MP4为便于播放的转码。
+`outputs/sprint-v2/webgl-continuous.webm` 是实际浏览器 Canvas captureStream/MediaRecorder 连续录制100秒（编码98.54秒、2918帧、约29.61fps）的原始录制，包含五秒等待、三个观察瞬间与抵达等待；没有离线渲染、补帧或生成图。MP4为便于播放的转码。
 
 `first-person-browser.mp4` 是真实完整浏览器视口采集，涵盖主动点击 Mac、DOM 资料阅读和退出。采集968张画面，保留真实时间间隔；中位采样约10.2fps，工具调用间有停帧，最大19.31s间隔出现在操作/桌面阶段。不是原生30fps整页录屏，因此不以此单独判定微小闪烁或流畅度。连续画布录制补充完整步行过程。原生标签页捕获授权因无法确认选定目标被自动审批拒绝，未捕获其他应用或整个屏幕。

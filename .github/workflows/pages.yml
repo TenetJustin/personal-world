@@ -3,6 +3,7 @@ name: Build and deploy Personal World
 on:
   push:
     branches: [dev/phase-01-exterior]
+    paths-ignore: ["docs/**", "README.md"]
   workflow_dispatch:
 
 permissions:
