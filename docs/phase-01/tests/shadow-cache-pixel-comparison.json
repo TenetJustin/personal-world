@@ -1,0 +1,21 @@
+{
+  "comparisons": [
+    {
+      "shot": "A",
+      "beforeSHA256": "6c8a752fc4556f5f9e1ae92331539fc5d8036ca4f24656bd7e2ee405d4c02268",
+      "afterSHA256": "6c8a752fc4556f5f9e1ae92331539fc5d8036ca4f24656bd7e2ee405d4c02268",
+      "changedChannels": 0,
+      "totalChannels": 5184000,
+      "maximumChannelDelta": 0,
+      "description": "Actual browser screenshots at identical camera and animation time zero; only shadow update policy changed."
+    },
+    {
+      "shot": "B",
+      "beforeSHA256": "66a95972a41399dce5c333c83af9276bf6e1cde196d259a75108661e217d1e3c",
+      "afterSHA256": "66a95972a41399dce5c333c83af9276bf6e1cde196d259a75108661e217d1e3c",
+      "changedChannels": 0,
+      "totalChannels": 5184000,
+      "maximumChannelDelta": 0
+    }
+  ]
+}

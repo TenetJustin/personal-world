@@ -1,0 +1,37 @@
+{
+  "originalWebM": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "vp9",
+        "width": 1440,
+        "height": 900,
+        "avg_frame_rate": "0/0",
+        "nb_read_frames": "433"
+      }
+    ],
+    "format": {
+      "size": "18444645"
+    }
+  },
+  "reviewMP4": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1440,
+        "height": 900,
+        "avg_frame_rate": "433000/14467",
+        "nb_frames": "433"
+      }
+    ],
+    "format": {
+      "duration": "14.458000",
+      "size": "27188498"
+    }
+  },
+  "capture": "Actual browser canvas.captureStream(30), VP9 requested 10Mbps, no microphone or offline render",
+  "reviewTranscode": "ffmpeg libx264 CRF18, original timestamps; not a new scene render"
+}

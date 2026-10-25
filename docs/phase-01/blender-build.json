@@ -1,0 +1,33 @@
+{
+  "blender": "5.2.2 LTS",
+  "assets": [
+    {
+      "file": "fir.glb",
+      "sourceTriangles": 184505,
+      "objects": 2,
+      "bytes": 27112524,
+      "sha256": "73c8078a5b7505def8385ad483a2dacb401f1e2fee975c340becfdba13b4ab73"
+    },
+    {
+      "file": "rocks.glb",
+      "sourceTriangles": 63127,
+      "objects": 6,
+      "bytes": 1793312,
+      "sha256": "8d19d2be90aca5821da355980813df87aef8a230c76003d2c5055e1e9f2bb56c"
+    },
+    {
+      "file": "grass.glb",
+      "sourceTriangles": 1894,
+      "objects": 10,
+      "bytes": 2572252,
+      "sha256": "123dc90b874b45b21c20155b1aa1fc0fda7bea50a12d09b2098c8c62007d8907"
+    },
+    {
+      "file": "cabin.glb",
+      "sourceTriangles": 65588,
+      "objects": 1,
+      "bytes": 7843488,
+      "sha256": "28e04524158285dfc463976d5ae15cc761fe10a49dffb7716007d22d9744719b"
+    }
+  ]
+}

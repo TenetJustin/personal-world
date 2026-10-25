@@ -1,0 +1,55 @@
+{
+  "units": "metres",
+  "up": "Y",
+  "renderer": "Three.js WebGL2 / AgX / sRGB",
+  "resolution": [
+    1440,
+    900
+  ],
+  "quality": "high; benchmark DPR=1",
+  "animationSeconds": 0,
+  "toneMappingExposure": 1.0,
+  "sun": "source HDR brightest point; rotation 0",
+  "A": {
+    "position": [
+      6,
+      2.6,
+      34
+    ],
+    "quaternion": [
+      0.01866542168484587,
+      0.19402916346841456,
+      -0.0036924905401721215,
+      0.9808112210158919
+    ],
+    "fov": 48,
+    "near": 0.1,
+    "far": 3000,
+    "target": [
+      -8,
+      4,
+      0
+    ]
+  },
+  "B": {
+    "position": [
+      7.799999999999998,
+      2.3000000000000003,
+      11.800000000000002
+    ],
+    "quaternion": [
+      0.013681265660251274,
+      0.29165272106856865,
+      -0.004172005499655864,
+      0.9564173292205366
+    ],
+    "fov": 47,
+    "near": 0.1,
+    "far": 3000,
+    "target": [
+      0,
+      2.7,
+      0.2
+    ]
+  }
+}

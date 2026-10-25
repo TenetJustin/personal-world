@@ -1,0 +1,142 @@
+{
+  "generatedAt": "2026-10-25T07:50:37.946Z",
+  "files": [
+    {
+      "file": "alps-background-4k.hdr",
+      "sourceIds": [
+        "alps_field"
+      ],
+      "bytes": 26520861,
+      "sha256": "53a70291504177b47faf8a4dc598876e47740953d2cbc9af000d3a17095b9d42"
+    },
+    {
+      "file": "alps-background.hdr",
+      "sourceIds": [
+        "alps_field"
+      ],
+      "bytes": 6531494,
+      "sha256": "90ef5a4e0c46d0177a06406b59142a6bb426176a85c195fa23d2e443383a9e12"
+    },
+    {
+      "file": "alps-lighting.hdr",
+      "sourceIds": [
+        "alps_field"
+      ],
+      "bytes": 410107,
+      "sha256": "4315b29d32ab4c34b1d3d88f1947f3a9d1de4a5bbe00ab9534d284d10d137f48"
+    },
+    {
+      "file": "cabin.glb",
+      "sourceIds": [
+        "original-exterior",
+        "rough_wood"
+      ],
+      "bytes": 3758512,
+      "sha256": "be720f7e2c509f92d0e45beb53194c26875f420c217557ed2de1f6dfd1f05268"
+    },
+    {
+      "file": "environment.json",
+      "sourceIds": [
+        "alps_field"
+      ],
+      "bytes": 68,
+      "sha256": "2c05da7dcc290a26b4d547dd1f5c2e340825bfaa9631f197477e87ef6fee89c1"
+    },
+    {
+      "file": "fir-dimensions.json",
+      "sourceIds": [
+        "fir_tree_01"
+      ],
+      "bytes": 125,
+      "sha256": "a0927627386de216e3cb3afbb88f297a514d68e2c0f31b457e949f4567c55083"
+    },
+    {
+      "file": "fir-impostor-0.png",
+      "sourceIds": [
+        "fir_tree_01"
+      ],
+      "bytes": 392653,
+      "sha256": "aa3d08ff6223155e44e3a7d32ef8edab85bd85db1b0e36c013c7796785793e17"
+    },
+    {
+      "file": "fir-impostor-1.png",
+      "sourceIds": [
+        "fir_tree_01"
+      ],
+      "bytes": 384301,
+      "sha256": "4ff4ccb6b38d6f748c77a654f3ce701735f3d244f01655b7e35c2847d425a369"
+    },
+    {
+      "file": "fir-impostor-2.png",
+      "sourceIds": [
+        "fir_tree_01"
+      ],
+      "bytes": 372005,
+      "sha256": "da9edc505291ebc319b75a5117aa50dab5e1afa6f5086c86c409945b9ad863c2"
+    },
+    {
+      "file": "fir-impostor-3.png",
+      "sourceIds": [
+        "fir_tree_01"
+      ],
+      "bytes": 399185,
+      "sha256": "0e6f7ab27002f1bff24cea7af897faa03d1ae3d81218fe06243e886bdaedcab8"
+    },
+    {
+      "file": "fir.glb",
+      "sourceIds": [
+        "fir_tree_01"
+      ],
+      "bytes": 11237516,
+      "sha256": "04342db62e315cea02a66660282b7f6560a5a7bc7807d6737cd589801bbd70f9"
+    },
+    {
+      "file": "forest-color.webp",
+      "sourceIds": [
+        "forest_floor"
+      ],
+      "bytes": 2164390,
+      "sha256": "a93830705b9f736478e48f8da5ce071710a678c9386f75b40dc2181bf78adb8d"
+    },
+    {
+      "file": "grass-color.webp",
+      "sourceIds": [
+        "aerial_grass_rock"
+      ],
+      "bytes": 1298044,
+      "sha256": "6e18b8a6e8ce1a60d1289333422d108f7e4fb3eda84c37ab23aad7408d65ddda"
+    },
+    {
+      "file": "grass-normal.webp",
+      "sourceIds": [
+        "aerial_grass_rock"
+      ],
+      "bytes": 2014738,
+      "sha256": "558b488baca83c2b71df0d73570428c025daa42817fd71697e0c659e390ed0a0"
+    },
+    {
+      "file": "grass-rough.webp",
+      "sourceIds": [
+        "aerial_grass_rock"
+      ],
+      "bytes": 1294388,
+      "sha256": "85e9e6b7f7b19c5e9917c98d7b403bfd0331df76f8540d64e0e482b12ad0de4a"
+    },
+    {
+      "file": "grass.glb",
+      "sourceIds": [
+        "grass_medium_01"
+      ],
+      "bytes": 1039640,
+      "sha256": "c381c7c849f9d3feb69d25376ea5f42bcd8675a9c13a30203f9641a6467729b0"
+    },
+    {
+      "file": "rocks.glb",
+      "sourceIds": [
+        "rock_moss_set_01"
+      ],
+      "bytes": 922684,
+      "sha256": "ceb7967d6ab19e1c5a79d3365f550d84263f26df0dcb5fa1373140a63f6c3c03"
+    }
+  ]
+}

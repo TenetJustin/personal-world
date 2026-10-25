@@ -1,0 +1,30 @@
+{
+  "geometry": "Meshopt medium with quantization; no additional simplification in compression pass",
+  "textures": "WebP quality 90, alpha retained; not GPU compressed",
+  "files": [
+    {
+      "file": "fir.glb",
+      "beforeBytes": 39500152,
+      "afterBytes": 11237516,
+      "sha256": "04342db62e315cea02a66660282b7f6560a5a7bc7807d6737cd589801bbd70f9"
+    },
+    {
+      "file": "cabin.glb",
+      "beforeBytes": 8774556,
+      "afterBytes": 3758512,
+      "sha256": "be720f7e2c509f92d0e45beb53194c26875f420c217557ed2de1f6dfd1f05268"
+    },
+    {
+      "file": "grass.glb",
+      "beforeBytes": 3117020,
+      "afterBytes": 1039640,
+      "sha256": "c381c7c849f9d3feb69d25376ea5f42bcd8675a9c13a30203f9641a6467729b0"
+    },
+    {
+      "file": "rocks.glb",
+      "beforeBytes": 1793312,
+      "afterBytes": 922684,
+      "sha256": "ceb7967d6ab19e1c5a79d3365f550d84263f26df0dcb5fa1373140a63f6c3c03"
+    }
+  ]
+}

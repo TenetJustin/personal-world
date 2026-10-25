@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-25",
+  "story": "Local production page loads licensed local assets, renders the exterior in WebGL2, supports fixed cameras and A–B movement, and exports actual browser evidence.",
+  "server": "Vite production preview bound to 127.0.0.1 only",
+  "externalRuntimeRequests": false,
+  "observations": {
+    "AandBRendered": true,
+    "sourceAssetsAndShadersLoaded": true,
+    "productionConsoleErrors": [],
+    "productionConsoleWarnings": [],
+    "fixedCameraExports": true,
+    "actualCanvasScreenshots": true,
+    "actualCanvasMediaRecorderVideo": true,
+    "rawFrameTimeExports": true,
+    "shadowCachePixelsUnchangedAandB": true
+  },
+  "manualPhotorealAcceptance": "PENDING USER REVIEW",
+  "limitations": "Single Apple M5 / Chromium environment. No GPU timing or precise VRAM measurement, no mobile/Windows/Safari claim. Visual defects remain in the issue register."
+}

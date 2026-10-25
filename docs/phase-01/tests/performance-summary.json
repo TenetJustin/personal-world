@@ -1,0 +1,269 @@
+{
+  "device": "Apple M5 MacBook Air, 10-core GPU, 24GB, macOS 27.0.1",
+  "browser": "Codex IAB Chromium 155",
+  "renderBuffer": [
+    1440,
+    900
+  ],
+  "final": [
+    {
+      "file": "high-A-60s.json",
+      "fps": 60.00053039144666,
+      "p95": 17.400000005960464,
+      "p99": 18.200000017881393,
+      "maxMs": 21.599999994039536,
+      "slow33": 0,
+      "slow100": 0,
+      "samples": 3620,
+      "seconds": 60.33279999998212,
+      "calls": 71,
+      "triangles": 18755960,
+      "readyMs": 1806.5999999940395,
+      "encodedBytes": 47165315,
+      "transferBytes": 47170715,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "renderBuffer": {
+        "width": 1440,
+        "height": 900,
+        "cssWidth": 1440,
+        "cssHeight": 900
+      },
+      "quality": "high",
+      "pathRange": [
+        0,
+        0
+      ],
+      "errors": []
+    },
+    {
+      "file": "high-B-60s.json",
+      "fps": 46.8728918442028,
+      "p95": 25.19999998807907,
+      "p99": 28.80000001192093,
+      "maxMs": 37.599999994039536,
+      "slow33": 2,
+      "slow100": 0,
+      "samples": 2814,
+      "seconds": 60.03470000001788,
+      "calls": 71,
+      "triangles": 18755960,
+      "readyMs": 1722.199999988079,
+      "encodedBytes": 47165315,
+      "transferBytes": 5400,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "renderBuffer": {
+        "width": 1440,
+        "height": 900,
+        "cssWidth": 1440,
+        "cssHeight": 900
+      },
+      "quality": "high",
+      "pathRange": [
+        1,
+        1
+      ],
+      "errors": []
+    },
+    {
+      "file": "standard-A-60s.json",
+      "fps": 60.00019884077616,
+      "p95": 17.599999994039536,
+      "p99": 17.69999998807907,
+      "maxMs": 18,
+      "slow33": 0,
+      "slow100": 0,
+      "samples": 3621,
+      "seconds": 60.34979999998212,
+      "calls": 71,
+      "triangles": 18755960,
+      "readyMs": 1133.7000000178814,
+      "encodedBytes": 31237543,
+      "transferBytes": 31242943,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "renderBuffer": {
+        "width": 1440,
+        "height": 900,
+        "cssWidth": 1440,
+        "cssHeight": 900
+      },
+      "quality": "standard",
+      "pathRange": [
+        0,
+        0
+      ],
+      "errors": []
+    },
+    {
+      "file": "standard-B-60s.json",
+      "fps": 53.996038631619854,
+      "p95": 21,
+      "p99": 23,
+      "maxMs": 26.80000001192093,
+      "slow33": 0,
+      "slow100": 0,
+      "samples": 3255,
+      "seconds": 60.28220000001788,
+      "calls": 71,
+      "triangles": 18755960,
+      "readyMs": 1133.7000000178814,
+      "encodedBytes": 31237543,
+      "transferBytes": 31242943,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "renderBuffer": {
+        "width": 1440,
+        "height": 900,
+        "cssWidth": 1440,
+        "cssHeight": 900
+      },
+      "quality": "standard",
+      "pathRange": [
+        1,
+        1
+      ],
+      "errors": []
+    },
+    {
+      "file": "standard-motion-60s.json",
+      "fps": 48.83173963485954,
+      "p95": 25.600000023841858,
+      "p99": 29.30000001192093,
+      "maxMs": 35.20000001788139,
+      "slow33": 5,
+      "slow100": 0,
+      "samples": 2942,
+      "seconds": 60.24770000001788,
+      "calls": 71,
+      "triangles": 18755960,
+      "readyMs": 1133.7000000178814,
+      "encodedBytes": 31237543,
+      "transferBytes": 31242943,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "renderBuffer": {
+        "width": 1440,
+        "height": 900,
+        "cssWidth": 1440,
+        "cssHeight": 900
+      },
+      "quality": "standard",
+      "pathRange": [
+        0,
+        0.11720757593221853
+      ],
+      "errors": []
+    }
+  ],
+  "baseline": [
+    {
+      "file": "high-A-before-shadow-cache.json",
+      "fps": 45.52689170369388,
+      "p95": 24.599999994039536,
+      "p99": 26.200000017881393,
+      "maxMs": 29.599999994039536,
+      "slow33": 0,
+      "slow100": 0,
+      "samples": 2746,
+      "seconds": 60.316,
+      "calls": 88,
+      "triangles": 21601912,
+      "readyMs": 1795.5999999940395,
+      "encodedBytes": 47165307,
+      "transferBytes": 47171007,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "renderBuffer": {
+        "width": 1440,
+        "height": 900,
+        "cssWidth": 1440,
+        "cssHeight": 900
+      },
+      "quality": "high",
+      "pathRange": [
+        0,
+        0
+      ],
+      "errors": []
+    },
+    {
+      "file": "high-B-before-shadow-cache.json",
+      "fps": 43.86756598764086,
+      "p95": 30.299999982118607,
+      "p99": 36.900000005960464,
+      "maxMs": 87.30000001192093,
+      "slow33": 70,
+      "slow100": 0,
+      "samples": 2649,
+      "seconds": 60.38630000001192,
+      "calls": 88,
+      "triangles": 21601912,
+      "readyMs": 1288.2999999821186,
+      "encodedBytes": 38845603,
+      "transferBytes": 5400,
+      "viewport": {
+        "width": 1126,
+        "height": 827
+      },
+      "renderBuffer": {
+        "width": 1440,
+        "height": 900,
+        "cssWidth": 1440,
+        "cssHeight": 900
+      },
+      "quality": "high",
+      "pathRange": [
+        1,
+        1
+      ],
+      "errors": []
+    },
+    {
+      "file": "standard-A-before-shadow-cache.json",
+      "fps": 60.00009991689649,
+      "p95": 16.80000001192093,
+      "p99": 17.400000005960464,
+      "maxMs": 17.799999982118607,
+      "slow33": 0,
+      "slow100": 0,
+      "samples": 3603,
+      "seconds": 60.04990000000596,
+      "calls": 88,
+      "triangles": 21601912,
+      "readyMs": 1348.9000000059605,
+      "encodedBytes": 31237535,
+      "transferBytes": 31243235,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "renderBuffer": {
+        "width": 1440,
+        "height": 900,
+        "cssWidth": 1440,
+        "cssHeight": 900
+      },
+      "quality": "standard",
+      "pathRange": [
+        0,
+        0
+      ],
+      "errors": []
+    }
+  ],
+  "photorealAcceptance": "PENDING USER"
+}

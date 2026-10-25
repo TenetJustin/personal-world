@@ -45,3 +45,31 @@ Phase 01 **仅验证湖岸和木屋外观的最终质量切片**：一个湖岸 
 最可能失败的因素是**拼接大量风格和尺度不一致的资产，再指望灯光 / 后期把它们变成摄影**。防止方式：先批准一套统一参考；Phase 01 用接近最终品质的近景树、岸石、原木、湖水完成两张真实浏览器镜头；按固定曝光与多视角审查，任一核心视觉项失败即停止扩展。
 
 本轮仅新增规划文档及研究缓存，未安装项目依赖、制作正式模型、开发网站或公开部署。批准下一阶段前停止执行。
+
+---
+
+## Phase 01 · Photoreal Exterior Proof of Concept
+
+当前开发分支：`dev/phase-01-exterior`。仓库保持 **Private**，没有公开部署。
+
+这是仅含湖岸和木屋外立面的浏览器技术样片。照片级视觉验收尚未通过；技术测试通过不能替代人工画质判断，Phase 02 尚未获准开始。
+
+```sh
+git lfs pull
+npm ci
+npm run dev
+```
+
+默认地址：`http://127.0.0.1:5173/`。质量档与复现方法见 [实现说明](docs/phase-01/02_Implementation_And_Reproduction.md)。生产本地预览：`npm run build && npm run preview -- --port 5174`。
+
+- [实施前视觉参考与资产候选](docs/phase-01/01_Visual_Reference_And_Asset_List.md)
+- [实现、边界与资产复现](docs/phase-01/02_Implementation_And_Reproduction.md)
+- [视觉问题与修复记录](docs/phase-01/03_Visual_Issues_And_Fixes.md)
+- [资产来源与许可](docs/phase-01/04_Assets_And_Licenses.md)
+- [测试协议](docs/phase-01/05_Test_Protocol.md)
+- [性能与加载实测](docs/phase-01/06_Performance_And_Loading.md)
+- [Phase 02 技术评估](docs/phase-01/07_Phase02_Assessment.md)
+- [两张标准镜头、参数和实际录屏](docs/phase-01/evidence/)
+- [性能原始数据与技术测试证据](docs/phase-01/tests/)
+
+开发检查：`npm test`、`npm run build`。从源资产重新制作需 Blender 5.2.2，正常浏览器启动只需 Node 与 Git LFS 中的运行资产。制作母版在本机忽略目录中，不声称已经云端备份；详见 [仓库与存储策略](docs/Repository_Policy.md)。
