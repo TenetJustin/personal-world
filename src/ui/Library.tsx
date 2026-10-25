@@ -93,7 +93,9 @@ export function Library({
       e.kind === kind &&
       (trash ? !!e.deletedAt : !e.deletedAt),
   );
-  const draft = active && (drafts[active.id] ?? active);
+  const getDraft = (id: string) =>
+    Object.hasOwn(drafts, id) ? drafts[id] : undefined;
+  const draft = active && (getDraft(active.id) ?? active);
   const url = useBlobURL(active?.blob);
   const dirtyCount = Object.keys(drafts).length;
   useEffect(() => {
@@ -370,7 +372,7 @@ export function Library({
                 <span>
                   <strong>
                     {entry.title}
-                    {drafts[entry.id] ? " · 未保存" : ""}
+                    {getDraft(entry.id) ? " · 未保存" : ""}
                   </strong>
                   <small>
                     {entry.tags ||
@@ -446,12 +448,12 @@ export function Library({
                   ← 列表
                 </button>
                 <span>
-                  {drafts[active.id] ? "有未保存的修改" : "已保存在本地"}
+                  {getDraft(active.id) ? "有未保存的修改" : "已保存在本地"}
                 </span>
                 <button onClick={() => setEditing((v) => !v)}>
                   {editing ? "阅读" : "编辑"}
                 </button>
-                {drafts[active.id] && (
+                {getDraft(active.id) && (
                   <>
                     <button className="accent" disabled={busy} onClick={save}>
                       保存修改

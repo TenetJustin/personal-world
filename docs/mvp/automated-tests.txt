@@ -1,11 +1,11 @@
-✔ every shipped asset has a matching hash and an explicit licensed or original source (35.432583ms)
-✔ quantized glTF positions survive metre-scale instance baking without integer wrap (0.827333ms)
-✔ the complete A–B path clears terrain, cabin exterior, and near tree trunks (3.150667ms)
-✔ local records reject unsafe URLs, invalid IDs and incompatible attachments (2.716167ms)
-✔ backup round trip preserves Chinese text, timestamps, trash state and original PDF bytes (0.642583ms)
-✔ restore is a validated, idempotent merge and rejects duplicate IDs before writing (8.221042ms)
-✔ corrupted or unknown backup formats cannot enter the data store (0.350625ms)
-✔ content routes round trip without needing the 3D world (0.1015ms)
+✔ every shipped asset has a matching hash and an explicit licensed or original source (44.550166ms)
+✔ quantized glTF positions survive metre-scale instance baking without integer wrap (0.842375ms)
+✔ the complete A–B path clears terrain, cabin exterior, and near tree trunks (3.414667ms)
+✔ local records reject unsafe URLs, invalid IDs and incompatible attachments (2.807416ms)
+✔ backup round trip preserves Chinese text, timestamps, trash state and original PDF bytes (0.83025ms)
+✔ restore is a validated, idempotent merge and rejects duplicate IDs before writing (8.064291ms)
+✔ corrupted or unknown backup formats cannot enter the data store (0.341708ms)
+✔ content routes round trip without needing the 3D world (0.093625ms)
 ℹ tests 8
 ℹ suites 0
 ℹ pass 8
@@ -13,4 +13,4 @@
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 99.231959
+ℹ duration_ms 111.024708
