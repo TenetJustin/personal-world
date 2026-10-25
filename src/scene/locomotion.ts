@@ -13,7 +13,15 @@ const box=(x:number,z:number,r:number,b:{minX:number;maxX:number;minZ:number;max
 const wall=(id:string,minX:number,maxX:number,minZ:number,maxZ:number):Obstacle=>({id,minX,maxX,minZ,maxZ,minY:.4,maxY:9});
 const shell=[wall('west-wall',-6.15,-5.82,-4.7,4.7),wall('east-wall',5.82,6.15,-4.7,4.7),wall('rear-wall',-6.15,6.15,-4.72,-4.32),wall('front-left',-6.15,.555,4.32,4.70),wall('front-right',1.665,6.15,4.32,4.70),
  wall('porch-west-rail',-8.22,-8.08,4.45,7.12),wall('porch-east-rail',8.08,8.22,4.45,7.12),wall('porch-front-left',-8.17,.12,6.96,7.10),wall('porch-front-right',2.20,8.17,6.96,7.10)];
-export function floorAt(x:number,z:number,foot:number){const p=worldToCabin([x,0,z]);return architecturalFloor(p[0],p[2],foot)??groundHeight(x,z);}
+/** The authored porch treads are walked as the same smooth 5-tread ramp used by the
+ * cinematic route, so collision and camera agree to the millimetre. */
+export function exteriorStairFloor(x:number,z:number){
+ const b=CABIN.stairs;
+ if(x<b.minX||x>b.maxX||z<6.93||z>8.43)return null;
+ const base=cabinToWorld([x,0,8.43]);
+ return groundHeight(base[0],base[2])+(CABIN.porch.floorY-groundHeight(base[0],base[2]))*Math.max(0,Math.min(1,(8.43-z)/1.5));
+}
+export function floorAt(x:number,z:number,foot:number){const p=worldToCabin([x,0,z]);return exteriorStairFloor(p[0],p[2])??architecturalFloor(p[0],p[2],foot)??groundHeight(x,z);}
 export function clearance(x:number,z:number,foot:number,door=1):string|null{
  if(x< -16||x>64||z< -44||z>70)return 'world-boundary';
  const p=worldToCabin([x,foot,z]),lx=p[0],lz=p[2];
@@ -94,7 +102,14 @@ export function planSafePath(start:Vector3,target:Vector3):Vector3[]|null{
  while(open.items.length&&expanded++<45000){const cur=open.pop();if(cur.g>(best.get(cur.key)??Infinity)+1e-6)continue;
   if(cur.key===end.key){const result:Vector3[]=[target.clone()];let c:Node|undefined=cur;while(c){result.push(new Vector3(c.x,c.y,c.z));c=c.parent;}result.reverse();
    // Remove only segments independently proven clear on the same collision surfaces.
-   const simple:Vector3[]=[];let prev=start,index=0;while(index<result.length){let far=index;for(let k=index+1;k<Math.min(result.length,index+35);k++){if(canStep(prev,result[k]))far=k;else break;}simple.push(result[far]);prev=result[far];index=far+1;}return simple;
+   // Keep intermediate waypoints wherever the floor height changes: shortcutting a
+   // stair descent would hide the real treads the walker must follow.
+   const simple:Vector3[]=[];let prev=start,index=0;while(index<result.length){let far=index;
+    for(let k=index+1;k<Math.min(result.length,index+35);k++){
+     if(Math.abs(result[k].y-prev.y)>.30)break;
+     if(canStep(prev,result[k]))far=k;else break;
+    }
+    simple.push(result[far]);prev=result[far];index=far+1;}return simple;
   }
   for(let di=-1;di<=1;di++)for(let dj=-1;dj<=1;dj++)for(const layer of [cur.layer,1-cur.layer]){
    if(!di&&!dj&&layer===cur.layer)continue;

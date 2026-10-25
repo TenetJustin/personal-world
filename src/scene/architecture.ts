@@ -1,4 +1,5 @@
 /** Metres, Y up. Local +Z is the lake-facing front of the authored cabin. */
+import { MACBOOK_SCREEN } from "./macbookModel.ts";
 export type CabinPoint = readonly [number, number, number];
 export const CABIN = {
   origin: [8, 0, -3] as CabinPoint,
@@ -125,14 +126,10 @@ export const INTERIOR_COLLIDERS=WALK_COLLIDERS.filter(c=>c.minY<2);
 
 // Exact screen display corners, also used to author the render geometry below.
 // Order: top-left, top-right, bottom-right, bottom-left as seen by the visitor.
-export const LAPTOP_SCREEN_LOCAL = [
-  [-3.426, 2.405, 3.155],
-  [-3.774, 2.405, 3.155],
-  [-3.774, 2.181, 3.105],
-  [-3.426, 2.181, 3.105],
-] as const;
+/** Derived from the same dimensions that build the model (macbookModel.ts). */
+export const LAPTOP_SCREEN_LOCAL = MACBOOK_SCREEN.corners;
 export const LAPTOP_SCREEN_WORLD = LAPTOP_SCREEN_LOCAL.map(cabinToWorld);
-export const LAPTOP_SCREEN_CENTER_LOCAL: CabinPoint = [-3.6, 2.293, 3.13];
+export const LAPTOP_SCREEN_CENTER_LOCAL: CabinPoint = MACBOOK_SCREEN.center;
 export const LAPTOP_SCREEN_CENTER_WORLD = cabinToWorld(
   LAPTOP_SCREEN_CENTER_LOCAL,
 );

@@ -284,7 +284,7 @@ export function ProfileCenter({
                 new Blob([await encodeBackup(entries)], {
                   type: "application/json",
                 }),
-                `personal-world-backup-${new Date().toISOString().slice(0, 10)}.json`,
+                `personal-world-backup-${new Date().toLocaleDateString("sv-SE")}.json`,
               );
               setMessage(
                 "完整备份已生成，包含全部应用、图片和附件；不可提交至公开仓库",

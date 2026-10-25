@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-10-25T15:29:34.396Z",
-  "sceneRevision": "phase-01b-candidate",
+  "generatedAt": "2026-10-26T03:30:00.000Z",
+  "sceneRevision": "v3-candidate",
   "files": [
     {
       "file": "alps-background-4k.hdr",
@@ -45,6 +45,26 @@
       ],
       "bytes": 3004176,
       "sha256": "54ef2d2ebba5b1cde7f8c8410255d6624940134730fd64381b4d6d6959511f61"
+    },
+    {
+      "file": "cabin-interior-v3.glb",
+      "sourceIds": [
+        "original-architecture-phase01b",
+        "rough_wood",
+        "rock_wall_02"
+      ],
+      "bytes": 13578412,
+      "sha256": "c5e0622ce54a613fe66e140a4dde42ad178604fddd313687a44774937227ac75"
+    },
+    {
+      "file": "cabin-v3-shell.glb",
+      "sourceIds": [
+        "original-architecture-phase01b",
+        "rough_wood",
+        "rock_wall_02"
+      ],
+      "bytes": 13903316,
+      "sha256": "6b5841eda0a71f2e86ac2d2fee9373033049e419abc2056cfbb6e708787fe26b"
     },
     {
       "file": "cabin.glb",

@@ -351,6 +351,7 @@ export class Journey {
   readonly walker=new Walker();
   private connector:{points:Vector3[];index:number;distance:number;after:()=>void}|null=null;
   private doorTarget=0;
+  private resumeOffset=new Vector3();
   private autoIdle = 0;
   private running = false;
   private isAuto = false;
@@ -471,6 +472,8 @@ export class Journey {
     }
     if(this.connectToRoute(()=>this.startGuide(automatic)))return;
     this.clearMovement();
+    this.resumeOffset.copy(this.position).sub(routePosition(nearestRoute(this.position)));
+    this.resumeBlend=0;
     this.navigation = null;
     this.autoUsed = true;
     this.isAuto = automatic;
@@ -550,6 +553,8 @@ export class Journey {
   }
   clearMovement(){this.walker.clear();}
   toggleDoor(){this.interact();this.doorTarget=this.door>.5?0:1;}
+  /** Verification-only pose override; never used by the product journey. */
+  setPose(position:number[],target:number[]){const eye=new Vector3(...position);this.position.copy(eye);this.quaternion.copy(lookRotation(eye,target as unknown as Point));this.baseRotation.copy(this.quaternion);this.emit();}
   get canUseComputer(){const p=worldToCabin(this.position.toArray());return Math.hypot(p[0]+3.6,p[2]-1.1)<1.45&&Math.abs(p[1]-3.02)<.35;}
   private connectToRoute(after:()=>void){
     const d=nearestRoute(this.position),target=routePosition(d);
@@ -733,9 +738,10 @@ export class Journey {
       if(!canStep(this.position,sample.position,sample.door)){
         this.interrupt();this.label="引导通道受阻，请手动探索后重新接入";this.emit();return;
       }
-      this.position.copy(sample.position);
-      this.quaternion.copy(sample.quaternion);
       this.resumeBlend = Math.min(1, this.resumeBlend + step / 1.4);
+      // Adopt the authored route from the retained pose instead of snapping onto it.
+      this.position.copy(sample.position).addScaledVector(this.resumeOffset, 1 - ease(this.resumeBlend));
+      this.quaternion.copy(sample.quaternion);
       if (this.resumeRotation && this.resumeBlend < 1)
         this.quaternion
           .copy(this.resumeRotation)

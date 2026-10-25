@@ -274,7 +274,7 @@ export function Library({
     run(async () => {
       if (dirtyCount) throw new Error("请先保存或撤销未保存的修改，再导出备份");
       const json = await encodeBackup(entries);
-      const name = `personal-world-${new Date().toISOString().slice(0, 10)}.json`;
+      const name = `personal-world-${new Date().toLocaleDateString("sv-SE")}.json`;
       const blob = new Blob([json], { type: "application/json" });
       setBackup({ url: URL.createObjectURL(blob), name });
       downloadFile(blob, name);

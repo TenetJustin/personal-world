@@ -133,7 +133,7 @@ export function WeatherWidget() {
   return (
     <section
       className="dv3-weather dv3-widget"
-      aria-label="天气演示，非实时天气"
+      aria-label="天气占位，未连接实时天气服务"
     >
       <header>
         <span>湖畔 · 场景演示</span>
@@ -141,7 +141,7 @@ export function WeatherWidget() {
       </header>
       <div className="dv3-weather-now">
         <strong>
-          18<span>°</span>
+          —<span>°</span>
         </strong>
         <svg viewBox="0 0 90 64" aria-hidden="true">
           <defs>
@@ -162,10 +162,10 @@ export function WeatherWidget() {
         </svg>
       </div>
       <div className="dv3-weather-footer">
-        <span>晴间多云</span>
-        <span>最高 20° 最低 12°</span>
+        <span>未连接天气服务</span>
+        <span>不读取定位</span>
       </div>
-      <small>演示数据 · 非实时，不读取定位</small>
+      <small>占位状态 · 接入真实天气 API 后显示实测数据</small>
     </section>
   );
 }

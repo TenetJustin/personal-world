@@ -21,6 +21,8 @@ import { readEntries, removeEntry, writeEntries } from "./library/storage";
 import { loadPublishedContent } from "./library/publishing";
 import { Library } from "./ui/Library";
 import { ScreenBridge } from "./ui/ScreenBridge";
+import DesktopV3, { type DesktopApp } from "./ui/DesktopV3";
+import { ProfileCenter } from "./ui/ProfileCenter";
 import { diagnosticSnapshot } from "./library/diagnostics";
 import { runtime } from "./scene/runtime";
 import { journey, ROUTE_ANCHORS } from "./scene/journey";
@@ -48,10 +50,17 @@ class WorldBoundary extends Component<
 }
 export default function App() {
   const initial = useRef(parseRoute(location.pathname));
+  const initialProfile = useRef(
+    new URLSearchParams(location.search).get("app") === "profile",
+  );
   const [route, setRoute] = useState(initial.current),
-    [desktop, setDesktop] = useState(!!initial.current.kind),
+    [profileOpen, setProfileOpen] = useState(initialProfile.current),
+    [desktop, setDesktop] = useState(
+      !!initial.current.kind || initialProfile.current,
+    ),
     [worldStarted, setWorldStarted] = useState(
       !initial.current.kind &&
+        !initialProfile.current &&
         !new URLSearchParams(location.search).has("study"),
     );
   const state = useSyncExternalStore(journey.subscribe, journey.getSnapshot);
@@ -131,8 +140,30 @@ export default function App() {
     journey.interact();
     history.pushState({}, "", entryPath(kind, id));
     setRoute({ kind, id });
+    setProfileOpen(false);
     setDesktop(true);
     setMinimized(false);
+  }, []);
+  const activate = useCallback(
+    (app: DesktopApp) => {
+      if (app === "profile") {
+        journey.interact();
+        history.pushState({}, "", location.pathname + "?app=profile");
+        setProfileOpen(true);
+        setDesktop(true);
+        return;
+      }
+      navigate(app);
+    },
+    [navigate],
+  );
+  useEffect(() => {
+    if (!new URLSearchParams(location.search).has("debug")) return;
+    (window as unknown as { __pw?: unknown }).__pw = {
+      journey,
+      runtime,
+      screenProjection,
+    };
   }, []);
   useEffect(() => {
     if (state.phase === "DESKTOP") {
@@ -145,9 +176,11 @@ export default function App() {
   }, [state.phase]);
   useEffect(() => {
     const pop = () => {
-      const next = parseRoute(location.pathname);
+      const next = parseRoute(location.pathname),
+        profile = new URLSearchParams(location.search).get("app") === "profile";
       setRoute(next);
-      if (next.kind) {
+      setProfileOpen(profile);
+      if (next.kind || profile) {
         journey.interact();
         setDesktop(true);
       } else {
@@ -293,6 +326,95 @@ export default function App() {
       window.removeEventListener("keydown", key);
     };
   }, [worldStarted, desktop, help]);
+  // First-person WASD + pointer-lock look. The same Walker/collision data drives
+  // automatic guidance, so handing control back never changes the world model.
+  useEffect(() => {
+    if (!worldStarted || desktop || help || worldError) return;
+    const held = new Set<string>();
+    const blockedPhase = () =>
+      ["ENTERING_DESKTOP", "EXITING_DESKTOP", "DESKTOP"].includes(
+        journey.phase,
+      );
+    const typing = (target: EventTarget | null) =>
+      target instanceof HTMLElement &&
+      (target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.tagName === "SELECT" ||
+        target.isContentEditable);
+    const apply = () => {
+      const forward =
+          (held.has("KeyW") ? 1 : 0) - (held.has("KeyS") ? 1 : 0),
+        strafe = (held.has("KeyD") ? 1 : 0) - (held.has("KeyA") ? 1 : 0);
+      journey.setMoveInput(forward, strafe, held.has("ShiftLeft") || held.has("ShiftRight"));
+    };
+    const clear = () => {
+      held.clear();
+      journey.setMoveInput(0, 0, false);
+    };
+    const down = (event: KeyboardEvent) => {
+      if (typing(event.target) || event.metaKey || event.ctrlKey || event.altKey)
+        return;
+      if (blockedPhase()) return;
+      if (["KeyW", "KeyA", "KeyS", "KeyD", "ShiftLeft", "ShiftRight"].includes(event.code)) {
+        if (event.code === "KeyW" || event.code === "KeyA" || event.code === "KeyS" || event.code === "KeyD")
+          event.preventDefault();
+        held.add(event.code);
+        apply();
+      } else if (event.code === "KeyE") {
+        event.preventDefault();
+        journey.toggleDoor();
+      } else if (event.code === "Escape") {
+        clear();
+      }
+    };
+    const up = (event: KeyboardEvent) => {
+      if (!held.delete(event.code)) return;
+      apply();
+    };
+    const blur = () => clear();
+    const visibility = () => {
+      if (document.hidden) clear();
+    };
+    const lockChange = () => {
+      if (!document.pointerLockElement) clear();
+    };
+    const move = (event: PointerEvent) => {
+      if (document.pointerLockElement && event.isTrusted && !blockedPhase())
+        journey.look(event.movementX, event.movementY);
+    };
+    const requestLock = (event: PointerEvent) => {
+      if (
+        event.isTrusted &&
+        event.target instanceof HTMLCanvasElement &&
+        !document.pointerLockElement &&
+        !blockedPhase()
+      ) {
+        journey.interact();
+        const request = event.target.requestPointerLock?.();
+        if (request && typeof request.catch === "function")
+          request.catch(() => {
+            // Drag-to-look remains available when the browser refuses the lock.
+          });
+      }
+    };
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    window.addEventListener("blur", blur);
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerdown", requestLock);
+    document.addEventListener("pointerlockchange", lockChange);
+    document.addEventListener("visibilitychange", visibility);
+    return () => {
+      clear();
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", blur);
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerdown", requestLock);
+      document.removeEventListener("pointerlockchange", lockChange);
+      document.removeEventListener("visibilitychange", visibility);
+    };
+  }, [worldStarted, desktop, help, worldError]);
   useEffect(() => {
     if (!help) return;
     const previous = document.activeElement as HTMLElement | null,
@@ -367,10 +489,12 @@ export default function App() {
       setWorldStarted(true);
     } else if (journey.phase === "DESKTOP") journey.exitDesktop();
     history.pushState({}, "", appURL());
+    setProfileOpen(false);
     setDesktop(false);
     setMinimized(false);
   };
   const activeKind = route.kind ?? "notes",
+    activeApp: DesktopApp = profileOpen ? "profile" : activeKind,
     bridging = ["ENTERING_DESKTOP", "EXITING_DESKTOP"].includes(state.phase);
   if (new URLSearchParams(location.search).has("study"))
     return (
@@ -528,7 +652,7 @@ export default function App() {
             </button>
           </nav>
           <div className="world-bottom">
-            <span>拖动环视 · 方向键环视 · 点击目标步行</span>
+            <span>WASD 行走 · Shift 加速 · 拖动或点击环视 · E 开关门 · Esc 释放鼠标</span>
             <div>
               <button
                 className="quiet-button"
@@ -568,128 +692,62 @@ export default function App() {
         </p>
       )}
       <ScreenBridge active={desktop || bridging} full={desktop}>
-        <div className="desktop">
-          <header className="desktop-menubar">
-            <div className="desktop-wordmark">
-              ◈ <strong>Personal World</strong>
-              <span>发布与本地草稿</span>
-            </div>
-            <span className="local-indicator">● 本地草稿 / 已发布只读</span>
-            <button onClick={() => setHelp(true)}>使用说明</button>
-            <button onClick={returnWorld}>返回木屋 ↗</button>
-          </header>
-          <nav className="desktop-sidebar" aria-label="资料应用">
-            <p className="eyebrow">MY LIBRARY</p>
-            {KINDS.map((kind, index) => (
-              <a
-                href={entryPath(kind)}
-                key={kind}
-                className={activeKind === kind ? "active" : ""}
-                aria-current={activeKind === kind ? "page" : undefined}
-                onClick={(event) => {
-                  event.preventDefault();
-                  navigate(kind);
-                }}
-              >
-                <span className={`app-icon icon-${kind}`}>
-                  {["≡", "▧", "↗", "◎"][index]}
-                </span>
-                <span>{LABELS[kind]}</span>
-                <small>
-                  {published.filter((e) => e.kind === kind).length} /{" "}
-                  {
-                    entries.filter((e) => e.kind === kind && !e.deletedAt)
-                      .length
-                  }
-                </small>
-              </a>
-            ))}
-            <div className="sidebar-bottom">
-              <span className="eyebrow">YOUR OWN LITTLE ARCHIVE</span>
-              <p>
-                {published.length} 项已发布 /{" "}
-                {entries.filter((e) => !e.deletedAt).length} 项草稿
-                <br />
-                本地草稿不会自动公开
-              </p>
-              <button onClick={() => setHelp(true)}>如何添加与备份 ↗</button>
-            </div>
-          </nav>
-          <div className="desktop-window" hidden={minimized}>
-            <div className="window-titlebar">
-              <div className="window-controls">
-                <button
-                  aria-label="关闭资料窗口"
-                  title="关闭窗口，内容保留"
-                  onClick={() => setMinimized(true)}
-                >
-                  ×
-                </button>
-                <button
-                  aria-label="最小化资料窗口"
-                  title="最小化"
-                  onClick={() => setMinimized(true)}
-                >
-                  −
-                </button>
-              </div>
-              <span>
-                {LABELS[activeKind]} <small>— Personal World</small>
-              </span>
-              <span className="window-meta">
-                {dirty ? "● 未保存" : "LOCAL LIBRARY"}
-              </span>
-            </div>
-            {storageError && (
-              <div className="storage-error" role="alert">
-                {storageError}
-                <button onClick={() => void boot()}>重试打开资料库</button>
-              </div>
-            )}
+        <DesktopV3
+          activeApp={activeApp}
+          onActivate={activate}
+          renderApp={(kind) => (
             <Library
-              kind={activeKind}
+              kind={kind}
               selected={route.id}
               entries={entries}
               published={published}
               loading={loading}
               publishedLoading={publishedLoading}
               error={storageError}
-              onSelect={(id) => navigate(activeKind, id)}
+              onSelect={(id) => navigate(kind, id)}
               onSave={save}
               onDelete={remove}
               onRestore={save}
               onDirty={setDirty}
             />
-          </div>
-          {minimized && (
-            <section className="desktop-rest">
-              <p className="eyebrow">A LITTLE ROOM FOR YOUR LIFE</p>
-              <h1>
-                All your stories,
-                <br />
-                <em>in one quiet place.</em>
-              </h1>
-              <button className="accent" onClick={() => setMinimized(false)}>
-                恢复 {LABELS[activeKind]} 窗口
-              </button>
-            </section>
           )}
-          <nav className="dock" aria-label="桌面 Dock">
-            {KINDS.map((kind, i) => (
-              <button
-                key={kind}
-                aria-label={`打开 ${LABELS[kind]}`}
-                className={activeKind === kind && !minimized ? "running" : ""}
-                onClick={() => navigate(kind)}
-              >
-                <span className={`app-icon icon-${kind}`}>
-                  {["≡", "▧", "↗", "◎"][i]}
-                </span>
-                <small>{LABELS[kind]}</small>
-              </button>
-            ))}
-          </nav>
-        </div>
+          renderProfile={() => (
+            <ProfileCenter
+              entries={entries}
+              published={published}
+              onSave={save}
+              onDirty={setDirty}
+              onRestore={save}
+              onOpenLibrary={(kind, id) => {
+                setProfileOpen(false);
+                navigate(kind, id ?? null);
+              }}
+              onClose={() => setProfileOpen(false)}
+            />
+          )}
+          onReturnWorld={returnWorld}
+          onHelp={() => setHelp(true)}
+          onOpenWorkspace={() => {
+            history.pushState({}, "", location.pathname + "?app=profile");
+            setProfileOpen(true);
+          }}
+          workspace={profileOpen}
+          dirty={dirty}
+          counts={{
+            notes: published.filter((e) => e.kind === "notes").length,
+            photos: published.filter((e) => e.kind === "photos").length,
+            projects: published.filter((e) => e.kind === "projects").length,
+            resume: published.filter((e) => e.kind === "resume").length,
+          }}
+          notice={
+            publishedError ? (
+              <p role="alert">
+                {publishedError}
+                <button onClick={() => void loadPublic()}>重试公开内容</button>
+              </p>
+            ) : null
+          }
+        />
       </ScreenBridge>
       {help && (
         <div className="modal-backdrop">

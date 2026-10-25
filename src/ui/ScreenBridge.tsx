@@ -5,7 +5,7 @@ import {
   homography,
   screenProjection,
 } from "../scene/screenProjection";
-import { PREVIEW_APPS, SCREEN_THEME } from "../scene/screenPreview";
+import { drawScreenPreview } from "../scene/screenPreview";
 export function ScreenBridge({
   active,
   full,
@@ -17,7 +17,12 @@ export function ScreenBridge({
 }) {
   const layer = useRef<HTMLDivElement>(null),
     preview = useRef<HTMLDivElement>(null),
+    previewCanvas = useRef<HTMLCanvasElement>(null),
     live = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const canvas = previewCanvas.current;
+    if (canvas) drawScreenPreview(canvas);
+  }, []);
   useEffect(() => {
     if (!active) return;
     if (full) {
@@ -94,46 +99,7 @@ export function ScreenBridge({
           />
         ))}
         <div className="screen-bridge-preview" ref={preview} aria-hidden="true">
-          <svg viewBox="0 0 768 504" preserveAspectRatio="none">
-            <rect width="768" height="504" fill={SCREEN_THEME.background} />
-            <rect
-              x="30"
-              y="35"
-              width="708"
-              height="405"
-              fill={SCREEN_THEME.paper}
-            />
-            <g fontFamily="Arial, sans-serif">
-              <text x="58" y="76" fontSize="18" fill={SCREEN_THEME.ink}>
-                PERSONAL WORLD
-              </text>
-              <text x="58" y="100" fontSize="12" fill={SCREEN_THEME.muted}>
-                YOUR PRIVATE LIBRARY
-              </text>
-              {PREVIEW_APPS.map((app, i) => (
-                <g key={app.name}>
-                  <rect
-                    x={100 + i * 150}
-                    y="195"
-                    width="65"
-                    height="65"
-                    fill={app.color}
-                  />
-                  <text
-                    x={100 + i * 150}
-                    y="287"
-                    fontSize="15"
-                    fill={SCREEN_THEME.ink}
-                  >
-                    {app.name}
-                  </text>
-                </g>
-              ))}
-              <text x="58" y="405" fontSize="12" fill={SCREEN_THEME.muted}>
-                A place for your stories.
-              </text>
-            </g>
-          </svg>
+          <canvas ref={previewCanvas} aria-hidden="true" />
         </div>
         <div
           ref={live}
