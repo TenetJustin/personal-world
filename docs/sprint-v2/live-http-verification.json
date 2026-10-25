@@ -1,0 +1,198 @@
+{
+  "date": "2026-10-25T18:05:06.074Z",
+  "base": "https://tenetjustin.github.io/personal-world/",
+  "checks": [
+    {
+      "path": "",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": "451",
+      "passed": true
+    },
+    {
+      "path": "notes/",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": "451",
+      "passed": true
+    },
+    {
+      "path": "photos/",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": "451",
+      "passed": true
+    },
+    {
+      "path": "projects/",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": "451",
+      "passed": true
+    },
+    {
+      "path": "resume/",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": "451",
+      "passed": true
+    },
+    {
+      "path": "notes/a78f203c-4bca-4575-aad8-0a28b6bf4ce4/",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": "451",
+      "passed": true
+    },
+    {
+      "path": "content/manifest.json",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "contentLength": "806",
+      "passed": true
+    },
+    {
+      "path": "assets/alps-background-4k.hdr",
+      "status": 200,
+      "contentType": "application/octet-stream",
+      "contentLength": "21266869",
+      "passed": true
+    },
+    {
+      "path": "assets/alps-background.hdr",
+      "status": 200,
+      "contentType": "application/octet-stream",
+      "contentLength": "5310903",
+      "passed": true
+    },
+    {
+      "path": "assets/alps-lighting.hdr",
+      "status": 200,
+      "contentType": "application/octet-stream",
+      "contentLength": "335102",
+      "passed": true
+    },
+    {
+      "path": "assets/cabin-blockout.glb",
+      "status": 200,
+      "contentType": "model/gltf-binary",
+      "contentLength": "497978",
+      "passed": true
+    },
+    {
+      "path": "assets/cabin-door.glb",
+      "status": 200,
+      "contentType": "model/gltf-binary",
+      "contentLength": "2983692",
+      "passed": true
+    },
+    {
+      "path": "assets/cabin.glb",
+      "status": 200,
+      "contentType": "model/gltf-binary",
+      "contentLength": "10309057",
+      "passed": true
+    },
+    {
+      "path": "assets/environment.json",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "contentLength": "68",
+      "passed": true
+    },
+    {
+      "path": "assets/fir-full-dimensions.json",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "contentLength": "123",
+      "passed": true
+    },
+    {
+      "path": "assets/fir-full-impostor-0.png",
+      "status": 200,
+      "contentType": "image/png",
+      "contentLength": "456866",
+      "passed": true
+    },
+    {
+      "path": "assets/fir-full-impostor-1.png",
+      "status": 200,
+      "contentType": "image/png",
+      "contentLength": "453866",
+      "passed": true
+    },
+    {
+      "path": "assets/fir-full-impostor-2.png",
+      "status": 200,
+      "contentType": "image/png",
+      "contentLength": "433223",
+      "passed": true
+    },
+    {
+      "path": "assets/fir-full-impostor-3.png",
+      "status": 200,
+      "contentType": "image/png",
+      "contentLength": "422436",
+      "passed": true
+    },
+    {
+      "path": "assets/fir-full.glb",
+      "status": 200,
+      "contentType": "model/gltf-binary",
+      "contentLength": "3620782",
+      "passed": true
+    },
+    {
+      "path": "assets/forest-color.webp",
+      "status": 200,
+      "contentType": "image/webp",
+      "contentLength": "2164390",
+      "passed": true
+    },
+    {
+      "path": "assets/grass-dense.glb",
+      "status": 200,
+      "contentType": "model/gltf-binary",
+      "contentLength": "1231550",
+      "passed": true
+    },
+    {
+      "path": "assets/meadow-color.webp",
+      "status": 200,
+      "contentType": "image/webp",
+      "contentLength": "1606528",
+      "passed": true
+    },
+    {
+      "path": "assets/meadow-normal.webp",
+      "status": 200,
+      "contentType": "image/webp",
+      "contentLength": "2971772",
+      "passed": true
+    },
+    {
+      "path": "assets/meadow-rough.webp",
+      "status": 200,
+      "contentType": "image/webp",
+      "contentLength": "335118",
+      "passed": true
+    },
+    {
+      "path": "assets/rocks.glb",
+      "status": 200,
+      "contentType": "model/gltf-binary",
+      "contentLength": "829556",
+      "passed": true
+    }
+  ],
+  "publishedRecords": [
+    {
+      "id": "a78f203c-4bca-4575-aad8-0a28b6bf4ce4",
+      "kind": "notes",
+      "title": "欢迎来到 Personal World"
+    }
+  ],
+  "actualModelGLTFMagic": true,
+  "modelResponseStatus": 206,
+  "passed": true
+}

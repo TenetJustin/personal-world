@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-26",
+  "pages": {
+    "build_type": "workflow",
+    "html_url": "https://tenetjustin.github.io/personal-world/",
+    "https_enforced": true,
+    "public": true,
+    "status": null
+  },
+  "workflow": {
+    "status": "completed",
+    "conclusion": "success",
+    "headSha": "854f185064d0c7baf08343547ce51e4bfde8630e",
+    "url": "https://github.com/TenetJustin/personal-world/actions/runs/40219660200"
+  },
+  "jobs": [
+    {
+      "name": "build",
+      "conclusion": "success"
+    },
+    {
+      "name": "deploy",
+      "conclusion": "success"
+    }
+  ],
+  "remoteRefsAtVerification": [
+    "854f185064d0c7baf08343547ce51e4bfde8630e\trefs/heads/dev/phase-01-exterior",
+    "819f15b6a1fdf8c9eb0ad377e357dcd36f825b51\trefs/heads/main"
+  ],
+  "mainUnchanged": true,
+  "publicPersonalRecords": 0,
+  "publicOriginalSiteNotes": 1,
+  "note": "Pages API status is null for this workflow configuration; successful deploy job, HTTP checks and actual browser are the publication evidence. No merge to main.",
+  "actualBrowserModule": "/personal-world/assets/index-CqZQHecO.js",
+  "browserVerified": [
+    "19 runtime files HTTP200; actual glTF byte magic",
+    "All four direct content routes opened and refreshed in Chrome",
+    "Fresh Chrome reads reviewed public note without local records",
+    "Actual live first-person route arrived, physical Mac click opened DOM, exit returned to desk",
+    "Eight-second delayed manifest uses loading UI before resolving public record"
+  ]
+}

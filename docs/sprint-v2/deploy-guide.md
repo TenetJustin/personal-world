@@ -4,7 +4,7 @@
 
 ## 发布流程
 
-`.github/workflows/pages.yml` 仅接受该开发分支的 push / workflow_dispatch。流程依次读取 Git LFS 实际资产、安装锁定依赖、验证公开内容、执行测试、以 `/personal-world/` 构建、检查静态入口与 PDF / 3D 路径、上传静态 dist、通过 GitHub Pages OIDC 发布。没有前端 Token、账户数据库或访客写入 API。
+`.github/workflows/pages.yml` 仅接受该开发分支的 push / workflow_dispatch（仅文档和 README 的变更不重新部署）。流程依次读取 Git LFS 实际资产、安装锁定依赖、验证公开内容、执行测试、以 `/personal-world/` 构建、检查静态入口与 PDF / 3D 路径、上传静态 dist、通过 GitHub Pages OIDC 发布。没有前端 Token、账户数据库或访客写入 API。
 
 GitHub Pages 设置应选择 **GitHub Actions**（`build_type=workflow`）。`github-pages` 环境仅允许 `dev/phase-01-exterior` 部署。部署作业的 `page_url` 与 Pages API 的 `html_url` 是最终地址来源，不能把预期网址当作已经发布成功。
 
@@ -21,7 +21,7 @@ STATIC_ONLY=1 node scripts/serve_local.mjs dist /personal-world/ 5178
 # 打开 http://127.0.0.1:5178/personal-world/notes/ 并刷新。
 ```
 
-提交前检查 `git diff -- public/content`。公开 manifest 与附件进入 Public Git 历史；删除当前文件不会让旧提交消失。只有经明确逐项审查的资料才可提交。默认空清单意味着外部访客看到可用的应用和空内容提示，不会读取制作者浏览器里的本地草稿。
+提交前检查 `git diff -- public/content`。公开 manifest 与附件进入 Public Git 历史；删除当前文件不会让旧提交消失。只有经明确逐项审查的资料才可提交。当前只提交了原创站点说明；其他类别显示空状态，不会读取制作者浏览器里的本地草稿。
 
 ## 子路径与静态路由
 
@@ -41,6 +41,6 @@ STATIC_ONLY=1 node scripts/serve_local.mjs dist /personal-world/ 5178
 - 内容为空：检查是否导入并提交了经过审核的公开包；本地保存不会自动发布。
 - 资源 404：检查构建 `VITE_BASE_PATH`、dist 下实际文件、页面 Network 与静态检查结果。
 - 部署被环境拒绝：确认 `github-pages` 允许本开发分支，而非要求合并 main。
-- 权限问题：Pages 作业需要 `pages: write` 与 `id-token: write`；构建仅需 `contents: read`。
+- 权限问题：Pages 作业需要 `pages: write` 与 `id-token: write`；构建需要 `contents: read` 与 `pages: read`，后者仅供官方 configure-pages 查询已启用站点的元数据。
 
 官方依据：[自定义 Pages 工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)、[发布源配置](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)、[Pages REST API](https://docs.github.com/en/rest/pages/pages)、[静态 404](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-custom-404-page-for-your-github-pages-site)。均于 2026-10-25 查阅。

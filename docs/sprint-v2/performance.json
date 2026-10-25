@@ -36,5 +36,46 @@
     "Resource timing bytes include application resources; GPU memory counts are not byte estimates.",
     "DOM desktop pauses WebGL; do not call paused desktop 60 FPS.",
     "Whole-tour p95 and real phone measurements remain pending."
-  ]
+  ],
+  "livePagesStationarySample": {
+    "samples": 900,
+    "durationSeconds": 14.999799999982118,
+    "averageFPS": 60.00080001073834,
+    "p95ms": 18.19999998807907,
+    "p99ms": 21.19999998807907,
+    "maxCalls": 329,
+    "maxTriangles": 11719369,
+    "entryToFirstFrameMs": 5169.899999976158,
+    "assetPreparationMs": 4405.0999999940395,
+    "errors": [],
+    "visibilityExclusions": 0,
+    "resourceEncodedBytes": 33837008,
+    "resourceTransferBytes": 33843608,
+    "screenProjection": {
+      "quad": [
+        [
+          580.0423146546051,
+          320.7617881123418
+        ],
+        [
+          699.957685345395,
+          320.76178811234166
+        ],
+        [
+          699.1717445059371,
+          398.72386726257565
+        ],
+        [
+          580.8282554940628,
+          398.7238672625757
+        ]
+      ],
+      "width": 1280,
+      "height": 720,
+      "valid": true,
+      "maxCornerErrorPixels": 6.540483546406115e-05
+    },
+    "origin": "https://tenetjustin.github.io",
+    "scope": "Actual Pages load and stationary desk view. Resource timing may be limited by cross-origin timing policy; caches not purged, no cold-network claim."
+  }
 }

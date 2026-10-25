@@ -4,6 +4,8 @@
 
 Phase 01B 照片级精修保存点 `d85f349`，视觉问题仍保留，功能贯通和上线不代表照片级验收通过。
 
+网站：**https://tenetjustin.github.io/personal-world/**。直接资料入口：**https://tenetjustin.github.io/personal-world/notes/**。部署与线上验证见 [发布回执](docs/sprint-v2/deployment-success.json)。
+
 ## 本地运行
 
 ```sh
