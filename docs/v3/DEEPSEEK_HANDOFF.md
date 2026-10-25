@@ -10,7 +10,7 @@
 
 ## 1. 接手时的真实状态
 
-Codex 的本地工作区位于 `/Users/wheeler/Documents/Codex/2026-10-25/files-pasted-by-the-user-cinematic`，分支 `feat/immersive-v3`，HEAD 为 `aba5377`，**全部 V3 改动均未提交**：
+Codex 的本地工作区（本机 Codex 会话目录，未推送）位于独立分支 `feat/immersive-v3`，HEAD 为 `aba5377`，**全部 V3 改动均未提交**：
 
 - 13 个已跟踪文件修改。
 - 25 个未跟踪文件（含 V3 室内 Blender 母版、两个 GLB、DesktopV3、ProfileCenter、profile 数据模型、locomotion、两份测试等）。
