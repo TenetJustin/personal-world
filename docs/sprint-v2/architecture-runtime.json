@@ -1,0 +1,25 @@
+[
+  {
+    "file": "public/assets/cabin.glb",
+    "bytes": 13906208,
+    "meshes": 7,
+    "materials": [
+      "06 / blackened hardware",
+      "07 / recessed lime mortar",
+      "04 / natural granite masonry",
+      "01 / warm weathered pine",
+      "02 / oiled timber joinery",
+      "03 / charcoal standing-seam zinc",
+      "05 / architectural clear glass - nonmetal"
+    ]
+  },
+  {
+    "file": "public/assets/cabin-door.glb",
+    "bytes": 3004176,
+    "meshes": 2,
+    "materials": [
+      "06 / blackened hardware",
+      "01 / warm weathered pine"
+    ]
+  }
+]

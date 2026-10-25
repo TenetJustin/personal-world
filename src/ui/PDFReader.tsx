@@ -1,3 +1,4 @@
+import { assetURL } from "../site";
 import { useEffect, useRef, useState } from "react";
 import {
   getDocument,
@@ -32,10 +33,10 @@ export default function PDFReader({
         if (!alive) return;
         task = getDocument({
           data: new Uint8Array(data),
-          standardFontDataUrl: "/pdfjs/standard_fonts/",
-          cMapUrl: "/pdfjs/cmaps/",
+          standardFontDataUrl: assetURL("pdfjs/standard_fonts/"),
+          cMapUrl: assetURL("pdfjs/cmaps/"),
           cMapPacked: true,
-          wasmUrl: "/pdfjs/wasm/",
+          wasmUrl: assetURL("pdfjs/wasm/"),
           enableXfa: false,
         });
         return task.promise.then((pdf) => {

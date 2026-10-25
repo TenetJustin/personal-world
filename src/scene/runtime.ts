@@ -53,7 +53,7 @@ export const runtime = {
           }
         : null,
       quality: this.quality,
-      sceneRevision: "phase-01b-candidate",
+      sceneRevision: "phase-02-04-sprint-v2",
       reflectionPolicy: new URLSearchParams(location.search).has(
         "fullReflection",
       )

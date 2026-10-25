@@ -6,6 +6,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import {
@@ -17,15 +18,19 @@ import {
   parseRoute,
 } from "./library/model";
 import { readEntries, removeEntry, writeEntries } from "./library/storage";
+import { loadPublishedContent } from "./library/publishing";
 import { Library } from "./ui/Library";
+import { ScreenBridge } from "./ui/ScreenBridge";
 import { diagnosticSnapshot } from "./library/diagnostics";
 import { runtime } from "./scene/runtime";
+import { journey, ROUTE_ANCHORS } from "./scene/journey";
+import { screenProjection } from "./scene/screenProjection";
+import { appURL, assetURL } from "./site";
 import "./style.css";
 const World = lazy(() =>
   import("./scene/Exterior").then((m) => ({ default: m.Exterior })),
 );
 const Study = lazy(() => import("./ExteriorStudy"));
-type Place = "exterior" | "interior" | "desk";
 class WorldBoundary extends Component<
   { children: ReactNode; onError: () => void },
   { failed: boolean }
@@ -45,9 +50,14 @@ export default function App() {
   const initial = useRef(parseRoute(location.pathname));
   const [route, setRoute] = useState(initial.current),
     [desktop, setDesktop] = useState(!!initial.current.kind),
-    [worldStarted, setWorldStarted] = useState(false),
-    [place, setPlace] = useState<Place>("exterior");
+    [worldStarted, setWorldStarted] = useState(
+      !initial.current.kind &&
+        !new URLSearchParams(location.search).has("study"),
+    );
+  const state = useSyncExternalStore(journey.subscribe, journey.getSnapshot);
   const [entries, setEntries] = useState<Entry[]>([]),
+    [published, setPublished] = useState<Entry[]>([]),
+    [publishedError, setPublishedError] = useState(""),
     [loading, setLoading] = useState(true),
     [storageError, setStorageError] = useState(""),
     [dirty, setDirty] = useState(false);
@@ -56,11 +66,11 @@ export default function App() {
     [transition, setTransition] = useState(false),
     [hidden, setHidden] = useState(document.hidden),
     [minimized, setMinimized] = useState(false),
-    [help, setHelp] = useState(false);
-  const [diagnosticURL, setDiagnosticURL] = useState("");
-  const [sampling, setSampling] = useState(false);
-  const sampleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    [help, setHelp] = useState(false),
+    [diagnosticURL, setDiagnosticURL] = useState(""),
+    [sampling, setSampling] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null),
+    sampleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const refresh = useCallback(async () => setEntries(await readEntries()), []);
   const boot = useCallback(async () => {
     setLoading(true);
@@ -69,25 +79,35 @@ export default function App() {
       await refresh();
     } catch (e) {
       setStorageError(
-        `无法打开本地资料库：${e instanceof Error ? e.message : String(e)}。请允许浏览器存储并重试；已有资料不会被覆盖。`,
+        "无法打开本地资料库：" +
+          (e instanceof Error ? e.message : String(e)) +
+          "。请允许浏览器存储并重试。公开内容仍可阅读。",
       );
     } finally {
       setLoading(false);
     }
   }, [refresh]);
+  const loadPublic = useCallback(async () => {
+    setPublishedError("");
+    try {
+      setPublished(await loadPublishedContent());
+    } catch (e) {
+      setPublishedError(e instanceof Error ? e.message : String(e));
+    }
+  }, []);
   useEffect(() => {
     void boot();
-  }, [boot]);
+    void loadPublic();
+  }, [boot, loadPublic]);
   const sync = useRef<BroadcastChannel | null>(null);
   useEffect(() => {
     if (!("BroadcastChannel" in window)) return;
     const channel = new BroadcastChannel("personal-world-library");
     sync.current = channel;
-    channel.onmessage = () => {
+    channel.onmessage = () =>
       void refresh().catch(() =>
-        setStorageError("其他标签页修改后重新读取失败，请重试"),
+        setStorageError("读取其他标签页更新失败，请重试"),
       );
-    };
     return () => {
       sync.current = null;
       channel.close();
@@ -104,46 +124,76 @@ export default function App() {
     sync.current?.postMessage("changed");
   };
   const navigate = useCallback((kind: Kind, id: string | null = null) => {
+    journey.interact();
     history.pushState({}, "", entryPath(kind, id));
     setRoute({ kind, id });
     setDesktop(true);
     setMinimized(false);
   }, []);
   useEffect(() => {
+    if (state.phase === "DESKTOP") {
+      setDesktop(true);
+      if (!parseRoute(location.pathname).kind) {
+        history.pushState({}, "", entryPath("notes"));
+        setRoute({ kind: "notes", id: null });
+      }
+    }
+  }, [state.phase]);
+  useEffect(() => {
     const pop = () => {
       const next = parseRoute(location.pathname);
       setRoute(next);
-      setDesktop(!!next.kind);
+      if (next.kind) {
+        journey.interact();
+        setDesktop(true);
+      } else {
+        setDesktop(false);
+        if (journey.phase === "DESKTOP") journey.exitDesktop();
+      }
       setMinimized(false);
     };
     const visibility = () => setHidden(document.hidden);
-    const failed = (event: Event) =>
-      setWorldError(String((event as CustomEvent).detail || "3D 暂不可用"));
+    const failed = (e: Event) =>
+      setWorldError(String((e as CustomEvent).detail || "3D 暂不可用"));
+    const loaded = () => setReady(true);
     window.addEventListener("popstate", pop);
     window.addEventListener("world-error", failed);
+    window.addEventListener("world-ready", loaded);
     document.addEventListener("visibilitychange", visibility);
     return () => {
       window.removeEventListener("popstate", pop);
       window.removeEventListener("world-error", failed);
+      window.removeEventListener("world-ready", loaded);
       document.removeEventListener("visibilitychange", visibility);
     };
   }, []);
   useEffect(() => {
-    const loaded = () => setReady(true);
-    window.addEventListener("world-ready", loaded);
-    return () => window.removeEventListener("world-ready", loaded);
+    journey.setBlocked(
+      help || hidden || !!worldError || (!ready && worldStarted) || desktop,
+    );
+  }, [help, hidden, worldError, ready, worldStarted, desktop]);
+  useEffect(() => {
+    const media = matchMedia("(prefers-reduced-motion: reduce)");
+    const change = () => {
+      journey.setReducedMotion(media.matches);
+      runtime.reducedMotion = media.matches;
+      runtime.motion = !media.matches;
+    };
+    change();
+    media.addEventListener("change", change);
+    return () => media.removeEventListener("change", change);
   }, []);
   useEffect(() => {
     document.title =
       desktop && route.kind
-        ? `${LABELS[route.kind]} · Personal World`
-        : "Personal World · 私人湖畔";
-  }, [route.kind, desktop]);
+        ? LABELS[route.kind] + " · Personal World"
+        : "Personal World · 湖畔木屋";
+  }, [desktop, route.kind]);
   useEffect(() => {
-    const before = (event: BeforeUnloadEvent) => {
+    const before = (e: BeforeUnloadEvent) => {
       if (dirty) {
-        event.preventDefault();
-        event.returnValue = "";
+        e.preventDefault();
+        e.returnValue = "";
       }
     };
     window.addEventListener("beforeunload", before);
@@ -157,9 +207,92 @@ export default function App() {
     [],
   );
   useEffect(() => {
+    if (!worldStarted || desktop || help) return;
+    let drag: { id: number; x: number; y: number } | null = null,
+      last: { x: number; y: number } | null = null;
+    const locked = () =>
+      ["ENTERING_DESKTOP", "EXITING_DESKTOP", "DESKTOP"].includes(
+        journey.phase,
+      );
+    const down = (e: PointerEvent) => {
+      if (!e.isTrusted || locked()) return;
+      journey.interact();
+      if (e.target instanceof HTMLCanvasElement) {
+        drag = { id: e.pointerId, x: e.clientX, y: e.clientY };
+        e.target.setPointerCapture(e.pointerId);
+      }
+    };
+    const move = (e: PointerEvent) => {
+      if (!e.isTrusted || locked()) return;
+      if (drag && e.pointerId === drag.id) {
+        const dx = e.clientX - drag.x,
+          dy = e.clientY - drag.y;
+        if (Math.abs(dx) + Math.abs(dy) > 0.6) journey.look(dx, dy);
+        drag.x = e.clientX;
+        drag.y = e.clientY;
+      } else if (e.target instanceof Element) {
+        if (last && Math.hypot(e.clientX - last.x, e.clientY - last.y) >= 6) {
+          journey.interact();
+          last = { x: e.clientX, y: e.clientY };
+        } else if (!last) last = { x: e.clientX, y: e.clientY };
+      }
+    };
+    const up = () => {
+      drag = null;
+    };
+    const wheel = (e: WheelEvent) => {
+      if (
+        e.isTrusted &&
+        !locked() &&
+        Math.abs(e.deltaY) + Math.abs(e.deltaX) > 2
+      )
+        journey.interact();
+    };
+    const key = (e: KeyboardEvent) => {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      )
+        return;
+      if (e.key === "Escape") {
+        if (journey.phase === "ENTERING_DESKTOP") journey.cancelDock();
+        else journey.interact();
+        return;
+      }
+      if (locked()) return;
+      if (e.key.startsWith("Arrow")) {
+        e.preventDefault();
+        journey.look(
+          e.key === "ArrowLeft" ? -13 : e.key === "ArrowRight" ? 13 : 0,
+          e.key === "ArrowUp" ? -13 : e.key === "ArrowDown" ? 13 : 0,
+        );
+      } else if (e.key === "Enter" && journey.phase === "DESK_READY")
+        journey.requestDesktop();
+      else if (e.key === " ") {
+        e.preventDefault();
+        if (journey.getSnapshot().moving) journey.interact();
+        else journey.startGuide();
+      } else if (e.isTrusted) journey.interact();
+    };
+    window.addEventListener("pointerdown", down, true);
+    window.addEventListener("pointermove", move, true);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+    window.addEventListener("wheel", wheel, { passive: true });
+    window.addEventListener("keydown", key);
+    return () => {
+      window.removeEventListener("pointerdown", down, true);
+      window.removeEventListener("pointermove", move, true);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+      window.removeEventListener("wheel", wheel);
+      window.removeEventListener("keydown", key);
+    };
+  }, [worldStarted, desktop, help]);
+  useEffect(() => {
     if (!help) return;
-    const previous = document.activeElement as HTMLElement | null;
-    const dialog = document.querySelector<HTMLElement>(".help-dialog");
+    const previous = document.activeElement as HTMLElement | null,
+      dialog = document.querySelector<HTMLElement>(".help-dialog");
     dialog?.querySelector<HTMLButtonElement>("button")?.focus();
     const key = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -167,19 +300,17 @@ export default function App() {
         return;
       }
       if (e.key !== "Tab" || !dialog) return;
-      const focusable = Array.from(
+      const all = Array.from(
         dialog.querySelectorAll<HTMLElement>(
           "button:not(:disabled),a[href],input,textarea",
         ),
       ).filter((el) => el.offsetParent !== null);
-      const first = focusable[0],
-        last = focusable.at(-1);
-      if (e.shiftKey && document.activeElement === first) {
+      if (e.shiftKey && document.activeElement === all[0]) {
         e.preventDefault();
-        last?.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
+        all.at(-1)?.focus();
+      } else if (!e.shiftKey && document.activeElement === all.at(-1)) {
         e.preventDefault();
-        first?.focus();
+        all[0]?.focus();
       }
     };
     window.addEventListener("keydown", key);
@@ -191,7 +322,17 @@ export default function App() {
   const makeDiagnostic = () =>
     setDiagnosticURL(
       "data:application/json;charset=utf-8," +
-        encodeURIComponent(JSON.stringify(diagnosticSnapshot(), null, 2)),
+        encodeURIComponent(
+          JSON.stringify(
+            {
+              ...diagnosticSnapshot(),
+              journey: journey.exportState(),
+              screenProjection,
+            },
+            null,
+            2,
+          ),
+        ),
     );
   const sampleWorld = () => {
     runtime.frames = [];
@@ -206,34 +347,27 @@ export default function App() {
       setHelp(true);
     }, 17000);
   };
-  const goPlace = (next: Place) => {
-    if (timer.current) clearTimeout(timer.current);
-    if (runtime.reducedMotion) {
-      setPlace(next);
-      return;
-    }
-    setTransition(true);
-    timer.current = setTimeout(() => {
-      setPlace(next);
-      timer.current = setTimeout(() => setTransition(false), 220);
-    }, 180);
+  const go = (destination: "lake" | "room" | "desk") => {
+    if (state.reducedMotion) {
+      setTransition(true);
+      timer.current = setTimeout(() => {
+        journey.navigate(destination);
+        timer.current = setTimeout(() => setTransition(false), 200);
+      }, 160);
+    } else journey.navigate(destination);
   };
   const returnWorld = () => {
     if (!worldStarted) {
       runtime.started = performance.now();
+      journey.spawnAtDesk();
       setWorldStarted(true);
-      setPlace("interior");
-    }
-    history.pushState({}, "", "/");
+    } else if (journey.phase === "DESKTOP") journey.exitDesktop();
+    history.pushState({}, "", appURL());
     setDesktop(false);
     setMinimized(false);
   };
-  const beginWorld = () => {
-    runtime.started = performance.now();
-    setWorldStarted(true);
-    setPlace("exterior");
-  };
-  const activeKind = route.kind ?? "notes";
+  const activeKind = route.kind ?? "notes",
+    bridging = ["ENTERING_DESKTOP", "EXITING_DESKTOP"].includes(state.phase);
   if (new URLSearchParams(location.search).has("study"))
     return (
       <Suspense fallback={<p>正在打开外景研究工具…</p>}>
@@ -241,10 +375,13 @@ export default function App() {
       </Suspense>
     );
   return (
-    <main className={`experience ${desktop ? "desktop-mode" : "world-mode"}`}>
+    <main
+      className={"experience " + (desktop ? "desktop-mode" : "world-mode")}
+      data-journey-phase={state.phase}
+    >
       <a
         className="skip-link"
-        href="/notes/"
+        href={entryPath("notes")}
         onClick={(e) => {
           e.preventDefault();
           navigate("notes");
@@ -255,7 +392,7 @@ export default function App() {
       {worldStarted && (
         <div
           className="world-canvas"
-          hidden={desktop || !!worldError}
+          style={{ visibility: desktop ? "hidden" : "visible" }}
           aria-hidden={desktop || !!worldError}
         >
           <WorldBoundary
@@ -264,297 +401,291 @@ export default function App() {
             }
           >
             <Suspense fallback={null}>
-              <World place={place} paused={desktop || hidden || !!worldError} />
+              <World cinematic paused={desktop || hidden || !!worldError} />
             </Suspense>
           </WorldBoundary>
         </div>
       )}
       <div
-        className={`scene-curtain ${transition ? "cover" : ""}`}
+        className={"scene-curtain " + (transition ? "cover" : "")}
         aria-hidden="true"
       />
-      {!desktop && (
+      {!desktop && !bridging && (
         <>
           <header className="world-header">
             <a
-              href="/"
+              href={appURL()}
               className="brand"
               onClick={(e) => {
                 e.preventDefault();
-                setPlace("exterior");
+                go("lake");
               }}
             >
-              PERSONAL WORLD<small>A PRIVATE PLACE TO RETURN TO</small>
+              PERSONAL WORLD<small>A LAKESIDE PLACE FOR YOUR STORIES</small>
             </a>
             <button
               className="glass-button"
               onClick={() => navigate(activeKind, route.id)}
             >
-              打开资料库 ↗
+              资料入口 · 跳过体验 ↗
             </button>
           </header>
-          {!worldStarted ? (
-            <section className="welcome">
-              <p className="eyebrow">YOUR LAKESIDE, YOUR STORIES</p>
-              <h1>
-                A quieter place.
-                <br />
-                <em>A world of your own.</em>
-              </h1>
-              <p className="intro">
-                从湖岸走进木屋，或直接打开你的私人资料库。
-                <br />
-                想法、照片、作品与经历，在这里慢慢积累。
+          {!ready && !worldError && (
+            <div className="scene-loading" role="status">
+              正在准备湖岸与木屋…
+              <br />
+              <small>内容入口始终可用。场景就绪后才开始五秒等待。</small>
+            </div>
+          )}
+          {worldError && (
+            <div className="world-failure" role="alert">
+              <h2>3D 暂不可用</h2>
+              <p>
+                三维场景未能加载。可以继续浏览资料，或检查网络和浏览器图形支持后重试。
               </p>
-              <div className="welcome-actions">
+              <button onClick={() => navigate("notes")}>继续浏览资料</button>
+              <button onClick={() => location.reload()}>重试场景</button>
+            </div>
+          )}
+          <section className="journey-caption" aria-live="polite">
+            <p className="eyebrow">
+              FIRST PERSON /{" "}
+              {state.phase === "DESK_READY"
+                ? "ARRIVAL"
+                : journey.distance >= ROUTE_ANCHORS.porch
+                  ? "THRESHOLD"
+                  : "THE LAKESHORE"}
+            </p>
+            <h1>
+              {state.phase === "DESK_READY"
+                ? "A place for your stories."
+                : journey.distance >= ROUTE_ANCHORS.room
+                  ? "Make yourself at home."
+                  : "Take your time."}
+            </h1>
+            <p>
+              {state.idleSeconds
+                ? state.idleSeconds + " 秒无操作后，为你引路。"
+                : state.label}
+            </p>
+          </section>
+          <nav className="journey-controls" aria-label="第一人称导航">
+            {state.moving ? (
+              <button
+                className="glass-button"
+                onClick={() => journey.interact()}
+              >
+                暂停引导 · Esc
+              </button>
+            ) : (
+              state.phase !== "DESK_READY" && (
                 <button
                   className="light-button"
-                  onClick={() => navigate("notes")}
+                  disabled={!ready}
+                  onClick={() => {
+                    if (
+                      state.reducedMotion ||
+                      journey.distance >= ROUTE_ANCHORS.room - 0.05
+                    )
+                      go("desk");
+                    else journey.startGuide();
+                  }}
                 >
-                  打开我的资料库 <span>↗</span>
+                  {journey.distance >= ROUTE_ANCHORS.room - 0.05
+                    ? "前往书桌"
+                    : "继续前往木屋"}{" "}
+                  →
                 </button>
-                <button className="glass-button" onClick={beginWorld}>
-                  从湖岸进入
+              )
+            )}
+            {state.phase === "DESK_READY" && (
+              <button
+                className="light-button"
+                onClick={() => journey.requestDesktop()}
+              >
+                点击 Mac，打开电脑 ↗
+              </button>
+            )}
+            <button
+              className="glass-button"
+              disabled={!ready}
+              onClick={() => go("lake")}
+            >
+              返回湖岸
+            </button>
+            {journey.distance >= ROUTE_ANCHORS.room &&
+              state.phase !== "DESK_READY" && (
+                <button className="glass-button" onClick={() => go("desk")}>
+                  返回书桌
                 </button>
-              </div>
-              <p className="welcome-note">仅本地保存 · 无需账户 · 随时备份</p>
-            </section>
-          ) : (
-            <>
-              {!ready && !worldError && (
-                <div className="scene-loading" role="status">
-                  正在准备湖岸场景…
-                  <br />
-                  <small>首次需加载真实 3D 资产。可随时直接打开资料库。</small>
-                </div>
               )}
-              {worldError && (
-                <div className="world-failure" role="alert">
-                  <h2>3D 场景暂不可用</h2>
-                  <p>{worldError}</p>
-                  <button onClick={() => navigate("notes")}>
-                    继续使用资料库
-                  </button>
-                  <button onClick={() => location.reload()}>重新加载</button>
-                </div>
-              )}
-              <section className="world-caption">
-                <p className="eyebrow">
-                  {place === "exterior"
-                    ? "01 / THE LAKESHORE"
-                    : place === "interior"
-                      ? "02 / INSIDE THE CABIN"
-                      : "03 / YOUR DESK"}
-                </p>
-                <h1>
-                  {place === "exterior"
-                    ? "Welcome to the lakeside."
-                    : place === "interior"
-                      ? "Make yourself at home."
-                      : "Your stories start here."}
-                </h1>
-                <p>
-                  {place === "exterior"
-                    ? "湖岸与木屋 · Phase 01B 视觉精修待续"
-                    : place === "interior"
-                      ? "简化室内 · 书桌是个人资料的入口"
-                      : "打开电脑，即可浏览和整理真实资料"}
-                </p>
-              </section>
-              <nav className="world-navigation" aria-label="空间导航">
-                {place === "exterior" ? (
-                  <>
-                    <button
-                      className="glass-button"
-                      disabled={!ready}
-                      onClick={() => {
-                        runtime.inspectionShot = null;
-                        runtime.requestedShot = "A";
-                      }}
-                    >
-                      湖岸镜头
-                    </button>
-                    <button
-                      className="glass-button"
-                      disabled={!ready}
-                      onClick={() => {
-                        runtime.inspectionShot = null;
-                        runtime.motion = !runtime.reducedMotion;
-                        runtime.moveTarget = 1;
-                      }}
-                    >
-                      走近木屋
-                    </button>
-                    <button
-                      className="light-button"
-                      disabled={!ready}
-                      onClick={() => goPlace("interior")}
-                    >
-                      进入木屋 →
-                    </button>
-                  </>
-                ) : place === "interior" ? (
-                  <>
-                    <button
-                      className="glass-button"
-                      onClick={() => goPlace("exterior")}
-                    >
-                      返回湖岸
-                    </button>
-                    <button
-                      className="light-button"
-                      onClick={() => goPlace("desk")}
-                    >
-                      走到书桌 →
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      className="glass-button"
-                      onClick={() => goPlace("interior")}
-                    >
-                      离开书桌
-                    </button>
-                    <button
-                      className="light-button"
-                      onClick={() => navigate(activeKind, route.id)}
-                    >
-                      打开电脑 ↗
-                    </button>
-                  </>
-                )}
-              </nav>
-            </>
-          )}
+            <button className="glass-button" onClick={() => navigate("notes")}>
+              跳过引导
+            </button>
+          </nav>
+          <div className="world-bottom">
+            <span>拖动环视 · 方向键环视 · 点击目标步行</span>
+            <div>
+              <button
+                className="quiet-button"
+                aria-pressed={state.reducedMotion}
+                onClick={() => {
+                  journey.setReducedMotion(!state.reducedMotion);
+                  runtime.reducedMotion = journey.reducedMotion;
+                  runtime.motion = !journey.reducedMotion;
+                }}
+              >
+                减少动态：{state.reducedMotion ? "开启" : "关闭"}
+              </button>
+              <button className="quiet-button" onClick={() => setHelp(true)}>
+                使用与发布说明
+              </button>
+              <a
+                className="quiet-button"
+                href={assetURL("licenses/dependencies.json")}
+                target="_blank"
+                rel="noreferrer"
+              >
+                资产与许可
+              </a>
+            </div>
+          </div>
           {sampling && (
             <div className="sampling-status" role="status">
-              正在记录 3D 真实帧时间（预热 2 秒＋采样 15 秒）…
+              正在采样真实 3D 帧时间…
             </div>
           )}
-          <div className="world-bottom">
-            <span>PRIVATE · LOCAL FIRST</span>
-            <button className="quiet-button" onClick={() => setHelp(true)}>
-              使用与备份说明
-            </button>
-          </div>
         </>
       )}
-      <div className="desktop" hidden={!desktop}>
-        <header className="desktop-menubar">
-          <div className="desktop-wordmark">
-            ◈ <strong>Personal World</strong>
-            <span>私人资料库</span>
-          </div>
-          <span className="local-indicator">● 本地保存</span>
-          <button onClick={() => setHelp(true)}>使用说明</button>
-          <button onClick={returnWorld}>返回木屋 ↗</button>
-        </header>
-        <nav className="desktop-sidebar" aria-label="资料应用">
-          <p className="eyebrow">MY LIBRARY</p>
-          {KINDS.map((kind, index) => (
-            <a
-              href={entryPath(kind)}
-              key={kind}
-              className={activeKind === kind ? "active" : ""}
-              aria-current={activeKind === kind ? "page" : undefined}
-              onClick={(event) => {
-                event.preventDefault();
-                navigate(kind);
-              }}
-            >
-              <span className={`app-icon icon-${kind}`}>
-                {["≡", "▧", "↗", "◎"][index]}
+      {publishedError && desktop && (
+        <p className="published-error" role="alert">
+          {publishedError}
+          <button onClick={() => void loadPublic()}>重试公开内容</button>
+        </p>
+      )}
+      <ScreenBridge active={desktop || bridging} full={desktop}>
+        <div className="desktop">
+          <header className="desktop-menubar">
+            <div className="desktop-wordmark">
+              ◈ <strong>Personal World</strong>
+              <span>发布与本地草稿</span>
+            </div>
+            <span className="local-indicator">● 本地草稿 / 已发布只读</span>
+            <button onClick={() => setHelp(true)}>使用说明</button>
+            <button onClick={returnWorld}>返回木屋 ↗</button>
+          </header>
+          <nav className="desktop-sidebar" aria-label="资料应用">
+            <p className="eyebrow">MY LIBRARY</p>
+            {KINDS.map((kind, index) => (
+              <a
+                href={entryPath(kind)}
+                key={kind}
+                className={activeKind === kind ? "active" : ""}
+                aria-current={activeKind === kind ? "page" : undefined}
+                onClick={(event) => {
+                  event.preventDefault();
+                  navigate(kind);
+                }}
+              >
+                <span className={`app-icon icon-${kind}`}>
+                  {["≡", "▧", "↗", "◎"][index]}
+                </span>
+                <span>{LABELS[kind]}</span>
+                <small>
+                  {published.filter((e) => e.kind === kind).length} /{" "}
+                  {
+                    entries.filter((e) => e.kind === kind && !e.deletedAt)
+                      .length
+                  }
+                </small>
+              </a>
+            ))}
+            <div className="sidebar-bottom">
+              <span className="eyebrow">YOUR OWN LITTLE ARCHIVE</span>
+              <p>
+                {published.length} 项已发布 /{" "}
+                {entries.filter((e) => !e.deletedAt).length} 项草稿
+                <br />
+                本地草稿不会自动公开
+              </p>
+              <button onClick={() => setHelp(true)}>如何添加与备份 ↗</button>
+            </div>
+          </nav>
+          <div className="desktop-window" hidden={minimized}>
+            <div className="window-titlebar">
+              <div className="window-controls">
+                <button
+                  aria-label="关闭资料窗口"
+                  title="关闭窗口，内容保留"
+                  onClick={() => setMinimized(true)}
+                >
+                  ×
+                </button>
+                <button
+                  aria-label="最小化资料窗口"
+                  title="最小化"
+                  onClick={() => setMinimized(true)}
+                >
+                  −
+                </button>
+              </div>
+              <span>
+                {LABELS[activeKind]} <small>— Personal World</small>
               </span>
-              <span>{LABELS[kind]}</span>
-              <small>
-                {entries.filter((e) => e.kind === kind && !e.deletedAt).length}
-              </small>
-            </a>
-          ))}
-          <div className="sidebar-bottom">
-            <span className="eyebrow">YOUR OWN LITTLE ARCHIVE</span>
-            <p>
-              {entries.length} 项个人资料
-              <br />
-              只属于此浏览器
-            </p>
-            <button onClick={() => setHelp(true)}>如何添加与备份 ↗</button>
-          </div>
-        </nav>
-        <div className="desktop-window" hidden={minimized}>
-          <div className="window-titlebar">
-            <div className="window-controls">
-              <button
-                aria-label="关闭资料窗口"
-                title="关闭窗口，内容保留"
-                onClick={() => setMinimized(true)}
-              >
-                ×
-              </button>
-              <button
-                aria-label="最小化资料窗口"
-                title="最小化"
-                onClick={() => setMinimized(true)}
-              >
-                −
-              </button>
+              <span className="window-meta">
+                {dirty ? "● 未保存" : "LOCAL LIBRARY"}
+              </span>
             </div>
-            <span>
-              {LABELS[activeKind]} <small>— Personal World</small>
-            </span>
-            <span className="window-meta">
-              {dirty ? "● 未保存" : "LOCAL LIBRARY"}
-            </span>
+            {storageError && (
+              <div className="storage-error" role="alert">
+                {storageError}
+                <button onClick={() => void boot()}>重试打开资料库</button>
+              </div>
+            )}
+            <Library
+              kind={activeKind}
+              selected={route.id}
+              entries={entries}
+              published={published}
+              loading={loading}
+              error={storageError}
+              onSelect={(id) => navigate(activeKind, id)}
+              onSave={save}
+              onDelete={remove}
+              onRestore={save}
+              onDirty={setDirty}
+            />
           </div>
-          {storageError && (
-            <div className="storage-error" role="alert">
-              {storageError}
-              <button onClick={() => void boot()}>重试打开资料库</button>
-            </div>
+          {minimized && (
+            <section className="desktop-rest">
+              <p className="eyebrow">A LITTLE ROOM FOR YOUR LIFE</p>
+              <h1>
+                All your stories,
+                <br />
+                <em>in one quiet place.</em>
+              </h1>
+              <button className="accent" onClick={() => setMinimized(false)}>
+                恢复 {LABELS[activeKind]} 窗口
+              </button>
+            </section>
           )}
-          <Library
-            kind={activeKind}
-            selected={route.id}
-            entries={entries}
-            loading={loading}
-            error={storageError}
-            onSelect={(id) => navigate(activeKind, id)}
-            onSave={save}
-            onDelete={remove}
-            onRestore={save}
-            onDirty={setDirty}
-          />
+          <nav className="dock" aria-label="桌面 Dock">
+            {KINDS.map((kind, i) => (
+              <button
+                key={kind}
+                aria-label={`打开 ${LABELS[kind]}`}
+                className={activeKind === kind && !minimized ? "running" : ""}
+                onClick={() => navigate(kind)}
+              >
+                <span className={`app-icon icon-${kind}`}>
+                  {["≡", "▧", "↗", "◎"][i]}
+                </span>
+                <small>{LABELS[kind]}</small>
+              </button>
+            ))}
+          </nav>
         </div>
-        {minimized && (
-          <section className="desktop-rest">
-            <p className="eyebrow">A LITTLE ROOM FOR YOUR LIFE</p>
-            <h1>
-              All your stories,
-              <br />
-              <em>in one quiet place.</em>
-            </h1>
-            <button className="accent" onClick={() => setMinimized(false)}>
-              恢复 {LABELS[activeKind]} 窗口
-            </button>
-          </section>
-        )}
-        <nav className="dock" aria-label="桌面 Dock">
-          {KINDS.map((kind, i) => (
-            <button
-              key={kind}
-              aria-label={`打开 ${LABELS[kind]}`}
-              className={activeKind === kind && !minimized ? "running" : ""}
-              onClick={() => navigate(kind)}
-            >
-              <span className={`app-icon icon-${kind}`}>
-                {["≡", "▧", "↗", "◎"][i]}
-              </span>
-              <small>{LABELS[kind]}</small>
-            </button>
-          ))}
-        </nav>
-      </div>
+      </ScreenBridge>
       {help && (
         <div className="modal-backdrop">
           <section
@@ -595,11 +726,12 @@ export default function App() {
             </p>
             <p>
               本地资料与当前浏览器、网站地址和端口绑定。请固定使用{" "}
-              <strong>http://127.0.0.1:5177</strong>
-              。清除网站数据、换浏览器或换端口不会自动迁移资料。应用不上传资料，也未配置账户和云端同步。
+              <strong>{location.origin}</strong>
+              。本地编辑默认是草稿，不会自动公开。明确选择并审核后导出公开内容包，提交构建才能更新网站；完整备份不要用于公开发布。
             </p>
             <p className="quiet">
-              MVP：室内为简化模型，门口与屏幕采用短淡入，精细美术和复杂窗口交互留待后续。
+              第一人称引导可随时拖动、按键或滚动接管；方向键环视，Esc
+              暂停。减少动态模式不会自动播放完整步行路线。精细美术仍待后续。
             </p>
             <div className="diagnostic-actions">
               <button onClick={makeDiagnostic}>生成本地诊断</button>

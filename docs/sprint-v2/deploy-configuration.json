@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-25",
+  "pages": {
+    "build_type": "workflow",
+    "html_url": "https://tenetjustin.github.io/personal-world/",
+    "https_enforced": true,
+    "public": true,
+    "status": null
+  },
+  "allowedDeploymentBranches": [
+    {
+      "name": "dev/phase-01-exterior",
+      "type": "branch"
+    }
+  ],
+  "deploymentTriggered": false,
+  "mainUnchanged": "819f15b6a1fdf8c9eb0ad377e357dcd36f825b51",
+  "note": "Configured at user Sprint V2 authorization; html_url is API returned. status=null means no successful site deployment yet."
+}

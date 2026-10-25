@@ -1,0 +1,17 @@
+{
+  "format": "personal-world-backup",
+  "version": 2,
+  "records": 6,
+  "kinds": [
+    "photos",
+    "notes",
+    "projects",
+    "resume"
+  ],
+  "originalPhotoBytesPreserved": true,
+  "originalPhotoSHA256": "1a7b02f644f212fad1a55c6ca3c269518ad90b838f0c0ee8d987ca7ecd49533e",
+  "thumbnailPresent": true,
+  "pdfBytesPreserved": true,
+  "projectImagePreserved": true,
+  "scope": "Actual UI restore, original image import, full backup export and downloaded JSON inspection. Disposable original fixtures only; never published."
+}

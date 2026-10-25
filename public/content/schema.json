@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Personal World reviewed static content",
+  "type": "object",
+  "required": ["format", "version", "publishedAt", "records"],
+  "properties": {
+    "format": {"const": "personal-world-published"},
+    "version": {"const": 1},
+    "publishedAt": {"type": ["string", "null"]},
+    "records": {"type": "array", "maxItems": 5000, "items": {"type": "object", "required": ["id", "kind", "title", "body", "tags", "url", "createdAt", "updatedAt"], "properties": {"kind": {"enum": ["notes", "photos", "projects", "resume"]}, "attachment": {"type": "string", "pattern": "^assets/[a-f0-9]{64}\\.(webp|png|jpg|gif|pdf)$"}}}}
+  },
+  "additionalProperties": false
+}

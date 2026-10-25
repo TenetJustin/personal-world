@@ -1,0 +1,83 @@
+{
+  "passed": true,
+  "blender": "5.2.2 LTS",
+  "master": "assets/architecture/cabin-sprint-v2.blend",
+  "physicalClearanceProbes": [
+    {
+      "x": 0.9,
+      "height": 1.8,
+      "shellClear": true,
+      "closedDoorObstructs": true,
+      "openDoorClear": true
+    },
+    {
+      "x": 0.9,
+      "height": 2.4,
+      "shellClear": true,
+      "closedDoorObstructs": true,
+      "openDoorClear": true
+    },
+    {
+      "x": 0.9,
+      "height": 3.05,
+      "shellClear": true,
+      "closedDoorObstructs": true,
+      "openDoorClear": true
+    },
+    {
+      "x": 1.11,
+      "height": 1.8,
+      "shellClear": true,
+      "closedDoorObstructs": true,
+      "openDoorClear": true
+    },
+    {
+      "x": 1.11,
+      "height": 2.4,
+      "shellClear": true,
+      "closedDoorObstructs": true,
+      "openDoorClear": true
+    },
+    {
+      "x": 1.11,
+      "height": 3.05,
+      "shellClear": true,
+      "closedDoorObstructs": true,
+      "openDoorClear": true
+    },
+    {
+      "x": 1.32,
+      "height": 1.8,
+      "shellClear": true,
+      "closedDoorObstructs": true,
+      "openDoorClear": true
+    },
+    {
+      "x": 1.32,
+      "height": 2.4,
+      "shellClear": true,
+      "closedDoorObstructs": true,
+      "openDoorClear": true
+    },
+    {
+      "x": 1.32,
+      "height": 3.05,
+      "shellClear": true,
+      "closedDoorObstructs": true,
+      "openDoorClear": true
+    }
+  ],
+  "doorLeafObjects": 10,
+  "hingeLocalBlender": [
+    0.550000011920929,
+    -4.5,
+    1.350000023841858
+  ],
+  "swingDegrees": 100,
+  "checks": [
+    "shell genuinely open independent of door",
+    "closed door blocks all nine body-height rays",
+    "open door clears all nine passage rays"
+  ],
+  "limits": "Geometric aperture checks; not human visual acceptance or full free-walking collision certification."
+}

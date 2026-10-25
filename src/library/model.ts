@@ -1,3 +1,4 @@
+import { appURL, sitePath } from "../site.ts";
 export const KINDS = ["notes", "photos", "projects", "resume"] as const;
 export type Kind = (typeof KINDS)[number];
 export const LABELS: Record<Kind, string> = {
@@ -5,6 +6,28 @@ export const LABELS: Record<Kind, string> = {
   photos: "Photos",
   projects: "Projects",
   resume: "Resume",
+};
+export type ImageAttachment = {
+  id: string;
+  name: string;
+  blob: Blob;
+  thumbnail?: Blob;
+};
+export type ResumeSections = {
+  profile: string;
+  education: string;
+  experience: string;
+  projects: string;
+  skills: string;
+  awards: string;
+};
+export const RESUME_LABELS: Record<keyof ResumeSections, string> = {
+  profile: "个人简介",
+  education: "教育",
+  experience: "实习和工作经历",
+  projects: "项目",
+  skills: "技术技能",
+  awards: "荣誉与奖项",
 };
 export type Entry = {
   id: string;
@@ -18,6 +41,15 @@ export type Entry = {
   fileName?: string;
   blob?: Blob;
   deletedAt?: string;
+  category?: string;
+  album?: string;
+  sortOrder?: number;
+  githubURL?: string;
+  demoURL?: string;
+  technology?: string;
+  thumbnail?: Blob;
+  images?: ImageAttachment[];
+  resume?: ResumeSections;
 };
 export const MAX_FILE = 25 * 1024 * 1024;
 export const MAX_LIBRARY = 100 * 1024 * 1024;
@@ -97,7 +129,79 @@ export function validateEntry(value: unknown): Entry {
       !Number.isFinite(Date.parse(r.deletedAt)))
   )
     throw new Error("回收站时间无效");
+  const extra: Partial<Entry> = {};
+  for (const key of ["category", "album", "technology"] as const)
+    if (r[key] !== undefined) extra[key] = text(r[key], 1000, key);
+  for (const key of ["githubURL", "demoURL"] as const)
+    if (r[key] !== undefined) {
+      const u = text(r[key], 2048, key);
+      if (u && !safeURL(u))
+        throw new Error("项目链接必须使用 https:// 或 http://");
+      extra[key] = u;
+    }
+  if (r.sortOrder !== undefined) {
+    if (typeof r.sortOrder !== "number" || !Number.isFinite(r.sortOrder))
+      throw new Error("排序值无效");
+    extra.sortOrder = r.sortOrder;
+  }
+  if (r.thumbnail !== undefined) {
+    if (
+      !(r.thumbnail instanceof Blob) ||
+      r.thumbnail.size > 1024 * 1024 ||
+      !["image/jpeg", "image/png", "image/webp"].includes(r.thumbnail.type)
+    )
+      throw new Error("缩略图无效");
+    extra.thumbnail = r.thumbnail;
+  }
+  if (r.images !== undefined) {
+    if (
+      r.kind !== "projects" ||
+      !Array.isArray(r.images) ||
+      r.images.length > 12
+    )
+      throw new Error("项目最多保存 12 张图片");
+    extra.images = r.images.map((v: Record<string, unknown>) => {
+      if (
+        !v ||
+        typeof v !== "object" ||
+        !(v.blob instanceof Blob) ||
+        !["image/jpeg", "image/png", "image/webp", "image/gif"].includes(
+          v.blob.type,
+        ) ||
+        v.blob.size > MAX_FILE
+      )
+        throw new Error("项目图片无效");
+      const image = {
+        id: text(v.id, 80, "图片 ID"),
+        name: text(v.name, 240, "图片名称"),
+        blob: v.blob,
+        ...(v.thumbnail instanceof Blob ? { thumbnail: v.thumbnail } : {}),
+      };
+      if (!/^[a-zA-Z0-9_-]{1,80}$/.test(image.id))
+        throw new Error("图片 ID 无效");
+      if (
+        image.thumbnail &&
+        (image.thumbnail.size > 1024 * 1024 ||
+          !["image/jpeg", "image/png", "image/webp"].includes(
+            image.thumbnail.type,
+          ))
+      )
+        throw new Error("项目缩略图无效");
+      return image;
+    });
+  }
+  if (r.resume !== undefined) {
+    if (r.kind !== "resume" || !r.resume || typeof r.resume !== "object")
+      throw new Error("履历结构无效");
+    extra.resume = Object.fromEntries(
+      Object.keys(RESUME_LABELS).map((key) => [
+        key,
+        text((r.resume as Record<string, unknown>)[key] ?? "", 100_000, key),
+      ]),
+    ) as ResumeSections;
+  }
   return {
+    ...extra,
     id,
     kind: r.kind as Kind,
     title,
@@ -117,6 +221,17 @@ export function libraryBytes(entries: Entry[]) {
     (n, e) =>
       n +
       (e.blob?.size ?? 0) +
+      (e.thumbnail?.size ?? 0) +
+      (e.images?.reduce(
+        (n, x) => n + x.blob.size + (x.thumbnail?.size ?? 0),
+        0,
+      ) ?? 0) +
+      new TextEncoder().encode(
+        JSON.stringify(e.resume ?? {}) +
+          (e.technology ?? "") +
+          (e.category ?? "") +
+          (e.album ?? ""),
+      ).length +
       new TextEncoder().encode(e.body + e.title + e.tags + e.url).length,
     0,
   );
@@ -138,15 +253,20 @@ export function mergeEntries(existing: Entry[], incoming: Entry[]) {
 }
 export type Route = { kind: Kind | null; id: string | null };
 export function parseRoute(path: string): Route {
-  const parts = path.split("/").filter(Boolean);
+  const [pathname, search] = path.split("?");
+  const parts = sitePath(pathname).split("/").filter(Boolean);
   if (!KINDS.includes(parts[0] as Kind)) return { kind: null, id: null };
   let id: string | null = null;
   try {
-    id = parts[1] ? decodeURIComponent(parts[1]) : null;
+    id = parts[1]
+      ? decodeURIComponent(parts[1])
+      : new URLSearchParams(
+          search ?? (typeof location !== "undefined" ? location.search : ""),
+        ).get("id");
+    if (id && !/^[a-zA-Z0-9_-]{1,80}$/.test(id)) id = null;
   } catch {
     /* invalid route stays in list */
   }
   return { kind: parts[0] as Kind, id };
 }
-export const entryPath = (kind: Kind, id?: string | null) =>
-  `/${kind}/${id ? encodeURIComponent(id) + "/" : ""}`;
+export const entryPath = (kind: Kind, id?: string | null) => appURL(kind, id);

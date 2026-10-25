@@ -76,7 +76,7 @@ export async function removeEntry(id: string) {
     tx.onerror = () => reject(tx.error);
   });
 }
-async function dataURL(blob: Blob): Promise<string> {
+export async function dataURL(blob: Blob): Promise<string> {
   const bytes = new Uint8Array(await blob.arrayBuffer());
   let binary = "";
   for (let i = 0; i < bytes.length; i += 16384)
@@ -86,16 +86,30 @@ async function dataURL(blob: Blob): Promise<string> {
 export async function encodeBackup(entries: Entry[]) {
   const records = [];
   for (const e of entries) {
-    const { blob, ...rest } = e;
+    const { blob, thumbnail, images, ...rest } = e;
     records.push({
       ...rest,
       ...(blob ? { attachment: await dataURL(blob) } : {}),
+      ...(thumbnail ? { thumbnailData: await dataURL(thumbnail) } : {}),
+      ...(images
+        ? {
+            images: await Promise.all(
+              images.map(async ({ blob, thumbnail, ...image }) => ({
+                ...image,
+                attachment: await dataURL(blob),
+                ...(thumbnail
+                  ? { thumbnailData: await dataURL(thumbnail) }
+                  : {}),
+              })),
+            ),
+          }
+        : {}),
     });
   }
   return JSON.stringify(
     {
       format: "personal-world-backup",
-      version: 1,
+      version: 2,
       exportedAt: new Date().toISOString(),
       records,
     },
@@ -108,36 +122,89 @@ export async function decodeBackup(file: Blob): Promise<Entry[]> {
   const data = JSON.parse(await file.text());
   if (
     data.format !== "personal-world-backup" ||
-    data.version !== 1 ||
+    ![1, 2].includes(data.version) ||
     !Array.isArray(data.records) ||
     data.records.length > 5000
   )
-    throw new Error("不是受支持的 Personal World v1 备份");
+    throw new Error("不是受支持的 Personal World v1 / v2 备份");
   const records: Entry[] = [];
   for (const r of data.records) {
     if (!r || typeof r !== "object") throw new Error("备份资料格式错误");
-    let blob: Blob | undefined;
-    if (r.attachment !== undefined) {
-      if (
-        typeof r.attachment !== "string" ||
-        r.attachment.length > MAX_FILE * 1.34 + 100
-      )
-        throw new Error("备份附件过大");
-      const match =
-        /^data:(image\/(?:jpeg|png|webp|gif)|application\/pdf);base64,([A-Za-z0-9+/]*={0,2})$/.exec(
-          r.attachment,
-        );
-      if (!match) throw new Error("备份附件格式无效");
-      const binary = atob(match[2]);
-      blob = new Blob([Uint8Array.from(binary, (c) => c.charCodeAt(0))], {
-        type: match[1],
-      });
-      await validateAttachment(blob);
-    }
-    records.push(validateEntry({ ...r, blob }));
+    const blob =
+      r.attachment === undefined
+        ? undefined
+        : await decodeAttachment(r.attachment);
+    const thumbnail =
+      r.thumbnailData === undefined
+        ? undefined
+        : await decodeAttachment(r.thumbnailData);
+    if (
+      r.images !== undefined &&
+      (!Array.isArray(r.images) || r.images.length > 12)
+    )
+      throw new Error("项目图片数量无效");
+    const images =
+      r.images === undefined
+        ? undefined
+        : await Promise.all(
+            r.images.map(async (image: Record<string, unknown>) => ({
+              ...image,
+              blob: await decodeAttachment(image.attachment),
+              thumbnail:
+                image.thumbnailData === undefined
+                  ? undefined
+                  : await decodeAttachment(image.thumbnailData),
+            })),
+          );
+    records.push(validateEntry({ ...r, blob, thumbnail, images }));
   }
   mergeEntries([], records);
   return records;
+}
+export async function decodeAttachment(value: unknown): Promise<Blob> {
+  if (typeof value !== "string" || value.length > MAX_FILE * 1.34 + 100)
+    throw new Error("备份附件过大或无效");
+  const match =
+    /^data:(image\/(?:jpeg|png|webp|gif)|application\/pdf);base64,([A-Za-z0-9+/]*={0,2})$/.exec(
+      value,
+    );
+  if (!match) throw new Error("备份附件格式无效");
+  const binary = atob(match[2]);
+  const blob = new Blob([Uint8Array.from(binary, (c) => c.charCodeAt(0))], {
+    type: match[1],
+  });
+  await validateAttachment(blob);
+  return blob;
+}
+export async function prepareImage(
+  file: Blob,
+): Promise<{ blob: Blob; thumbnail: Blob }> {
+  await validateAttachment(file);
+  const image = await createImageBitmap(file);
+  try {
+    const encode = async (max: number, quality: number) => {
+      const scale = Math.min(1, max / Math.max(image.width, image.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.width * scale));
+      canvas.height = Math.max(1, Math.round(image.height * scale));
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("浏览器无法生成照片缩略图");
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      return new Promise<Blob>((resolve, reject) =>
+        canvas.toBlob(
+          (v) => (v ? resolve(v) : reject(new Error("图片压缩失败"))),
+          "image/webp",
+          quality,
+        ),
+      );
+    };
+    return {
+      blob: await encode(2400, 0.88),
+      thumbnail: await encode(360, 0.76),
+    };
+  } finally {
+    image.close();
+  }
 }
 export async function validateAttachment(file: Blob) {
   if (file.size > MAX_FILE) throw new Error("单个附件不能超过 25 MB");

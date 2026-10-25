@@ -1,0 +1,17 @@
+{
+  "testedAt": "2026-10-25T15:31:00.726Z",
+  "environment": "Node HTTP integration, actual localhost fetch (not a browser visual test)",
+  "base": "/personal-world/",
+  "imported": {
+    "records": 4,
+    "assets": 3
+  },
+  "selectedRecordCount": 4,
+  "privateMarkerExcluded": true,
+  "allAssetSHA256Match": true,
+  "pdfBytes": 679,
+  "photoBytes": 155621,
+  "projectImageCount": 1,
+  "structuredResumePreserved": true,
+  "requestErrors": []
+}

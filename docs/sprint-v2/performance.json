@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-26",
+  "environment": {
+    "hardware": "MacBook Air Mac17,3, Apple M5, 10 CPU / 10 GPU cores, 24 GB RAM",
+    "os": "macOS 27.0.1 (26A434)",
+    "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "renderBuffer": {
+      "width": 1280,
+      "height": 720,
+      "cssWidth": 1280,
+      "cssHeight": 720
+    },
+    "physicalMobileTested": false
+  },
+  "scope": "Local production build, standard quality, stationary DESK_READY view, explicit 2s warm-up + 15s collection, no recording/ffmpeg running during sample. Not an all-route or low-end mobile benchmark.",
+  "samples": 900,
+  "durationSeconds": 15,
+  "averageFPS": 60,
+  "p95ms": 16.80000001192093,
+  "p99ms": 17.5,
+  "maxDrawCalls": 329,
+  "maxTriangles": 11719369,
+  "resourceEncodedBytes": 40599983,
+  "resourceTransferBytes": 40606283,
+  "entryToFirstFrameMs": 1389.9000000059605,
+  "assetPreparationMs": 733.4000000059605,
+  "visibilityExclusions": 0,
+  "errors": [],
+  "screenProjectionMaxCornerErrorPixels": 0.027159809266084186,
+  "limitations": [
+    "Loopback loading is not public internet latency. Browser/OS caches not purged; no cold-network claim.",
+    "Resource timing bytes include application resources; GPU memory counts are not byte estimates.",
+    "DOM desktop pauses WebGL; do not call paused desktop 60 FPS.",
+    "Whole-tour p95 and real phone measurements remain pending."
+  ]
+}

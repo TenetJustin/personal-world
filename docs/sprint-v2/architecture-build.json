@@ -1,0 +1,25 @@
+{
+  "source": "assets/architecture/cabin-phase01b.blend",
+  "master": "assets/architecture/cabin-sprint-v2.blend",
+  "doorLeafObjects": 10,
+  "shellExcludesDoor": true,
+  "localThreeHinge": [
+    0.55,
+    1.35,
+    4.5
+  ],
+  "localThreeDoorOpening": {
+    "x": [
+      0.555,
+      1.665
+    ],
+    "z": 4.5,
+    "y": [
+      1.35,
+      3.67
+    ]
+  },
+  "doorSwingDegrees": 100,
+  "originalExteriorPlacementUnchanged": true,
+  "license": "Original architecture, original door; existing rough_wood CC0 texture"
+}

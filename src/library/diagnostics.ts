@@ -7,7 +7,7 @@ export function diagnosticSnapshot() {
     | PerformanceNavigationTiming
     | undefined;
   return {
-    revision: "local-library-mvp",
+    revision: "phase-02-04-sprint-v2",
     time: new Date().toISOString(),
     userAgent: navigator.userAgent,
     viewport: { width: innerWidth, height: innerHeight, dpr: devicePixelRatio },

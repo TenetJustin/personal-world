@@ -15,10 +15,12 @@ import { bakeGeometry } from "./assetGeometry";
 import { createLake } from "./water";
 import { runtime } from "./runtime";
 import { meadowClump } from "./meadow";
+import { assetURL } from "../site";
+import { CABIN, cabinToWorld } from "./architecture";
 
 const texLoader = new THREE.TextureLoader();
 async function texture(file: string, color = false) {
-  const t = await texLoader.loadAsync("/assets/" + file);
+  const t = await texLoader.loadAsync(assetURL("assets/" + file));
   t.colorSpace = color ? THREE.SRGBColorSpace : THREE.NoColorSpace;
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.anisotropy = 8;
@@ -77,7 +79,7 @@ export async function buildWorld(
   const loadModel = (url: string) => {
     runtime.assetStages[url] = "fetching / decoding";
     return loader
-      .loadAsync(url, (e) => {
+      .loadAsync(assetURL(url), (e) => {
         runtime.assetStages[url] = `received ${e.loaded} bytes / decoding`;
       })
       .then((g) => {
@@ -90,28 +92,28 @@ export async function buildWorld(
     rocks,
     grass,
     cabin,
+    door,
     bg,
     lighting,
     env,
     dimensions,
     ...textures
   ] = await Promise.all([
-    loadModel("/assets/fir-full.glb"),
-    loadModel("/assets/rocks.glb"),
-    loadModel("/assets/grass-dense.glb"),
-    loadModel(
-      new URLSearchParams(location.search).has("blockout")
-        ? "/assets/cabin-blockout.glb"
-        : "/assets/cabin.glb?v=01b-architecture-02",
-    ),
+    loadModel("assets/fir-full.glb"),
+    loadModel("assets/rocks.glb"),
+    loadModel("assets/grass-dense.glb"),
+    loadModel("assets/cabin.glb?v=sprint-v2-open-door"),
+    loadModel("assets/cabin-door.glb"),
     new HDRLoader().loadAsync(
-      quality === "high"
-        ? "/assets/alps-background-4k.hdr"
-        : "/assets/alps-background.hdr",
+      assetURL(
+        quality === "high"
+          ? "assets/alps-background-4k.hdr"
+          : "assets/alps-background.hdr",
+      ),
     ),
-    new HDRLoader().loadAsync("/assets/alps-lighting.hdr"),
-    fetch("/assets/environment.json").then((r) => r.json()),
-    fetch("/assets/fir-full-dimensions.json").then((r) => r.json()),
+    new HDRLoader().loadAsync(assetURL("assets/alps-lighting.hdr")),
+    fetch(assetURL("assets/environment.json")).then((r) => r.json()),
+    fetch(assetURL("assets/fir-full-dimensions.json")).then((r) => r.json()),
     texture("forest-color.webp", true),
     texture("meadow-normal.webp"),
     texture("meadow-rough.webp"),
@@ -266,6 +268,26 @@ export async function buildWorld(
     }
   });
   scene.add(cabin.scene);
+  const doorPivot = new THREE.Group();
+  doorPivot.name = "INTERACTION_CABIN_DOOR";
+  doorPivot.position.fromArray(cabinToWorld(CABIN.door.hinge));
+  doorPivot.rotation.y = CABIN.rotationY;
+  door.scene.traverse((o) => {
+    if (o instanceof THREE.Mesh) o.castShadow = o.receiveShadow = true;
+  });
+  doorPivot.add(door.scene);
+  scene.add(doorPivot);
+  let lastDoorAmount = -1;
+  const updateDoor = (openness: number) => {
+    const amount = THREE.MathUtils.clamp(openness, 0, 1);
+    if (Math.abs(amount - lastDoorAmount) < 1e-5) return;
+    doorPivot.rotation.y = CABIN.rotationY + amount * CABIN.door.swingRadians;
+    lastDoorAmount = amount;
+    // Exterior shadows are cached; opening the real leaf must invalidate them.
+    renderer.shadowMap.needsUpdate = true;
+    sun.shadow.needsUpdate = true;
+  };
+  updateDoor(0);
   // Mix full-crown A with the narrower C. Planted in unequal age/spacing clusters.
   const near = fullFir.scene.getObjectByName("fir_full_near")!;
   const mid = fullFir.scene.getObjectByName("fir_full_mid")!;
@@ -463,10 +485,13 @@ export async function buildWorld(
   });
   material.alphaToCoverage = true;
   material.onBeforeCompile = (shader, gl) => {
-    sourceGrass.onBeforeCompile(shader,gl);
+    sourceGrass.onBeforeCompile(shader, gl);
     // The authored canopy normals point upward on both faces. Preserve that
     // convention on backfaces instead of turning half each grass clump black.
-    shader.fragmentShader=shader.fragmentShader.replace("#include <normal_fragment_maps>","#include <normal_fragment_maps>\nif (!gl_FrontFacing) normal = -normal;");
+    shader.fragmentShader = shader.fragmentShader.replace(
+      "#include <normal_fragment_maps>",
+      "#include <normal_fragment_maps>\nif (!gl_FrontFacing) normal = -normal;",
+    );
   };
   material.customProgramCacheKey = () => "scanned-clump-grass-v3";
   for (let j = 0; j < 5; j++) {
@@ -522,6 +547,8 @@ export async function buildWorld(
   return {
     lake,
     windTime,
+    updateDoor,
+    door: doorPivot,
     dispose,
     sunDirection: sunDirection.toArray(),
     source: "Poly Haven CC0 / original Blender exterior",

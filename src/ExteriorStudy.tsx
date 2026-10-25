@@ -1,3 +1,4 @@
+import { appURL } from "./site";
 import { Component, useEffect, useRef, useState, type ReactNode } from "react";
 import { Exterior } from "./scene/Exterior";
 import { runtime } from "./scene/runtime";
@@ -129,7 +130,7 @@ export default function ExteriorStudy() {
         </Boundary>
       </div>
       <header>
-        <a href="/" className="wordmark">
+        <a href={appURL()} className="wordmark">
           NORDIC RETREAT<span>ARCHITECTURAL STUDY · 01B</span>
         </a>
         <div className="chapter">A PRIVATE WORLD, IN PROGRESS</div>

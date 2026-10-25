@@ -6,6 +6,9 @@ import { buildWorld } from "./World";
 import { SHOTS, INSPECTION_SHOTS, clamp } from "./landscape";
 import { runtime } from "./runtime";
 import { Interior } from "./Interior";
+import { journey } from "./journey";
+import { LAPTOP_SCREEN_WORLD, worldToCabin } from "./architecture";
+import { screenProjection } from "./screenProjection";
 export type Place = "exterior" | "interior" | "desk";
 const indoorPose = (v: [number, number, number]) =>
   new THREE.Vector3(...v)
@@ -20,7 +23,13 @@ const DESK = {
   target: indoorPose([-2, 2.58, -2.13]),
 };
 
-function Stage({ place = "exterior" }: { place?: Place }) {
+function Stage({
+  place = "exterior",
+  cinematic = false,
+}: {
+  place?: Place;
+  cinematic?: boolean;
+}) {
   const { scene, gl, camera } = useThree();
   const [ready, setReady] = useState(false);
   const world = useRef<Awaited<ReturnType<typeof buildWorld>> | null>(null);
@@ -55,6 +64,7 @@ function Stage({ place = "exterior" }: { place?: Place }) {
         world.current = w;
         runtime.loadingMs = performance.now() - runtime.started;
         runtime.ready = true;
+        if (cinematic) journey.setReady();
         window.dispatchEvent(new Event("world-ready"));
         const s = new URLSearchParams(location.search).get("shot");
         runtime.requestedShot = s === "B" ? "B" : "A";
@@ -78,7 +88,7 @@ function Stage({ place = "exterior" }: { place?: Place }) {
       resource?.dispose();
       document.removeEventListener("visibilitychange", visibility);
     };
-  }, [scene, gl, camera]);
+  }, [scene, gl, camera, cinematic]);
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -89,6 +99,67 @@ function Stage({ place = "exterior" }: { place?: Place }) {
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
   }, []);
+  useEffect(() => {
+    if (!cinematic) return;
+    const ray = new THREE.Raycaster(),
+      pointer = new THREE.Vector2();
+    let down: [number, number] | null = null;
+    const cabinInverse = new THREE.Matrix4()
+      .compose(
+        new THREE.Vector3(8, 0, -3),
+        new THREE.Quaternion().setFromAxisAngle(
+          new THREE.Vector3(0, 1, 0),
+          (-35 * Math.PI) / 180,
+        ),
+        new THREE.Vector3(1, 1, 1),
+      )
+      .invert();
+    const cabinBox = new THREE.Box3(
+      new THREE.Vector3(-6, 1.3, -4.5),
+      new THREE.Vector3(6, 8.5, 4.5),
+    );
+    const press = (e: PointerEvent) => {
+      down = [e.clientX, e.clientY];
+    };
+    const release = (e: PointerEvent) => {
+      if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 6)
+        return;
+      down = null;
+      const rect = gl.domElement.getBoundingClientRect();
+      pointer.set(
+        ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        1 - ((e.clientY - rect.top) / rect.height) * 2,
+      );
+      ray.setFromCamera(pointer, camera);
+      const laptop = scene.getObjectByName("INTERACTION_LAPTOP");
+      if (laptop && ray.intersectObject(laptop, true).length) {
+        if (journey.phase === "DESK_READY") journey.requestDesktop();
+        else journey.navigate("desk");
+        return;
+      }
+      if (
+        world.current?.door &&
+        ray.intersectObject(world.current.door, true).length
+      ) {
+        journey.navigate("room");
+        return;
+      }
+      if (
+        ray.ray
+          .clone()
+          .applyMatrix4(cabinInverse)
+          .intersectBox(cabinBox, new THREE.Vector3()) &&
+        worldToCabin(journey.position.toArray())[2] > 4.7
+      )
+        journey.navigate("room");
+    };
+    gl.domElement.addEventListener("pointerdown", press);
+    gl.domElement.addEventListener("pointerup", release);
+    return () => {
+      gl.domElement.removeEventListener("pointerdown", press);
+      gl.domElement.removeEventListener("pointerup", release);
+    };
+  }, [cinematic, gl, camera, scene]);
   useFrame((_, dt) => {
     if (!ready) return;
     const cam = camera as THREE.PerspectiveCamera;
@@ -118,6 +189,10 @@ function Stage({ place = "exterior" }: { place?: Place }) {
       if (t === 1) runtime.moving = false;
     }
     const t = runtime.progress;
+    if (cinematic) {
+      journey.update(dt, !document.hidden);
+      world.current!.updateDoor(journey.door);
+    }
     const inspection = runtime.inspectionShot
       ? INSPECTION_SHOTS[runtime.inspectionShot]
       : null;
@@ -127,16 +202,29 @@ function Stage({ place = "exterior" }: { place?: Place }) {
       point.current.fromArray(inspection.position);
       look.current.fromArray(inspection.target);
     }
-    cam.position.copy(point.current);
-    cam.lookAt(look.current);
-    if (place !== "exterior") {
-      const pose = place === "desk" ? DESK : ROOM;
-      cam.position.copy(pose.position);
-      cam.lookAt(pose.target);
+    if (cinematic) {
+      cam.position.copy(journey.position);
+      cam.quaternion.copy(journey.quaternion);
+      cam.fov = journey.fov;
+      const local = worldToCabin(journey.position.toArray());
+      const indoor = Math.max(0, Math.min(1, (4.8 - local[2]) / 1.5));
+      gl.toneMappingExposure = THREE.MathUtils.lerp(
+        gl.toneMappingExposure,
+        1 + indoor * 0.07,
+        1 - Math.exp(-dt * 1.5),
+      );
+    } else {
+      cam.position.copy(point.current);
+      cam.lookAt(look.current);
+      if (place !== "exterior") {
+        const pose = place === "desk" ? DESK : ROOM;
+        cam.position.copy(pose.position);
+        cam.lookAt(pose.target);
+      }
+      cam.fov =
+        inspection?.fov ?? THREE.MathUtils.lerp(SHOTS.A.fov, SHOTS.B.fov, t);
+      if (place !== "exterior") cam.fov = place === "desk" ? 48 : 58;
     }
-    cam.fov =
-      inspection?.fov ?? THREE.MathUtils.lerp(SHOTS.A.fov, SHOTS.B.fov, t);
-    if (place !== "exterior") cam.fov = place === "desk" ? 48 : 58;
     cam.near = 0.1;
     cam.far = 3000;
     cam.updateProjectionMatrix();
@@ -147,6 +235,22 @@ function Stage({ place = "exterior" }: { place?: Place }) {
     const now = performance.now();
     gl.info.reset();
     gl.render(scene, cam);
+    if (cinematic) {
+      const width = gl.domElement.clientWidth,
+        height = gl.domElement.clientHeight;
+      const corners = LAPTOP_SCREEN_WORLD.map((p) =>
+        new THREE.Vector3(...p).project(cam),
+      );
+      screenProjection.quad = corners.map(
+        (p) => [((p.x + 1) * width) / 2, ((1 - p.y) * height) / 2] as const,
+      );
+      screenProjection.width = width;
+      screenProjection.height = height;
+      screenProjection.valid = corners.every(
+        (p) =>
+          p.z > -1 && p.z < 1 && Number.isFinite(p.x) && Number.isFinite(p.y),
+      );
+    }
     runtime.renderedFrames++;
     if (!runtime.firstFrameMs) runtime.firstFrameMs = performance.now();
     if (
@@ -174,7 +278,18 @@ function Stage({ place = "exterior" }: { place?: Place }) {
       window.dispatchEvent(new Event("capture-ready"));
     }
   }, 1);
-  return <Interior />;
+  return (
+    <Interior
+      onComputerClick={
+        cinematic
+          ? () => {
+              if (journey.phase === "DESK_READY") journey.requestDesktop();
+              else journey.navigate("desk");
+            }
+          : undefined
+      }
+    />
+  );
 }
 const CAMERA_OPTIONS = {
   position: [...SHOTS.A.position] as [number, number, number],
@@ -185,9 +300,11 @@ const CAMERA_OPTIONS = {
 export function Exterior({
   place = "exterior",
   paused = false,
+  cinematic = false,
 }: {
   place?: Place;
   paused?: boolean;
+  cinematic?: boolean;
 }) {
   const high = new URLSearchParams(location.search).get("quality") === "high";
   runtime.quality = high ? "high" : "standard";
@@ -221,7 +338,7 @@ export function Exterior({
         preserveDrawingBuffer: false,
       }}
     >
-      <Stage place={place} />
+      <Stage place={place} cinematic={cinematic} />
     </Canvas>
   );
 }

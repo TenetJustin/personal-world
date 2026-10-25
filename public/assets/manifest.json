@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-25T12:59:39.807Z",
+  "generatedAt": "2026-10-25T15:29:34.396Z",
   "sceneRevision": "phase-01b-candidate",
   "files": [
     {
@@ -37,14 +37,24 @@
       "sha256": "2bcab62cf4ae71f87caabd7f7a374d14d02d8559997b994e3361a8da91dd3011"
     },
     {
+      "file": "cabin-door.glb",
+      "sourceIds": [
+        "original-architecture-phase01b",
+        "rough_wood",
+        "rock_wall_02"
+      ],
+      "bytes": 3004176,
+      "sha256": "54ef2d2ebba5b1cde7f8c8410255d6624940134730fd64381b4d6d6959511f61"
+    },
+    {
       "file": "cabin.glb",
       "sourceIds": [
         "original-architecture-phase01b",
         "rough_wood",
         "rock_wall_02"
       ],
-      "bytes": 13931876,
-      "sha256": "63520dbf8ef9d3d352a6247329bfa864b3ddb4857ecf83fd64872d9870982119"
+      "bytes": 13906208,
+      "sha256": "a23eefcc65ee59c86c062034079c1728aada1c31eae355c7259a672743af41af"
     },
     {
       "file": "environment.json",

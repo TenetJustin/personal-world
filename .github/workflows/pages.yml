@@ -1,0 +1,63 @@
+name: Build and deploy Personal World
+
+on:
+  push:
+    branches: [dev/phase-01-exterior]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/dev/phase-01-exterior'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source and actual LFS assets
+        uses: actions/checkout@v6
+        with:
+          lfs: true
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Validate only reviewed public content
+        run: node scripts/validate_public_content.mjs
+      - name: Test sources, licensed assets and runtime contracts
+        run: npm test
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+      - name: Build static application at the repository subpath
+        env:
+          VITE_BASE_PATH: /personal-world/
+        run: npm run build
+      - name: Check all static route entry points and bundled paths
+        run: node scripts/check_pages_build.mjs /personal-world/
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    if: github.ref == 'refs/heads/dev/phase-01-exterior'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy reviewed static artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
