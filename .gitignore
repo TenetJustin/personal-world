@@ -1,0 +1,64 @@
+# Dependencies, builds, tools
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+.cache/
+.turbo/
+.next/
+*.tsbuildinfo
+*.log
+npm-debug.log*
+.npmrc.local
+.npmrc
+
+# Secrets and local environment (examples may contain placeholders only)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+service-account*.json
+.aws/
+.ssh/
+.netrc
+
+# Local research, downloaded sources, recordings and reports
+/work/
+/outputs/
+/test-results/
+/playwright-report/
+/art-evidence/
+/assets-source/
+/assets-src/
+/public/assets/.incoming/
+
+# Blender caches / backup / simulation data
+*.blend[0-9]
+*.blend[0-9][0-9]
+*.bphys
+*.vdb
+*.abc
+*.cache
+blendcache_*/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editor / OS
+.DS_Store
+._*
+Thumbs.db
+*.swp
+*.swo
+*.tmp
+*.temp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
