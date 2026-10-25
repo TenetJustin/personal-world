@@ -14,14 +14,15 @@
   "viteWarning": "Entry chunk >500kB uncompressed; 322.14kB gzip. Not a visual acceptance claim.",
   "entryAssets": [
     {
-      "file": "index-C-_RGLNg.js",
-      "bytes": 1151370,
-      "sha256": "1b1bf9e20c71ecfd3654943cf75b3ddbaa4c6f64a7a9e2560c06a80e4e2434bd"
+      "file": "index-DQ9Xq_22.js",
+      "bytes": 1151369,
+      "sha256": "45535fd1e5ad023e88a9ab7f353e884ecb89d161365c3648060282d90cb34d6e"
     },
     {
       "file": "index-ClNDXRNN.css",
       "bytes": 3725,
       "sha256": "2efc18be8b1a2e2cc93b3c94cc02d78794aa6de338f62d8bd52bdf90e9785468"
     }
-  ]
+  ],
+  "note": "After measured build, normalized trailing whitespace inside an unused vendor default shader string. Active water shaders, scene, settings and assets unchanged."
 }

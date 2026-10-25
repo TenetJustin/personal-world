@@ -221,7 +221,7 @@ class Water extends Mesh {
 
 					#include <tonemapping_fragment>
 					#include <colorspace_fragment>
-					#include <fog_fragment>	
+					#include <fog_fragment>
 				}`,
     };
 
