@@ -49,7 +49,9 @@
 | --- | --- | --- |
 | WASD 从楼梯底上二层 | PASS | y 3.02 → 5.90（脚高 4.25），碰撞 `upper-balcony-rail` |
 | 二层 → 书桌实际导航 | PASS | 7.1 s 到达 `DESK_READY` |
+| 二层 → 湖岸实际导航 | PASS | 37.8 s 回到湖岸锚点（distance 0.69），经过楼梯、门洞与室外路线 |
 | 到书桌不自动开电脑 | PASS | 保持 `DESK_READY` |
+| 完整湖岸→书桌引导 | PASS | 37.9 s 到达 `DESK_READY`，未自动打开电脑 |
 | 门廊手动关门 | PASS | 1.8 s 后 `door=0`、`doorTarget=0`，未被接近自动重开 |
 | 进入 Mac | PASS | `phase=DESKTOP` |
 | 屏幕四角投影 | PASS | 最大误差 **0.124 px** |
@@ -93,6 +95,10 @@ WASD 上楼是实际键盘输入；`room/upper/mac/lakeFixed` 性能镜头是 Sc
 
 详见 [`performance.md`](./performance.md)。当前 1440×900 固定镜头均约 60 FPS、
 p95 17.4–18.3 ms；完整自动引导（实际运动）平均 50.1 FPS、p95 26.3 ms。
+
+## 线上部署
+
+部署提交 `ce151fb`；TLS、GLB 端点、Edge 线上加载、声音、桌面、`/notes/` 与公开正文复核见 [`deployment.md`](./deployment.md)。Chrome 155 在本机网络下多次遇到协议层 TLS 异常，未绕过证书；不能声称每次都能立即加载。
 
 ## 未验证 / 剩余风险
 

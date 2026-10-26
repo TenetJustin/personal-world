@@ -6,6 +6,7 @@
 | 文档 | 内容 |
 | --- | --- |
 | [verification.md](./verification.md) | 真实浏览器验收矩阵、原生离页事件、剩余风险 |
+| [deployment.md](./deployment.md) | 线上部署、TLS/GLB 检查、浏览器重试与线上限制 |
 | [performance.md](./performance.md) | 1440×900 固定镜头与实际运动性能、方法、与历史 44 FPS 的区别 |
 | [content.md](./content.md) | 多窗口 dirty、异步保存、技能顺序、备份/审核保护 |
 | [navigation.md](./navigation.md) | 上下楼、接回路线、门扇扫掠、移动端控制 |
@@ -21,6 +22,7 @@
 - 截图：`verified-room.png`、`verified-upper.png`、`verified-mac45.png`、
   `verified-keyboard.png`、`verified-screen.png`、`verified-desktop.png`。
 - 性能：`performance-verified.json`、`performance-tour-verified.json`。
+- 线上：`verified-live-lake.png`、`verified-live-desktop.png`。
 - 既有素材：`performance-room.json`、`performance-upper.json`、
   `performance-mac.json`、`performance-lake.json`、`unsaved-guard-fixed.jpg`、
   `mobile-profile.png`、`mobile-world.png`、`touch-movement.json`、
