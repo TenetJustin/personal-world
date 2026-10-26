@@ -64,6 +64,9 @@ export class Ambience {
   get recordPlayerPlaying() {
     return this.recordPlaying;
   }
+  get enabled() {
+    return this.desired;
+  }
   private buffer(brown: boolean, seconds = 13) {
     const c = this.context!,
       b = c.createBuffer(1, Math.ceil(c.sampleRate * seconds), c.sampleRate);
@@ -244,12 +247,23 @@ export class Ambience {
     return this.desired && this.context?.state === "running";
   }
   async toggleRecordPlayer() {
+    return this.recordPlaying
+      ? this.pauseRecordPlayer()
+      : this.startRecordPlayer(true);
+  }
+  /**
+   * Start the indoor record. Automatic room entry never overrides an explicit
+   * silent welcome choice; direct interaction with the player may enable sound.
+   */
+  async startRecordPlayer(enableFromGesture = false) {
     this.error = "";
-    if (!this.desired && !(await this.enable(true))) return false;
-    this.recordPlaying = !this.recordPlaying;
+    if (!this.desired) {
+      if (!enableFromGesture || !(await this.enable(true))) return false;
+    }
+    if (this.recordPlaying) return true;
+    this.recordPlaying = true;
     try {
-      if (this.recordPlaying) await this.jazzMedia?.play();
-      else this.jazzMedia?.pause();
+      await this.jazzMedia?.play();
     } catch (error) {
       this.recordPlaying = false;
       this.error =
@@ -258,6 +272,13 @@ export class Ambience {
     this.apply();
     window.dispatchEvent(new Event("record-player-change"));
     return this.recordPlaying;
+  }
+  async pauseRecordPlayer() {
+    this.recordPlaying = false;
+    this.jazzMedia?.pause();
+    this.apply();
+    window.dispatchEvent(new Event("record-player-change"));
+    return false;
   }
   setVolume(value: number) {
     this.volume = Math.max(0, Math.min(1, value));

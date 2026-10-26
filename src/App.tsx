@@ -32,7 +32,7 @@ import {
 import { AmbienceControl } from "./ui/AmbienceControl";
 import { RecordPlayerPrompt } from "./ui/RecordPlayerPrompt";
 import { WorldControls } from "./ui/WorldControls";
-import { worldToCabin } from "./scene/architecture";
+import { CABIN, worldToCabin } from "./scene/architecture";
 import { ambience } from "./audio/ambience";
 import { ScreenBridge } from "./ui/ScreenBridge";
 import DesktopV3, { type DesktopApp } from "./ui/DesktopV3";
@@ -131,6 +131,7 @@ export default function App() {
     [diagnosticURL, setDiagnosticURL] = useState(""),
     [sampling, setSampling] = useState(false),
     [nearRecordPlayer, setNearRecordPlayer] = useState(false),
+    [recordNotice, setRecordNotice] = useState(false),
     [welcomeOpen, setWelcomeOpen] = useState(
       !initial.current.kind &&
         !initialProfile.current &&
@@ -138,7 +139,10 @@ export default function App() {
         !new URLSearchParams(location.search).has("debug"),
     );
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null),
-    sampleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    sampleTimer = useRef<ReturnType<typeof setTimeout> | null>(null),
+    recordNoticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null),
+    autoRecordStarting = useRef(false),
+    autoRecordStarted = useRef(false);
   const refresh = useCallback(async () => setEntries(await readEntries()), []);
   const boot = useCallback(async () => {
     setLoading(true);
@@ -291,6 +295,33 @@ export default function App() {
     const update = () => {
       const local = worldToCabin(journey.position.toArray());
       ambience.update(local, desktop);
+      const insideRoom =
+        !desktop &&
+        local[1] < 3.7 &&
+        local[0] > CABIN.interior.minX &&
+        local[0] < CABIN.interior.maxX &&
+        local[2] > CABIN.interior.minZ &&
+        local[2] < CABIN.interior.maxZ - 0.22;
+      if (
+        insideRoom &&
+        !autoRecordStarted.current &&
+        !autoRecordStarting.current &&
+        ambience.enabled
+      ) {
+        autoRecordStarting.current = true;
+        void ambience.startRecordPlayer().then((playing) => {
+          autoRecordStarting.current = false;
+          if (!playing) return;
+          autoRecordStarted.current = true;
+          setRecordNotice(true);
+          if (recordNoticeTimer.current)
+            clearTimeout(recordNoticeTimer.current);
+          recordNoticeTimer.current = setTimeout(
+            () => setRecordNotice(false),
+            12_000,
+          );
+        });
+      }
       const near =
         !desktop &&
         local[1] < 3.7 &&
@@ -351,6 +382,7 @@ export default function App() {
     () => () => {
       if (timer.current) clearTimeout(timer.current);
       if (sampleTimer.current) clearTimeout(sampleTimer.current);
+      if (recordNoticeTimer.current) clearTimeout(recordNoticeTimer.current);
     },
     [],
   );
@@ -800,7 +832,10 @@ export default function App() {
               跳过引导
             </button>
           </nav>
-          <RecordPlayerPrompt visible={nearRecordPlayer && !welcomeOpen} />
+          <RecordPlayerPrompt
+            visible={(nearRecordPlayer || recordNotice) && !welcomeOpen}
+            automaticNotice={recordNotice && !nearRecordPlayer}
+          />
           <div className="world-bottom">
             <span>WASD 移动 · 鼠标观察 · 沿湖岸前往木屋</span>
             <div>

@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { ambience } from "../audio/ambience";
 
-export function RecordPlayerPrompt({ visible }: { visible: boolean }) {
+export function RecordPlayerPrompt({
+  visible,
+  automaticNotice = false,
+}: {
+  visible: boolean;
+  automaticNotice?: boolean;
+}) {
   const [audio, setAudio] = useState(() => ambience.snapshot());
 
   useEffect(() => {
@@ -17,12 +23,16 @@ export function RecordPlayerPrompt({ visible }: { visible: boolean }) {
   if (!visible) return null;
   return (
     <aside className="record-player-prompt" aria-live="polite">
-      <span className={audio.recordPlaying ? "record-dot playing" : "record-dot"} />
+      <span
+        className={audio.recordPlaying ? "record-dot playing" : "record-dot"}
+      />
       <div>
-        <strong>书桌旁的唱片机</strong>
+        <strong>{automaticNotice ? "室内爵士乐" : "书桌旁的唱片机"}</strong>
         <small>
           {audio.recordPlaying
-            ? "《Backbay Lounge》正在播放"
+            ? automaticNotice
+              ? "《Backbay Lounge》已自动播放，可随时暂停"
+              : "《Backbay Lounge》正在播放"
             : "唱片机控制室内爵士乐"}
         </small>
       </div>

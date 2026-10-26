@@ -47,7 +47,7 @@ export function AmbienceControl({ desktop = false }: { desktop?: boolean }) {
               }}
             />
           </label>
-          <small>进出木屋时柔和过渡 · 室内爵士乐由书桌旁唱片机控制</small>
+          <small>进出木屋时柔和过渡 · 有声模式进入室内后自动播放爵士乐</small>
           <small role="status">
             {audio.error ||
               (!audio.enabled
