@@ -23,6 +23,7 @@ export type DesktopV3Props = {
   onLeaveWorkspace?: () => void;
   soundControl?: ReactNode;
   workspace?: boolean;
+  editable?: boolean;
   dirty?: boolean;
   counts?: Partial<Record<Kind, number>>;
   notice?: ReactNode;
@@ -470,10 +471,12 @@ export default function DesktopV3({
   onLeaveWorkspace,
   soundControl,
   workspace = false,
+  editable = false,
   dirty = false,
   counts,
   notice,
 }: DesktopV3Props) {
+  const availableApps: DesktopApp[] = editable ? APPS : [...KINDS];
   const [windows, setWindows] = useState<WindowState[]>(() => [
     { app: activeApp, state: "open", z: 1, maximized: false },
   ]);
@@ -564,13 +567,19 @@ export default function DesktopV3({
           </button>
           <button onClick={onHelp}>帮助</button>
         </div>
-        <span className={`dv3-workspace-state ${workspace ? "is-local" : ""}`}>
-          {workspace ? "本地工作区" : "公开浏览"}
-          {dirty ? " · 未保存" : ""}
-        </span>
-        <button className="dv3-edit-entry" onClick={localWorkspace}>
-          本地编辑工作区
-        </button>
+        {editable && (
+          <>
+            <span
+              className={`dv3-workspace-state ${workspace ? "is-local" : ""}`}
+            >
+              {workspace ? "本地工作区" : "公开浏览"}
+              {dirty ? " · 未保存" : ""}
+            </span>
+            <button className="dv3-edit-entry" onClick={localWorkspace}>
+              本地编辑工作区
+            </button>
+          </>
+        )}
         <div className="dv3-status">
           {soundControl}
           <button
@@ -615,7 +624,7 @@ export default function DesktopV3({
         >
           {menu === "file" ? (
             <>
-              {APPS.map((app) => (
+              {availableApps.map((app) => (
                 <button
                   role="menuitem"
                   key={app}
@@ -630,7 +639,7 @@ export default function DesktopV3({
                 </button>
               ))}
               <hr />
-              {workspace && (
+              {editable && workspace && (
                 <button
                   role="menuitem"
                   onClick={() => {
@@ -648,7 +657,7 @@ export default function DesktopV3({
                   closeMenus();
                 }}
               >
-                资料、备份与发布说明
+                浏览与操作说明
               </button>
             </>
           ) : (
@@ -693,7 +702,10 @@ export default function DesktopV3({
                       closeMenus();
                     }}
                   >
-                    关闭窗口<span>保留资料与草稿</span>
+                    关闭窗口
+                    <span>
+                      {editable ? "保留资料与草稿" : "可从 Dock 重新打开"}
+                    </span>
                   </button>
                 </>
               ) : null}
@@ -752,17 +764,21 @@ export default function DesktopV3({
           >
             显示桌面与 Widgets
           </button>
-          <button
-            onClick={() => {
-              localWorkspace();
-              setStatusOpen(false);
-            }}
-          >
-            进入本地编辑工作区
-          </button>
-          <small>
-            仅编辑当前浏览器草稿。这里不是账户登录，也不提供远端管理员权限。
-          </small>
+          {editable && (
+            <>
+              <button
+                onClick={() => {
+                  localWorkspace();
+                  setStatusOpen(false);
+                }}
+              >
+                进入本地编辑工作区
+              </button>
+              <small>
+                仅编辑当前浏览器草稿。这里不是账户登录，也不提供远端管理员权限。
+              </small>
+            </>
+          )}
         </aside>
       )}
       <aside className="dv3-widgets" aria-label="桌面小组件">
@@ -802,7 +818,7 @@ export default function DesktopV3({
         aria-label="桌面 Dock"
         onPointerLeave={() => setHovered(null)}
       >
-        {APPS.map((app, index) => {
+        {availableApps.map((app, index) => {
           const item = windows.find((w) => w.app === app);
           const distance = hovered === null ? 4 : Math.abs(index - hovered);
           const scale = distance === 0 ? 1.26 : distance === 1 ? 1.12 : 1;

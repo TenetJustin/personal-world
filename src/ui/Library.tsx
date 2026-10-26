@@ -73,6 +73,8 @@ function Thumbnail({ entry }: { entry: Entry }) {
   );
 }
 type Props = {
+  /** Public Mac applications expose reading only; never mount editor controls. */
+  readOnly?: boolean;
   workspace?: boolean;
   onOpenWorkspace?: () => void;
   onOpenProfile?: () => void;
@@ -93,6 +95,7 @@ type Props = {
 };
 export function Library({
   kind,
+  readOnly = false,
   workspace,
   onOpenWorkspace,
   onOpenProfile,
@@ -112,9 +115,10 @@ export function Library({
   const [source, setSource] = useState<"drafts" | "published" | null>(null),
     [publication, setPublication] = useState(false),
     [group, setGroup] = useState(""),
-    [sort, setSort] = useState("updated");
+    [sort, setSort] = useState(readOnly ? "manual" : "updated");
   const [localWorkspace, setLocalWorkspace] = useState(false);
-  const inWorkspace = workspace ?? localWorkspace;
+  const [previewFirst, setPreviewFirst] = useState(true);
+  const inWorkspace = !readOnly && (workspace ?? localWorkspace);
   const isPublished = !inWorkspace || source === "published";
   const visibleEntries = isPublished ? published : entries;
   const [query, setQuery] = useState(""),
@@ -128,18 +132,6 @@ export function Library({
     [backup, setBackup] = useState<{ url: string; name: string } | null>(null);
   const fileInput = useRef<HTMLInputElement>(null),
     restoreInput = useRef<HTMLInputElement>(null);
-  const active = visibleEntries.find(
-    (e) =>
-      e.id === selected &&
-      e.kind === kind &&
-      (trash ? !!e.deletedAt : !e.deletedAt),
-  );
-  const getDraft = (id: string) =>
-    Object.hasOwn(drafts, id) ? drafts[id] : undefined;
-  const awaitingPublic = publishedLoading && isPublished && !active;
-  const draft =
-    active && (isPublished ? active : (getDraft(active.id) ?? active));
-  const url = useBlobURL(active?.blob);
   const currentDrafts = useRef(drafts);
   currentDrafts.current = drafts;
   const dirtyCount = Object.keys(drafts).length;
@@ -197,6 +189,18 @@ export function Library({
   const total = visibleEntries.filter(
     (e) => e.kind === kind && !e.deletedAt,
   ).length;
+  const active = visibleEntries.find(
+    (e) =>
+      e.id === (selected ?? (readOnly && previewFirst ? items[0]?.id : null)) &&
+      e.kind === kind &&
+      (trash ? !!e.deletedAt : !e.deletedAt),
+  );
+  const getDraft = (id: string) =>
+    Object.hasOwn(drafts, id) ? drafts[id] : undefined;
+  const awaitingPublic = publishedLoading && isPublished && !active;
+  const draft =
+    active && (isPublished ? active : (getDraft(active.id) ?? active));
+  const url = useBlobURL(active?.blob);
   const run = async (action: () => Promise<void>) => {
     setBusy(true);
     setMessage("");
@@ -332,49 +336,51 @@ export function Library({
   };
   return (
     <div className="library-app">
-      <div className="source-switch" aria-label="资料来源">
-        <button
-          aria-pressed={inWorkspace && !isPublished}
-          onClick={() => {
-            if (!inWorkspace) {
-              if (onOpenWorkspace) onOpenWorkspace();
-              else setLocalWorkspace(true);
-            }
-            setSource("drafts");
-            setTrash(false);
-            onSelect(null);
-          }}
-        >
-          {inWorkspace ? "本地草稿" : "进入本地编辑工作区"}
-        </button>
-        <button
-          aria-pressed={isPublished}
-          onClick={() => {
-            setSource("published");
-            setEditing(false);
-            setTrash(false);
-            onSelect(null);
-          }}
-        >
-          已发布内容
-        </button>
-        <span>
-          {isPublished
-            ? "所有访客可见 · 只读"
-            : "LOCAL EDITOR · 仅此浏览器，非管理员登录"}
-        </span>
-        {!isPublished && onOpenProfile && (
-          <button onClick={onOpenProfile}>个人资料填写中心</button>
-        )}
-        {!isPublished && (
+      {!readOnly && (
+        <div className="source-switch" aria-label="资料来源">
           <button
-            disabled={busy || guardedDirty}
-            onClick={() => setPublication((v) => !v)}
+            aria-pressed={inWorkspace && !isPublished}
+            onClick={() => {
+              if (!inWorkspace) {
+                if (onOpenWorkspace) onOpenWorkspace();
+                else setLocalWorkspace(true);
+              }
+              setSource("drafts");
+              setTrash(false);
+              onSelect(null);
+            }}
           >
-            审核公开内容
+            {inWorkspace ? "本地草稿" : "进入本地编辑工作区"}
           </button>
-        )}
-      </div>
+          <button
+            aria-pressed={isPublished}
+            onClick={() => {
+              setSource("published");
+              setEditing(false);
+              setTrash(false);
+              onSelect(null);
+            }}
+          >
+            已发布内容
+          </button>
+          <span>
+            {isPublished
+              ? "所有访客可见 · 只读"
+              : "LOCAL EDITOR · 仅此浏览器，非管理员登录"}
+          </span>
+          {!isPublished && onOpenProfile && (
+            <button onClick={onOpenProfile}>个人资料填写中心</button>
+          )}
+          {!isPublished && (
+            <button
+              disabled={busy || guardedDirty}
+              onClick={() => setPublication((v) => !v)}
+            >
+              审核公开内容
+            </button>
+          )}
+        </div>
+      )}
       {publication && !isPublished && (
         <PublicationPanel
           entries={entries}
@@ -390,7 +396,7 @@ export function Library({
             {trash ? " · 回收站" : ""}
           </strong>
           <span>
-            {total} 项 · {isPublished ? "已发布" : "本地草稿"}
+            {total} 项{!readOnly && ` · ${isPublished ? "已发布" : "本地草稿"}`}
           </span>
         </div>
         <div className="toolbar-actions">
@@ -453,29 +459,33 @@ export function Library({
             </button>
           )}
         </div>
-        <input
-          ref={fileInput}
-          type="file"
-          aria-label="导入资料文件"
-          hidden
-          multiple
-          accept={
-            kind === "photos"
-              ? "image/jpeg,image/png,image/webp,image/gif"
-              : kind === "resume"
-                ? ".md,.txt,.markdown,.pdf"
-                : ".md,.markdown,.txt"
-          }
-          onChange={importFiles}
-        />
-        <input
-          ref={restoreInput}
-          type="file"
-          aria-label="选择备份文件"
-          hidden
-          accept=".json,application/json"
-          onChange={readBackup}
-        />
+        {!readOnly && (
+          <>
+            <input
+              ref={fileInput}
+              type="file"
+              aria-label="导入资料文件"
+              hidden
+              multiple
+              accept={
+                kind === "photos"
+                  ? "image/jpeg,image/png,image/webp,image/gif"
+                  : kind === "resume"
+                    ? ".md,.txt,.markdown,.pdf"
+                    : ".md,.markdown,.txt"
+              }
+              onChange={importFiles}
+            />
+            <input
+              ref={restoreInput}
+              type="file"
+              aria-label="选择备份文件"
+              hidden
+              accept=".json,application/json"
+              onChange={readBackup}
+            />
+          </>
+        )}
       </div>
       {(message || error || busy) && (
         <div className={`app-message ${error ? "error" : ""}`} role="status">
@@ -557,18 +567,18 @@ export function Library({
               {query
                 ? "没有匹配的资料"
                 : isPublished
-                  ? "暂未发布此类资料。作者可在本地草稿中审核并导出公开内容。"
+                  ? "这里的内容正在整理，稍后再来看看。"
                   : "还没有资料。请新建或导入你自己的内容。"}
             </p>
           ) : (
             items.map((entry) => (
               <button
-                className={`record-row ${selected === entry.id ? "selected" : ""}`}
+                className={`record-row ${active?.id === entry.id ? "selected" : ""}`}
                 key={entry.id}
                 onClick={() => {
                   onSelect(entry.id);
                 }}
-                aria-current={selected === entry.id ? "true" : undefined}
+                aria-current={active?.id === entry.id ? "true" : undefined}
               >
                 <Thumbnail entry={entry} />
                 <span>
@@ -592,7 +602,11 @@ export function Library({
           )}
           <p className="storage-note">
             {isPublished ? (
-              "此处显示作者已审核并构建到网站的公开资料。访客本地草稿不会自动公开。"
+              readOnly ? (
+                "作者的文字与生活片段。"
+              ) : (
+                "此处显示作者已审核并构建到网站的公开资料。访客本地草稿不会自动公开。"
+              )
             ) : (
               <>
                 共 {(libraryBytes(entries) / 1024 / 1024).toFixed(1)} / 100 MB
@@ -623,7 +637,7 @@ export function Library({
                   ? isPublished
                     ? "此条公开资料不存在"
                     : "这条资料不在当前浏览器中"
-                  : "A place for your " + LABELS[kind].toLowerCase() + "."}
+                  : LABELS[kind]}
               </h1>
               <p>
                 {selected
@@ -633,7 +647,7 @@ export function Library({
                   : isPublished
                     ? items.length
                       ? "选择列表中的资料开始阅读。"
-                      : "作者尚未发布此类内容。可以浏览其他应用，或进入本地草稿添加你自己的资料。"
+                      : "这里的内容正在整理，可以先去其他应用看看。"
                     : kind === "photos"
                       ? "导入照片，添加说明，保存属于你的瞬间。"
                       : kind === "projects"
@@ -660,17 +674,29 @@ export function Library({
                     开始创建
                   </button>
                 ))}
-              <p className="quiet">不包含虚构的个人资料。所有内容由你添加。</p>
+              {!readOnly && (
+                <p className="quiet">
+                  不包含虚构的个人资料。所有内容由你添加。
+                </p>
+              )}
             </div>
           ) : (
             <>
               <div className="detail-actions">
-                <button className="mobile-back" onClick={() => onSelect(null)}>
+                <button
+                  className="mobile-back"
+                  onClick={() => {
+                    setPreviewFirst(false);
+                    onSelect(null);
+                  }}
+                >
                   ← 列表
                 </button>
                 <span>
                   {isPublished
-                    ? "已公开 · 只读"
+                    ? readOnly
+                      ? LABELS[kind]
+                      : "已公开 · 只读"
                     : getDraft(active.id)
                       ? "有未保存的修改"
                       : "已保存在本地"}
@@ -1127,7 +1153,11 @@ export function Library({
                   ) : (
                     !active.blob &&
                     !active.resume && (
-                      <p className="quiet">正文还是空的，点击编辑开始填写。</p>
+                      <p className="quiet">
+                        {readOnly
+                          ? "内容正在整理。"
+                          : "正文还是空的，点击编辑开始填写。"}
+                      </p>
                     )
                   )}
                   {active.url && safeURL(active.url) && (
@@ -1149,7 +1179,7 @@ export function Library({
                       下载照片
                     </a>
                   )}
-                  {(!active.blob || kind === "resume") && (
+                  {!readOnly && (!active.blob || kind === "resume") && (
                     <button
                       className="text-button"
                       onClick={() =>

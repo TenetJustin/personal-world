@@ -25,11 +25,13 @@ npm start
 
 打开 **http://127.0.0.1:5177**。Node.js ≥22.18。`/notes/`、`/photos/`、`/projects/`、`/resume/` 可以直接访问。热更新：`npm run dev -- --port 5177 --strictPort`（先停止预览）。
 
-## 本地草稿与公开内容
+## 个人资料展示与更新
 
-Notes、Photos、Projects、Resume 保留导入、编辑、浏览、搜索、回收站及完整备份恢复。本地资料在当前浏览器的 IndexedDB，切换设备或清除浏览器数据前请备份。
+网站内的 Mac 只提供备忘录、照片、作品、履历的浏览、搜索和阅读，不提供上传、资料填写、备份或发布入口。公开版忽略旧编辑 URL 与浏览器工作区偏好，也不读取访客的本地草稿。
 
-**保存不等于发布。** 只有明确选择、逐项审核并导出的公开内容包，才通过 `scripts/import_public_content.mjs` 写入 `public/content/`，由提交与 Actions 构建同步到网站。完整备份不可用于公开导入；当前仅发布原创站点使用说明，不含真实私人资料。浏览器草稿与已发布资料在界面中分开。
+备忘录已加入 Freddie 椰子的自述；照片、作品和履历等待作者提供内容。后续通过协作会话提交文字与照片，整理、校验后更新 `public/content` 并部署。内容来源及操作见 [个人资料展示说明](docs/personal-content/README.md)。
+
+旧本地编辑与完整备份工具保留，仅开发服务器明确打开 `/?editor=local&app=profile` 时可用；生产构建不会启用。原 IndexedDB 没有删除或改写。**保存不等于发布**，完整备份不可提交到公开目录。
 
 ## 构建和 GitHub Pages
 

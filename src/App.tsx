@@ -18,6 +18,7 @@ import {
   entryPath,
   parseRoute,
 } from "./library/model";
+import { localEditorEnabled } from "./library/viewer";
 import { readEntries, removeEntry, writeEntries } from "./library/storage";
 import { loadPublishedContent } from "./library/publishing";
 import { Library } from "./ui/Library";
@@ -60,17 +61,21 @@ class WorldBoundary extends Component<
     return this.state.failed ? null : this.props.children;
   }
 }
+const editorEnabled = localEditorEnabled(import.meta.env.DEV, location.search);
+
 export default function App() {
   const initial = useRef(parseRoute(location.pathname));
   const initialProfile = useRef(
-    new URLSearchParams(location.search).get("app") === "profile",
+    editorEnabled &&
+      new URLSearchParams(location.search).get("app") === "profile",
   );
   const [workspace, setWorkspace] = useState(() => {
     try {
       return (
-        initialProfile.current ||
-        new URLSearchParams(location.search).get("workspace") === "local" ||
-        sessionStorage.getItem("personal-world-workspace") === "local"
+        editorEnabled &&
+        (initialProfile.current ||
+          new URLSearchParams(location.search).get("workspace") === "local" ||
+          sessionStorage.getItem("personal-world-workspace") === "local")
       );
     } catch {
       return initialProfile.current;
@@ -91,7 +96,8 @@ export default function App() {
       ),
     [],
   );
-  const changeWorkspace = useCallback((value: boolean) => {
+  const changeWorkspace = useCallback((requested: boolean) => {
+    const value = editorEnabled && requested;
     workspaceRef.current = value;
     setWorkspace(value);
     try {
@@ -153,12 +159,13 @@ export default function App() {
     }
   }, []);
   useEffect(() => {
-    void boot();
+    if (editorEnabled) void boot();
+    else setLoading(false);
     void loadPublic();
   }, [boot, loadPublic]);
   const sync = useRef<BroadcastChannel | null>(null);
   useEffect(() => {
-    if (!("BroadcastChannel" in window)) return;
+    if (!editorEnabled || !("BroadcastChannel" in window)) return;
     const channel = new BroadcastChannel("personal-world-library");
     sync.current = channel;
     channel.onmessage = () =>
@@ -182,10 +189,16 @@ export default function App() {
   };
   const navigate = useCallback((kind: Kind, id: string | null = null) => {
     journey.interact();
+    const path = entryPath(kind, id);
     history.pushState(
       {},
       "",
-      entryPath(kind, id) + (workspaceRef.current ? "?workspace=local" : ""),
+      path +
+        (editorEnabled
+          ? (path.includes("?") ? "&" : "?") +
+            "editor=local" +
+            (workspaceRef.current ? "&workspace=local" : "")
+          : ""),
     );
     setSelectedByKind((previous) => ({ ...previous, [kind]: id }));
     setRoute({ kind, id });
@@ -195,9 +208,14 @@ export default function App() {
   const activate = useCallback(
     (app: DesktopApp) => {
       if (app === "profile") {
+        if (!editorEnabled) return;
         journey.interact();
         changeWorkspace(true);
-        history.pushState({}, "", location.pathname + "?app=profile");
+        history.pushState(
+          {},
+          "",
+          location.pathname + "?editor=local&app=profile",
+        );
         setProfileOpen(true);
         setDesktop(true);
         return;
@@ -227,7 +245,9 @@ export default function App() {
   useEffect(() => {
     const pop = () => {
       const next = parseRoute(location.pathname),
-        profile = new URLSearchParams(location.search).get("app") === "profile";
+        profile =
+          editorEnabled &&
+          new URLSearchParams(location.search).get("app") === "profile";
       setRoute(next);
       if (next.kind)
         setSelectedByKind((previous) => ({
@@ -742,7 +762,7 @@ export default function App() {
                 减少动态：{state.reducedMotion ? "开启" : "关闭"}
               </button>
               <button className="quiet-button" onClick={() => setHelp(true)}>
-                使用与发布说明
+                浏览与操作说明
               </button>
               <a
                 className="quiet-button"
@@ -771,10 +791,12 @@ export default function App() {
       <ScreenBridge active={desktop || bridging} full={desktop}>
         <DesktopV3
           activeApp={activeApp}
+          editable={editorEnabled}
           onActivate={activate}
           renderApp={(kind) => (
             <Library
               kind={kind}
+              readOnly={!editorEnabled}
               selected={selectedByKind[kind] ?? null}
               entries={entries}
               published={published}
@@ -793,7 +815,7 @@ export default function App() {
             />
           )}
           renderProfile={() =>
-            loading ? (
+            !editorEnabled ? null : loading ? (
               <p role="status">正在读取本地资料…</p>
             ) : (
               <ProfileCenter
@@ -815,7 +837,11 @@ export default function App() {
           onHelp={() => setHelp(true)}
           onOpenWorkspace={() => {
             changeWorkspace(true);
-            history.pushState({}, "", location.pathname + "?app=profile");
+            history.pushState(
+              {},
+              "",
+              location.pathname + "?editor=local&app=profile",
+            );
             setProfileOpen(true);
           }}
           workspace={workspace}
@@ -857,33 +883,62 @@ export default function App() {
               ×
             </button>
             <p className="eyebrow">GETTING STARTED</p>
-            <h1 id="help-title">把真实生活放进来。</h1>
-            <ol>
-              <li>
-                <strong>Notes</strong>：新建笔记，或批量导入 Markdown / TXT。
-              </li>
-              <li>
-                <strong>Photos</strong>：导入
-                JPEG、PNG、WebP、GIF，编辑标题和说明。
-              </li>
-              <li>
-                <strong>Projects</strong>：填写项目介绍、标签与网址。
-              </li>
-              <li>
-                <strong>Resume</strong>：编写履历，或导入 Markdown / TXT / PDF。
-              </li>
-            </ol>
-            <p>
-              编辑后点击「保存修改」。切换应用与返回木屋会保留草稿；刷新前会提示未保存修改。
-            </p>
-            <p>
-              「导出全部备份」包含四个应用与附件原文件；在新浏览器用「恢复备份」合并恢复。请定期把备份保存在浏览器之外。
-            </p>
-            <p>
-              本地资料与当前浏览器、网站地址和端口绑定。请固定使用{" "}
-              <strong>{location.origin}</strong>
-              。本地编辑默认是草稿，不会自动公开。明确选择并审核后导出公开内容包，提交构建才能更新网站；完整备份不要用于公开发布。
-            </p>
+            {editorEnabled ? (
+              <>
+                <h1 id="help-title">把真实生活放进来。</h1>
+                <ol>
+                  <li>
+                    <strong>Notes</strong>：新建笔记，或批量导入 Markdown /
+                    TXT。
+                  </li>
+                  <li>
+                    <strong>Photos</strong>：导入
+                    JPEG、PNG、WebP、GIF，编辑标题和说明。
+                  </li>
+                  <li>
+                    <strong>Projects</strong>：填写项目介绍、标签与网址。
+                  </li>
+                  <li>
+                    <strong>Resume</strong>：编写履历，或导入 Markdown / TXT /
+                    PDF。
+                  </li>
+                </ol>
+                <p>
+                  编辑后点击「保存修改」。切换应用与返回木屋会保留草稿；刷新前会提示未保存修改。
+                </p>
+                <p>
+                  「导出全部备份」包含四个应用与附件原文件；在新浏览器用「恢复备份」合并恢复。请定期把备份保存在浏览器之外。
+                </p>
+                <p>
+                  本地资料与当前浏览器、网站地址和端口绑定。请固定使用{" "}
+                  <strong>{location.origin}</strong>
+                  。本地编辑默认是草稿，不会自动公开。明确选择并审核后导出公开内容包，提交构建才能更新网站；完整备份不要用于公开发布。
+                </p>
+              </>
+            ) : (
+              <>
+                <h1 id="help-title">欢迎来到我的湖畔木屋。</h1>
+                <p>
+                  在湖岸漫步，沿着小路进入木屋，点击书桌上的
+                  Mac，打开我的备忘录、相册与作品。
+                </p>
+                <ol>
+                  <li>
+                    <strong>备忘录</strong>
+                    ：从自我介绍开始，认识我的背景、兴趣和正在探索的方向。
+                  </li>
+                  <li>
+                    <strong>照片</strong>：浏览生活影像与相册。
+                  </li>
+                  <li>
+                    <strong>作品与履历</strong>：阅读已公开的项目与经历。
+                  </li>
+                </ol>
+                <p>
+                  可以搜索、筛选并切换应用。点击右上角返回按钮，继续探索木屋。
+                </p>
+              </>
+            )}
             <p className="quiet">
               环境音默认关闭，点击开启后按当前位置混合湖水、林风、鸟鸣或室内壁炉声；可调节音量，切到后台会暂停。声音为本项目原创合成，不读取麦克风。
               第一人称引导可随时拖动、按键或滚动接管；方向键环视，Esc

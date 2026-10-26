@@ -8,10 +8,10 @@ import { appURL, sitePath } from "../site.ts";
 export const KINDS = ["notes", "photos", "projects", "resume"] as const;
 export type Kind = (typeof KINDS)[number];
 export const LABELS: Record<Kind, string> = {
-  notes: "Notes",
-  photos: "Photos",
-  projects: "Projects",
-  resume: "Resume",
+  notes: "备忘录",
+  photos: "照片",
+  projects: "作品",
+  resume: "履历",
 };
 export type ImageAttachment = {
   id: string;
