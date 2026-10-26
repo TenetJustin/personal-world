@@ -73,6 +73,8 @@ export type Entry = {
   photoLocationPublic?: boolean;
   isAlbumCover?: boolean;
   coverImageId?: string;
+  /** Runtime-only same-origin URL for a published photo loaded on demand. */
+  publicURL?: string;
 };
 export const MAX_FILE = 25 * 1024 * 1024;
 export const MAX_LIBRARY = 100 * 1024 * 1024;

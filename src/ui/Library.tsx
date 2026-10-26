@@ -204,7 +204,8 @@ export function Library({
   const awaitingPublic = publishedLoading && isPublished && !active;
   const draft =
     active && (isPublished ? active : (getDraft(active.id) ?? active));
-  const url = useBlobURL(active?.blob);
+  const blobURL = useBlobURL(active?.blob);
+  const url = active?.publicURL ?? blobURL;
   const run = async (action: () => Promise<void>) => {
     setBusy(true);
     setMessage("");
@@ -1247,7 +1248,7 @@ export function Library({
                       访问项目 ↗<small>{active.url}</small>
                     </a>
                   )}
-                  {active.blob && kind === "photos" && (
+                  {(active.blob || active.publicURL) && kind === "photos" && (
                     <a
                       className="file-download"
                       href={url}

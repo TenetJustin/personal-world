@@ -1,0 +1,163 @@
+{
+  "version": 1,
+  "reviewedAt": "2026-10-26T12:30:00.000Z",
+  "authorization": "The site owner supplied these photographs in the collaboration session and explicitly requested publication in the virtual Mac Photos library.",
+  "items": [
+    {
+      "id": "personal-photo-01",
+      "sourceFile": "微信图片_20261026203531_427_10.jpg",
+      "sourceSha256": "a2894b09dc4492d8e4d6cda6cce8b743b58aee22eb93956ae553651efc6fc251",
+      "title": "海边的薯条",
+      "body": "晴朗天空下，薯条、海面与城市天际线构成一段轻松的午后记忆。",
+      "album": "城市与日常",
+      "tags": "城市, 海边, 日常",
+      "isAlbumCover": true
+    },
+    {
+      "id": "personal-photo-02",
+      "sourceFile": "微信图片_20261026203532_428_10.jpg",
+      "sourceSha256": "884b41484a4671e57d87e101e192b9095bc0bdb678b32612001bac23b2c9c845",
+      "title": "一起做的蛋糕",
+      "body": "桌上的几只手作蛋糕与两枝绿色康乃馨。",
+      "album": "城市与日常",
+      "tags": "甜点, 手作, 日常"
+    },
+    {
+      "id": "personal-photo-03",
+      "sourceFile": "微信图片_20261026203533_429_10.jpg",
+      "sourceSha256": "031415aa6c9f91d6cc15d9cc45ef6397e74b0ef13933bb19ec156e35ba1b295f",
+      "title": "墙上的星球",
+      "body": "长长的墙面上，红蓝星球从相遇走向友谊、浪漫与爱。",
+      "album": "校园与夜色",
+      "tags": "壁画, 星球, 校园"
+    },
+    {
+      "id": "personal-photo-04",
+      "sourceFile": "微信图片_20261026203533_430_10.jpg",
+      "sourceSha256": "ed645fecdc6101066442d97405eefb1adb356a4683acadc88f2a47a483e353ac",
+      "title": "黄昏的钟楼",
+      "body": "暮色与云层掠过校园建筑，最后一束阳光落在钟楼和树梢。",
+      "album": "校园与夜色",
+      "tags": "校园, 黄昏, 建筑",
+      "isAlbumCover": true
+    },
+    {
+      "id": "personal-photo-05",
+      "sourceFile": "微信图片_20261026203535_432_10.jpg",
+      "sourceSha256": "9bb877e029148d4cd7f4214ee4735f1e342dad50e4d23213a40e0d96bf142d46",
+      "title": "云雾山谷",
+      "body": "云雾沿山谷缓慢流动，裸岩、草甸和远处山脊在雾中交替出现。",
+      "album": "山川与远方",
+      "tags": "山谷, 云雾, 旅行",
+      "isAlbumCover": true
+    },
+    {
+      "id": "personal-photo-06",
+      "sourceFile": "微信图片_20261026203537_433_10.jpg",
+      "sourceSha256": "01cc3f3c5e3a2304f3e131650fe635c15f2cae01a08b201bb95bfba9d145ce17",
+      "title": "经幡穹顶",
+      "body": "多层彩色经幡在蓝天下围合成旋转般的穹顶。",
+      "album": "山川与远方",
+      "tags": "经幡, 色彩, 旅行"
+    },
+    {
+      "id": "personal-photo-07",
+      "sourceFile": "微信图片_20261026203537_434_10.jpg",
+      "sourceSha256": "00a0f9fec738cd1bd95c2f0cfc7864c43fd3da0821bb527e50c3c62773b77a06",
+      "title": "通往雪山的路",
+      "body": "道路穿过松林，远处雪山在晨光和云层之间显露。",
+      "album": "山川与远方",
+      "tags": "雪山, 公路, 松林"
+    },
+    {
+      "id": "personal-photo-08",
+      "sourceFile": "微信图片_20261026203538_435_10.jpg",
+      "sourceSha256": "535ac73caa1efc408aa695ec8d1100b79139749169e343ccdbbd235b6dcb17dd",
+      "title": "盛夏校园",
+      "body": "明亮的蓝天、树木与水面围绕着安静的校园建筑。",
+      "album": "校园与夜色",
+      "tags": "校园, 蓝天, 盛夏"
+    },
+    {
+      "id": "personal-photo-09",
+      "sourceFile": "微信图片_20261026203539_436_10.jpg",
+      "sourceSha256": "bceeb2c7f0946808e108f6040302a2664f7d1dcf528343e931737636167c1179",
+      "title": "炭火",
+      "body": "夜色里跳动的火焰包围烤架，留下温暖而热烈的一瞬。",
+      "album": "城市与日常",
+      "tags": "烧烤, 夜晚, 火光"
+    },
+    {
+      "id": "personal-photo-10",
+      "sourceFile": "微信图片_20261026203540_437_10.jpg",
+      "sourceSha256": "2b05fadf4475e27d363e55933d36829a84a7b5087c743a9114bf63d88aae5540",
+      "title": "蓝色音乐厅",
+      "body": "蓝色空间里，一架三角钢琴与长椅上的玩偶安静相望。",
+      "album": "城市与日常",
+      "tags": "钢琴, 音乐, 蓝色"
+    },
+    {
+      "id": "personal-photo-11",
+      "sourceFile": "微信图片_20261026203541_438_10.jpg",
+      "sourceSha256": "0039ae82625f89cb8d6715edba5e286b9103819058c982bb8ffaad846159a086",
+      "title": "阳光下的小狗",
+      "body": "一只橘白色的小狗坐在阳光下，安静地看向镜头。",
+      "album": "城市与日常",
+      "tags": "小狗, 阳光, 日常"
+    },
+    {
+      "id": "personal-photo-12",
+      "sourceFile": "微信图片_20261026203543_439_10.jpg",
+      "sourceSha256": "12225ce8b108103cb749efb6714257423de9e45a4c8b9f4237d942cd02ce7562",
+      "title": "山坡上的教堂",
+      "body": "石阶向山坡上的教堂延伸，钟塔与树影落在柔和天色里。",
+      "album": "山川与远方",
+      "tags": "教堂, 石阶, 建筑"
+    },
+    {
+      "id": "personal-photo-13",
+      "sourceFile": "微信图片_20261026203543_440_10.jpg",
+      "sourceSha256": "73ea63a655747836a90915378c4107565c9eb7688ec023f34ff162505227bf18",
+      "title": "Hong Kong, Be Happy",
+      "body": "夜晚街角的灯箱写着 Hong Kong, Be Happy。",
+      "album": "校园与夜色",
+      "tags": "香港, 夜晚, 街角"
+    },
+    {
+      "id": "personal-photo-14",
+      "sourceFile": "微信图片_20261026203544_441_10.jpg",
+      "sourceSha256": "4a0c1554045ae129c55bebf6a53b5311645d0fb8574e36b8e54db66fe076a96e",
+      "title": "深夜街道",
+      "body": "深夜的香港街道只剩路灯、红绿灯与稀疏车流。",
+      "album": "校园与夜色",
+      "tags": "香港, 街道, 夜色"
+    },
+    {
+      "id": "personal-photo-15",
+      "sourceFile": "微信图片_20261026203545_442_10.jpg",
+      "sourceSha256": "8365c1a21ddc21d781c33683fa53b1e8aabb877fcf293b1ab12025a74b88ebe2",
+      "title": "蓝莓巧克力蛋糕",
+      "body": "巧克力蛋糕上摆着新鲜蓝莓，旁边是一把等待开动的勺子。",
+      "album": "城市与日常",
+      "tags": "蛋糕, 蓝莓, 甜点"
+    },
+    {
+      "id": "personal-photo-16",
+      "sourceFile": "微信图片_20261026203546_443_10.jpg",
+      "sourceSha256": "ed8c1718c3a3f457f548b48cd13f2fbfbf618d29ad26069cf3f873b84e7706b4",
+      "title": "园林一隅",
+      "body": "透过太湖石的孔洞，看见水面、红窗与冬日园林。",
+      "album": "山川与远方",
+      "tags": "园林, 水面, 建筑"
+    },
+    {
+      "id": "personal-photo-17",
+      "sourceFile": "微信图片_20261026203546_444_10.jpg",
+      "sourceSha256": "f5b228728b17c2cd5771a92c656d101a0dbb9daff96167ff0b4f2d0cd708fb93",
+      "title": "等待出发",
+      "body": "小狗坐进打开的行李箱，像是在认真等待下一次出发。",
+      "album": "城市与日常",
+      "tags": "小狗, 行李箱, 日常"
+    }
+  ]
+}

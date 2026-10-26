@@ -88,7 +88,7 @@ export async function dataURL(blob: Blob): Promise<string> {
 export async function encodeBackup(entries: Entry[]) {
   const records = [];
   for (const e of entries) {
-    const { blob, thumbnail, images, ...rest } = e;
+    const { blob, thumbnail, images, publicURL, ...rest } = e;
     records.push({
       ...rest,
       ...(blob ? { attachment: await dataURL(blob) } : {}),

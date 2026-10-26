@@ -10,7 +10,7 @@ import {
 import { dataURL, prepareImage, resolveImageBlob } from "./storage.ts";
 export type PublicRecord = Omit<
   Entry,
-  "blob" | "thumbnail" | "images" | "deletedAt"
+  "blob" | "thumbnail" | "images" | "deletedAt" | "publicURL"
 > & {
   attachment?: string;
   thumbnailData?: string;
@@ -198,9 +198,14 @@ export async function loadPublishedContent(base = SITE_BASE): Promise<Entry[]> {
       throw new Error("公开项目图片数量无效");
     if (record.photoLocation && record.photoLocationPublic !== true)
       throw new Error("公开照片地点缺少明确同意");
-    const blob = record.attachment
-      ? await attachment(record.attachment)
-      : undefined;
+    const publishedPhotoURL =
+      record.kind === "photos" && record.attachment
+        ? publicAsset(record.attachment, contentBase)
+        : undefined;
+    const blob =
+      record.attachment && record.kind !== "photos"
+        ? await attachment(record.attachment)
+        : undefined;
     const thumbnail = record.thumbnailData
       ? await attachment(record.thumbnailData)
       : undefined;
@@ -229,6 +234,7 @@ export async function loadPublishedContent(base = SITE_BASE): Promise<Entry[]> {
         )
       : undefined;
     const valid = validateEntry({ ...record, blob, thumbnail, images });
+    if (publishedPhotoURL) valid.publicURL = publishedPhotoURL;
     if (record.kind === "projects" && valid.images)
       valid.images = valid.images.map((image, index) => ({
         ...image,
