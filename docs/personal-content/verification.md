@@ -28,3 +28,11 @@
 ## 内容边界
 
 作者要求从“撰写自我介绍”会话填写网站。使用接口实际可读的用户文字与截图整理新版本，未声称拿到了助手回复的完整原文。未发布会话截图、精确居住地区、联系方式、虚构项目或学历；相册尚未收到个人照片。
+
+## 部署与线上复核
+
+- 代码提交 `afc5c1bafaa75a35df8619028f175c5f7ba06106`，PR #2：https://github.com/TenetJustin/personal-world/pull/2 。开发分支正常快进后 GitHub 自动标记 merged；无 merge commit、force push 或 main 合并。
+- Actions：https://github.com/TenetJustin/personal-world/actions/runs/40278500715 ，build 与 deploy 均 success。
+- 线上：https://tenetjustin.github.io/personal-world/ ，直接阅读：https://tenetjustin.github.io/personal-world/notes/ 。
+- 2026-10-26 14:14（Asia/Shanghai），Chrome 155.0.8059.85 对上述线上地址完整执行相同 11 项实际 UI 检查，全部通过，页面异常和失败请求均为 0。未绕过证书；这是本次复核结果，不代表所有网络都无加载延迟。
+- main 仍为 `819f15b6a1fdf8c9eb0ad377e357dcd36f825b51`；未改动仓库可见性。截图与 JSON 位于本机 outputs/personal-content/live，未入库。
