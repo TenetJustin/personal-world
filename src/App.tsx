@@ -4,6 +4,7 @@ import {
   lazy,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
@@ -20,6 +21,17 @@ import {
 import { readEntries, removeEntry, writeEntries } from "./library/storage";
 import { loadPublishedContent } from "./library/publishing";
 import { Library } from "./ui/Library";
+import {
+  anyDraftDirty,
+  otherDraftDirty,
+  updateDraftState,
+  createDirtyCallbacks,
+  type DraftState,
+} from "./library/draftState";
+import { AmbienceControl } from "./ui/AmbienceControl";
+import { WorldControls } from "./ui/WorldControls";
+import { worldToCabin } from "./scene/architecture";
+import { ambience } from "./audio/ambience";
 import { ScreenBridge } from "./ui/ScreenBridge";
 import DesktopV3, { type DesktopApp } from "./ui/DesktopV3";
 import { ProfileCenter } from "./ui/ProfileCenter";
@@ -53,6 +65,40 @@ export default function App() {
   const initialProfile = useRef(
     new URLSearchParams(location.search).get("app") === "profile",
   );
+  const [workspace, setWorkspace] = useState(() => {
+    try {
+      return (
+        initialProfile.current ||
+        new URLSearchParams(location.search).get("workspace") === "local" ||
+        sessionStorage.getItem("personal-world-workspace") === "local"
+      );
+    } catch {
+      return initialProfile.current;
+    }
+  });
+  const workspaceRef = useRef(workspace);
+  const [selectedByKind, setSelectedByKind] = useState<
+    Partial<Record<Kind, string | null>>
+  >(() =>
+    initial.current.kind ? { [initial.current.kind]: initial.current.id } : {},
+  );
+  const [dirtyMap, setDirtyMap] = useState<DraftState>({});
+  const dirty = anyDraftDirty(dirtyMap);
+  const dirtyCallbacks = useMemo(
+    () =>
+      createDirtyCallbacks((app, value) =>
+        setDirtyMap((previous) => updateDraftState(previous, app, value)),
+      ),
+    [],
+  );
+  const changeWorkspace = useCallback((value: boolean) => {
+    workspaceRef.current = value;
+    setWorkspace(value);
+    try {
+      if (value) sessionStorage.setItem("personal-world-workspace", "local");
+      else sessionStorage.removeItem("personal-world-workspace");
+    } catch {}
+  }, []);
   const [route, setRoute] = useState(initial.current),
     [profileOpen, setProfileOpen] = useState(initialProfile.current),
     [desktop, setDesktop] = useState(
@@ -69,13 +115,11 @@ export default function App() {
     [publishedLoading, setPublishedLoading] = useState(true),
     [publishedError, setPublishedError] = useState(""),
     [loading, setLoading] = useState(true),
-    [storageError, setStorageError] = useState(""),
-    [dirty, setDirty] = useState(false);
+    [storageError, setStorageError] = useState("");
   const [ready, setReady] = useState(false),
     [worldError, setWorldError] = useState(""),
     [transition, setTransition] = useState(false),
     [hidden, setHidden] = useState(document.hidden),
-    [minimized, setMinimized] = useState(false),
     [help, setHelp] = useState(false),
     [diagnosticURL, setDiagnosticURL] = useState(""),
     [sampling, setSampling] = useState(false);
@@ -138,16 +182,21 @@ export default function App() {
   };
   const navigate = useCallback((kind: Kind, id: string | null = null) => {
     journey.interact();
-    history.pushState({}, "", entryPath(kind, id));
+    history.pushState(
+      {},
+      "",
+      entryPath(kind, id) + (workspaceRef.current ? "?workspace=local" : ""),
+    );
+    setSelectedByKind((previous) => ({ ...previous, [kind]: id }));
     setRoute({ kind, id });
     setProfileOpen(false);
     setDesktop(true);
-    setMinimized(false);
   }, []);
   const activate = useCallback(
     (app: DesktopApp) => {
       if (app === "profile") {
         journey.interact();
+        changeWorkspace(true);
         history.pushState({}, "", location.pathname + "?app=profile");
         setProfileOpen(true);
         setDesktop(true);
@@ -155,7 +204,7 @@ export default function App() {
       }
       navigate(app);
     },
-    [navigate],
+    [navigate, changeWorkspace],
   );
   useEffect(() => {
     if (!new URLSearchParams(location.search).has("debug")) return;
@@ -163,6 +212,7 @@ export default function App() {
       journey,
       runtime,
       screenProjection,
+      ambience,
     };
   }, []);
   useEffect(() => {
@@ -179,6 +229,12 @@ export default function App() {
       const next = parseRoute(location.pathname),
         profile = new URLSearchParams(location.search).get("app") === "profile";
       setRoute(next);
+      if (next.kind)
+        setSelectedByKind((previous) => ({
+          ...previous,
+          [next.kind!]: next.id,
+        }));
+      if (profile) changeWorkspace(true);
       setProfileOpen(profile);
       if (next.kind || profile) {
         journey.interact();
@@ -187,7 +243,6 @@ export default function App() {
         setDesktop(false);
         if (journey.phase === "DESKTOP") journey.exitDesktop();
       }
-      setMinimized(false);
     };
     const visibility = () => setHidden(document.hidden);
     const failed = (e: Event) =>
@@ -203,7 +258,21 @@ export default function App() {
       window.removeEventListener("world-ready", loaded);
       document.removeEventListener("visibilitychange", visibility);
     };
-  }, []);
+  }, [changeWorkspace]);
+  useEffect(() => {
+    const update = () =>
+      ambience.update(worldToCabin(journey.position.toArray()), desktop);
+    update();
+    const timer = setInterval(update, 200);
+    const visibility = () => {
+      void ambience.visibility(document.hidden);
+    };
+    document.addEventListener("visibilitychange", visibility);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", visibility);
+    };
+  }, [desktop]);
   useEffect(() => {
     journey.setBlocked(
       help || hidden || !!worldError || (!ready && worldStarted) || desktop,
@@ -222,10 +291,12 @@ export default function App() {
   }, []);
   useEffect(() => {
     document.title =
-      desktop && route.kind
-        ? LABELS[route.kind] + " · Personal World"
-        : "Personal World · 湖畔木屋";
-  }, [desktop, route.kind]);
+      desktop && profileOpen
+        ? "个人资料填写中心 · Personal World"
+        : desktop && route.kind
+          ? LABELS[route.kind] + " · Personal World"
+          : "Personal World · 湖畔木屋";
+  }, [desktop, route.kind, profileOpen]);
   useEffect(() => {
     const before = (e: BeforeUnloadEvent) => {
       if (dirty) {
@@ -261,7 +332,7 @@ export default function App() {
     };
     const move = (e: PointerEvent) => {
       if (!e.isTrusted || locked()) return;
-      if (drag && e.pointerId === drag.id) {
+      if (!document.pointerLockElement && drag && e.pointerId === drag.id) {
         const dx = e.clientX - drag.x,
           dy = e.clientY - drag.y;
         if (Math.abs(dx) + Math.abs(dy) > 0.6) journey.look(dx, dy);
@@ -274,8 +345,8 @@ export default function App() {
         } else if (!last) last = { x: e.clientX, y: e.clientY };
       }
     };
-    const up = () => {
-      drag = null;
+    const up = (event: PointerEvent) => {
+      if (event.pointerId === drag?.id) drag = null;
     };
     const wheel = (e: WheelEvent) => {
       if (
@@ -288,7 +359,9 @@ export default function App() {
     const key = (e: KeyboardEvent) => {
       if (
         e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLSelectElement ||
+        (e.target instanceof HTMLElement && e.target.isContentEditable)
       )
         return;
       if (e.key === "Escape") {
@@ -342,21 +415,38 @@ export default function App() {
         target.tagName === "SELECT" ||
         target.isContentEditable);
     const apply = () => {
-      const forward =
-          (held.has("KeyW") ? 1 : 0) - (held.has("KeyS") ? 1 : 0),
+      const forward = (held.has("KeyW") ? 1 : 0) - (held.has("KeyS") ? 1 : 0),
         strafe = (held.has("KeyD") ? 1 : 0) - (held.has("KeyA") ? 1 : 0);
-      journey.setMoveInput(forward, strafe, held.has("ShiftLeft") || held.has("ShiftRight"));
+      journey.setMoveInput(
+        forward,
+        strafe,
+        held.has("ShiftLeft") || held.has("ShiftRight"),
+      );
     };
     const clear = () => {
       held.clear();
-      journey.setMoveInput(0, 0, false);
+      journey.clearMovement();
     };
     const down = (event: KeyboardEvent) => {
-      if (typing(event.target) || event.metaKey || event.ctrlKey || event.altKey)
+      if (
+        typing(event.target) ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey
+      )
         return;
       if (blockedPhase()) return;
-      if (["KeyW", "KeyA", "KeyS", "KeyD", "ShiftLeft", "ShiftRight"].includes(event.code)) {
-        if (event.code === "KeyW" || event.code === "KeyA" || event.code === "KeyS" || event.code === "KeyD")
+      if (
+        ["KeyW", "KeyA", "KeyS", "KeyD", "ShiftLeft", "ShiftRight"].includes(
+          event.code,
+        )
+      ) {
+        if (
+          event.code === "KeyW" ||
+          event.code === "KeyA" ||
+          event.code === "KeyS" ||
+          event.code === "KeyD"
+        )
           event.preventDefault();
         held.add(event.code);
         apply();
@@ -382,26 +472,11 @@ export default function App() {
       if (document.pointerLockElement && event.isTrusted && !blockedPhase())
         journey.look(event.movementX, event.movementY);
     };
-    const requestLock = (event: PointerEvent) => {
-      if (
-        event.isTrusted &&
-        event.target instanceof HTMLCanvasElement &&
-        !document.pointerLockElement &&
-        !blockedPhase()
-      ) {
-        journey.interact();
-        const request = event.target.requestPointerLock?.();
-        if (request && typeof request.catch === "function")
-          request.catch(() => {
-            // Drag-to-look remains available when the browser refuses the lock.
-          });
-      }
-    };
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
     window.addEventListener("blur", blur);
+    window.addEventListener("focusin", blur);
     window.addEventListener("pointermove", move);
-    window.addEventListener("pointerdown", requestLock);
     document.addEventListener("pointerlockchange", lockChange);
     document.addEventListener("visibilitychange", visibility);
     return () => {
@@ -409,8 +484,8 @@ export default function App() {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
       window.removeEventListener("blur", blur);
+      window.removeEventListener("focusin", blur);
       window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerdown", requestLock);
       document.removeEventListener("pointerlockchange", lockChange);
       document.removeEventListener("visibilitychange", visibility);
     };
@@ -454,6 +529,7 @@ export default function App() {
               ...diagnosticSnapshot(),
               journey: journey.exportState(),
               screenProjection,
+              ambience: ambience.snapshot(),
             },
             null,
             2,
@@ -491,7 +567,6 @@ export default function App() {
     history.pushState({}, "", appURL());
     setProfileOpen(false);
     setDesktop(false);
-    setMinimized(false);
   };
   const activeKind = route.kind ?? "notes",
     activeApp: DesktopApp = profileOpen ? "profile" : activeKind,
@@ -652,8 +727,9 @@ export default function App() {
             </button>
           </nav>
           <div className="world-bottom">
-            <span>WASD 行走 · Shift 加速 · 拖动或点击环视 · E 开关门 · Esc 释放鼠标</span>
+            <span>WASD 移动 · 鼠标观察 · 沿湖岸前往木屋</span>
             <div>
+              <AmbienceControl />
               <button
                 className="quiet-button"
                 aria-pressed={state.reducedMotion}
@@ -678,6 +754,7 @@ export default function App() {
               </a>
             </div>
           </div>
+          <WorldControls disabled={!ready || help || !!worldError} />
           {sampling && (
             <div className="sampling-status" role="status">
               正在采样真实 3D 帧时间…
@@ -698,7 +775,7 @@ export default function App() {
           renderApp={(kind) => (
             <Library
               kind={kind}
-              selected={route.id}
+              selected={selectedByKind[kind] ?? null}
               entries={entries}
               published={published}
               loading={loading}
@@ -708,30 +785,45 @@ export default function App() {
               onSave={save}
               onDelete={remove}
               onRestore={save}
-              onDirty={setDirty}
+              onDirty={dirtyCallbacks[kind]}
+              otherDirty={otherDraftDirty(dirtyMap, kind)}
+              workspace={workspace}
+              onOpenWorkspace={() => changeWorkspace(true)}
+              onOpenProfile={() => activate("profile")}
             />
           )}
-          renderProfile={() => (
-            <ProfileCenter
-              entries={entries}
-              published={published}
-              onSave={save}
-              onDirty={setDirty}
-              onRestore={save}
-              onOpenLibrary={(kind, id) => {
-                setProfileOpen(false);
-                navigate(kind, id ?? null);
-              }}
-              onClose={() => setProfileOpen(false)}
-            />
-          )}
+          renderProfile={() =>
+            loading ? (
+              <p role="status">正在读取本地资料…</p>
+            ) : (
+              <ProfileCenter
+                entries={entries}
+                published={published}
+                onSave={save}
+                onDirty={dirtyCallbacks.profile}
+                otherDirty={otherDraftDirty(dirtyMap, "profile")}
+                onRestore={save}
+                onOpenLibrary={(kind, id) => {
+                  setProfileOpen(false);
+                  navigate(kind, id ?? null);
+                }}
+                onClose={() => setProfileOpen(false)}
+              />
+            )
+          }
           onReturnWorld={returnWorld}
           onHelp={() => setHelp(true)}
           onOpenWorkspace={() => {
+            changeWorkspace(true);
             history.pushState({}, "", location.pathname + "?app=profile");
             setProfileOpen(true);
           }}
-          workspace={profileOpen}
+          workspace={workspace}
+          onLeaveWorkspace={() => {
+            changeWorkspace(false);
+            navigate(activeKind);
+          }}
+          soundControl={<AmbienceControl desktop />}
           dirty={dirty}
           counts={{
             notes: published.filter((e) => e.kind === "notes").length,
@@ -793,6 +885,7 @@ export default function App() {
               。本地编辑默认是草稿，不会自动公开。明确选择并审核后导出公开内容包，提交构建才能更新网站；完整备份不要用于公开发布。
             </p>
             <p className="quiet">
+              环境音默认关闭，点击开启后按当前位置混合湖水、林风、鸟鸣或室内壁炉声；可调节音量，切到后台会暂停。声音为本项目原创合成，不读取麦克风。
               第一人称引导可随时拖动、按键或滚动接管；方向键环视，Esc
               暂停。减少动态模式不会自动播放完整步行路线。精细美术仍待后续。
             </p>

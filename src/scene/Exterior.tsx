@@ -32,7 +32,9 @@ function Stage({
 }) {
   const { scene, gl, camera } = useThree();
   const [ready, setReady] = useState(false);
-  const interiorReady=useRef(false),macReady=useRef(false),exteriorReady=useRef(false);
+  const interiorReady = useRef(false),
+    macReady = useRef(false),
+    exteriorReady = useRef(false);
   const world = useRef<Awaited<ReturnType<typeof buildWorld>> | null>(null);
   const path = useRef(createCameraPath());
   const motion = useRef({ start: 0, end: 0, elapsed: 0, duration: 12 });
@@ -46,6 +48,7 @@ function Stage({
     let alive = true;
     let resource: typeof world.current = null;
     runtime.renderer = gl;
+    runtime.scene = scene;
     runtime.camera = camera as THREE.PerspectiveCamera;
     camera.layers.enable(1);
     camera.layers.enable(2);
@@ -55,10 +58,29 @@ function Stage({
     gl.outputColorSpace = THREE.SRGBColorSpace;
     gl.shadowMap.enabled = true;
     gl.shadowMap.type = THREE.PCFSoftShadowMap;
-    const finishReady=()=>{if(!alive||!exteriorReady.current||!interiorReady.current||!macReady.current)return;runtime.loadingMs=performance.now()-runtime.started;runtime.ready=true;if(cinematic)journey.setReady();window.dispatchEvent(new Event("world-ready"));};
-    const interiorLoaded=()=>{interiorReady.current=true;finishReady();};
-    const macLoaded=()=>{macReady.current=true;finishReady();};
-    window.addEventListener("interior-ready",interiorLoaded);window.addEventListener("macbook-ready",macLoaded);
+    const finishReady = () => {
+      if (
+        !alive ||
+        !exteriorReady.current ||
+        !interiorReady.current ||
+        !macReady.current
+      )
+        return;
+      runtime.loadingMs = performance.now() - runtime.started;
+      runtime.ready = true;
+      if (cinematic) journey.setReady();
+      window.dispatchEvent(new Event("world-ready"));
+    };
+    const interiorLoaded = () => {
+      interiorReady.current = true;
+      finishReady();
+    };
+    const macLoaded = () => {
+      macReady.current = true;
+      finishReady();
+    };
+    window.addEventListener("interior-ready", interiorLoaded);
+    window.addEventListener("macbook-ready", macLoaded);
     buildWorld(scene, gl, runtime.quality)
       .then((w) => {
         resource = w;
@@ -67,7 +89,8 @@ function Stage({
           return;
         }
         world.current = w;
-        exteriorReady.current=true;finishReady();
+        exteriorReady.current = true;
+        finishReady();
         const s = new URLSearchParams(location.search).get("shot");
         runtime.requestedShot = s === "B" ? "B" : "A";
         if (s === "C" || s === "D" || s === "E") runtime.inspectionShot = s;
@@ -89,7 +112,8 @@ function Stage({
       runtime.ready = false;
       resource?.dispose();
       document.removeEventListener("visibilitychange", visibility);
-      window.removeEventListener("interior-ready",interiorLoaded);window.removeEventListener("macbook-ready",macLoaded);
+      window.removeEventListener("interior-ready", interiorLoaded);
+      window.removeEventListener("macbook-ready", macLoaded);
     };
   }, [scene, gl, camera, cinematic]);
   useEffect(() => {
@@ -238,6 +262,10 @@ function Stage({
     const now = performance.now();
     gl.info.reset();
     gl.render(scene, cam);
+    runtime.reflections.rendered =
+      world.current!.lake.userData.reflectionFrames ?? 0;
+    runtime.reflections.reused =
+      world.current!.lake.userData.reflectionReuses ?? 0;
     if (cinematic) {
       const width = gl.domElement.clientWidth,
         height = gl.domElement.clientHeight;

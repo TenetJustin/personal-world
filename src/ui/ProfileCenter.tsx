@@ -21,6 +21,7 @@ import {
   downloadFile,
   prepareImage,
 } from "../library/storage";
+import { moveProfileRow } from "../library/draftState";
 import { ProfilePreview, ProfileImage } from "./ProfilePreview";
 import { PublicationPanel } from "./PublicationPanel";
 import "./profile-center.css";
@@ -29,6 +30,7 @@ export type ProfileCenterProps = {
   published: Entry[];
   onSave: (entries: Entry[]) => Promise<void>;
   onDirty: (dirty: boolean) => void;
+  otherDirty?: boolean;
   onRestore?: (entries: Entry[]) => Promise<void>;
   onOpenLibrary?: (kind: Kind, id?: string) => void;
   onClose?: () => void;
@@ -92,6 +94,7 @@ export function ProfileCenter({
   published,
   onSave,
   onDirty,
+  otherDirty = false,
   onRestore,
   onOpenLibrary,
   onClose,
@@ -114,7 +117,17 @@ export function ProfileCenter({
     [publicView, setPublicView] = useState(false),
     [review, setReview] = useState(false),
     [restore, setRestore] = useState<Entry[] | null>(null);
+  const editRevision = useRef(0);
   const restoreInput = useRef<HTMLInputElement>(null);
+  const guardedDirty = dirty || otherDirty;
+  const guardRef = useRef(guardedDirty);
+  guardRef.current = guardedDirty;
+  const requireSavedEditors = () => {
+    if (guardRef.current)
+      throw new Error(
+        "请先保存或撤销所有应用中未保存的修改，再备份、恢复或审核公开内容",
+      );
+  };
   useEffect(() => {
     if (!dirty && saved) setEntry(saved);
   }, [saved, dirty]);
@@ -126,6 +139,7 @@ export function ProfileCenter({
     readyCount = Object.values(progress).reduce((n, p) => n + p.done, 0),
     totalCount = Object.values(progress).reduce((n, p) => n + p.total, 0);
   const mutate = (fn: (old: Entry) => Entry) => {
+    editRevision.current++;
     setEntry((old) => fn(old));
     setDirty(true);
     setMessage("尚未保存 · 可随时分次填写");
@@ -149,6 +163,7 @@ export function ProfileCenter({
   };
   const save = () =>
     run(async () => {
+      const revision = editRevision.current;
       const referenced = new Set([
         profile.about.avatarId,
         ...profile.awards.flatMap((a) => a.imageIds),
@@ -163,10 +178,14 @@ export function ProfileCenter({
         updatedAt: new Date().toISOString(),
       });
       await onSave([next]);
-      setEntry(next);
       setProfileID(next.id);
-      setDirty(false);
-      setMessage("已保存到当前浏览器；公开网站尚未改变");
+      if (editRevision.current === revision) {
+        setEntry(next);
+        setDirty(false);
+        setMessage("已保存到当前浏览器；公开网站尚未改变");
+      } else {
+        setMessage("已保存提交时的版本；刚输入的修改仍未保存，请再次保存");
+      }
     });
   const upload = async (file: File, purpose: "avatar" | string) =>
     run(async () => {
@@ -243,6 +262,7 @@ export function ProfileCenter({
         <label className="profile-choose">
           当前资料档案
           <select
+            disabled={busy}
             value={saved?.id ?? ""}
             onChange={(e) => {
               if (!dirty || confirm("切换档案会放弃尚未保存的修改，继续？")) {
@@ -273,15 +293,21 @@ export function ProfileCenter({
         <button onClick={() => setPublicView((v) => !v)}>
           {publicView ? "返回本地草稿" : "查看已发布版本"}
         </button>
-        <button disabled={busy || dirty} onClick={() => setReview((v) => !v)}>
+        <button
+          disabled={busy || guardedDirty}
+          onClick={() => setReview((v) => !v)}
+        >
           审核公开内容
         </button>
         <button
-          disabled={busy || dirty}
+          disabled={busy || guardedDirty}
           onClick={() =>
             void run(async () => {
+              requireSavedEditors();
+              const json = await encodeBackup(entries);
+              requireSavedEditors();
               downloadFile(
-                new Blob([await encodeBackup(entries)], {
+                new Blob([json], {
                   type: "application/json",
                 }),
                 `personal-world-backup-${new Date().toLocaleDateString("sv-SE")}.json`,
@@ -295,7 +321,7 @@ export function ProfileCenter({
           导出全部备份
         </button>
         <button
-          disabled={busy || dirty}
+          disabled={busy || guardedDirty}
           onClick={() => restoreInput.current?.click()}
         >
           恢复旧版或新版备份
@@ -310,7 +336,12 @@ export function ProfileCenter({
             const file = e.target.files?.[0];
             e.target.value = "";
             if (file)
-              void run(async () => setRestore(await decodeBackup(file)));
+              void run(async () => {
+                requireSavedEditors();
+                const incoming = await decodeBackup(file);
+                requireSavedEditors();
+                setRestore(incoming);
+              });
           }}
         />
       </div>
@@ -320,14 +351,20 @@ export function ProfileCenter({
           : message ||
             `${publicationState(entry, published)} · ${dirty ? "尚未保存" : saved ? "已保存" : "首次使用：先填写展示名称与一句话介绍，可分次保存"}`}
       </div>
+      {otherDirty && (
+        <p className="profile-save-status" role="status">
+          其他应用有未保存修改；可继续保存本窗口，全部保存后再备份、恢复或审核。
+        </p>
+      )}
       {restore && (
         <section className="profile-restore">
           <strong>恢复预览：{restore.length} 项资料</strong>
           <p>合并到同一资料库，相同 ID 使用备份版本替换，其他本地资料保留。</p>
           <button
-            disabled={busy}
+            disabled={busy || guardedDirty}
             onClick={() =>
               void run(async () => {
+                requireSavedEditors();
                 await (onRestore ?? onSave)(restore);
                 setRestore(null);
                 setMessage("恢复完成，旧资料和新增字段均保留");
@@ -342,7 +379,7 @@ export function ProfileCenter({
       {review && (
         <PublicationPanel
           entries={entries}
-          dirty={dirty}
+          dirty={guardedDirty}
           onClose={() => setReview(false)}
         />
       )}
@@ -645,11 +682,14 @@ export function ProfileCenter({
                           <button
                             disabled={index === 0}
                             onClick={() => {
-                              const rows = [...profile[section]];
-                              [rows[index - 1], rows[index]] = [
-                                rows[index],
-                                rows[index - 1],
-                              ];
+                              const rows = moveProfileRow(
+                                profile[section] as Array<{
+                                  id: string;
+                                  sortOrder?: number;
+                                }>,
+                                index,
+                                index - 1,
+                              );
                               setProfile({
                                 ...profile,
                                 [section]: rows,

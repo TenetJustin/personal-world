@@ -31,6 +31,7 @@ import {
   publicationState,
   type ProjectDetails,
 } from "../library/profile";
+import { acknowledgeSavedDraft } from "../library/draftState";
 import { ProfilePreview, ProfileImage } from "./ProfilePreview";
 import { PublicationPanel } from "./PublicationPanel";
 import "./library-v2.css";
@@ -87,6 +88,8 @@ type Props = {
   published?: Entry[];
   publishedLoading?: boolean;
   onDirty: (dirty: boolean) => void;
+  /** Unsaved edits in another mounted application. */
+  otherDirty?: boolean;
 };
 export function Library({
   kind,
@@ -102,6 +105,7 @@ export function Library({
   onDelete,
   onRestore,
   onDirty,
+  otherDirty = false,
   published = [],
   publishedLoading = false,
 }: Props) {
@@ -136,7 +140,18 @@ export function Library({
   const draft =
     active && (isPublished ? active : (getDraft(active.id) ?? active));
   const url = useBlobURL(active?.blob);
+  const currentDrafts = useRef(drafts);
+  currentDrafts.current = drafts;
   const dirtyCount = Object.keys(drafts).length;
+  const guardedDirty = dirtyCount > 0 || otherDirty;
+  const guardRef = useRef(guardedDirty);
+  guardRef.current = guardedDirty;
+  const requireSavedEditors = () => {
+    if (guardRef.current)
+      throw new Error(
+        "请先保存或撤销所有应用中未保存的修改，再备份、恢复或审核公开内容",
+      );
+  };
   useEffect(() => {
     onDirty(dirtyCount > 0);
   }, [dirtyCount, onDirty]);
@@ -218,10 +233,18 @@ export function Library({
   const save = () =>
     run(async () => {
       if (!draft) return;
-      await onSave([{ ...draft, updatedAt: new Date().toISOString() }]);
-      discard(draft.id);
-      setEditing(false);
-      setMessage("已保存到此浏览器");
+      const snapshot = draft;
+      await onSave([{ ...snapshot, updatedAt: new Date().toISOString() }]);
+      const newerEdits =
+        !!currentDrafts.current[snapshot.id] &&
+        currentDrafts.current[snapshot.id] !== snapshot;
+      setDrafts((old) => acknowledgeSavedDraft(old, snapshot.id, snapshot));
+      if (!newerEdits) setEditing(false);
+      setMessage(
+        newerEdits
+          ? "已保存提交时的版本；刚输入的修改仍未保存，请再次保存"
+          : "已保存到此浏览器",
+      );
     });
   const importFiles = (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
@@ -272,8 +295,9 @@ export function Library({
   };
   const exportBackup = () =>
     run(async () => {
-      if (dirtyCount) throw new Error("请先保存或撤销未保存的修改，再导出备份");
+      requireSavedEditors();
       const json = await encodeBackup(entries);
+      requireSavedEditors();
       const name = `personal-world-${new Date().toLocaleDateString("sv-SE")}.json`;
       const blob = new Blob([json], { type: "application/json" });
       setBackup({ url: URL.createObjectURL(blob), name });
@@ -287,9 +311,10 @@ export function Library({
     event.target.value = "";
     if (file)
       void run(async () => {
-        if (dirtyCount)
-          throw new Error("请先保存或撤销未保存的修改，再恢复备份");
-        setRestore(await decodeBackup(file));
+        requireSavedEditors();
+        const incoming = await decodeBackup(file);
+        requireSavedEditors();
+        setRestore(incoming);
       });
   };
   const deleteCurrent = () => {
@@ -342,7 +367,10 @@ export function Library({
           <button onClick={onOpenProfile}>个人资料填写中心</button>
         )}
         {!isPublished && (
-          <button onClick={() => setPublication((v) => !v)}>
+          <button
+            disabled={busy || guardedDirty}
+            onClick={() => setPublication((v) => !v)}
+          >
             审核公开内容
           </button>
         )}
@@ -350,7 +378,7 @@ export function Library({
       {publication && !isPublished && (
         <PublicationPanel
           entries={entries}
-          dirty={!!dirtyCount}
+          dirty={guardedDirty}
           onClose={() => setPublication(false)}
         />
       )}
@@ -410,7 +438,7 @@ export function Library({
           )}
           {!isPublished && (
             <button
-              disabled={busy || loading || !!error}
+              disabled={busy || loading || !!error || guardedDirty}
               onClick={exportBackup}
             >
               导出全部备份
@@ -418,7 +446,7 @@ export function Library({
           )}
           {!isPublished && (
             <button
-              disabled={busy || loading || !!error}
+              disabled={busy || loading || !!error || guardedDirty}
               onClick={() => restoreInput.current?.click()}
             >
               恢复备份
@@ -454,7 +482,12 @@ export function Library({
           {error || message || (busy ? "正在处理，请稍候…" : "")}
         </div>
       )}
-      {backup && !isPublished && (
+      {otherDirty && !isPublished && (
+        <p className="app-message" role="status">
+          其他应用有未保存修改；可继续保存本窗口，全部保存后再备份、恢复或审核。
+        </p>
+      )}
+      {backup && !isPublished && !guardedDirty && (
         <a className="backup-link" href={backup.url} download={backup.name}>
           再次下载刚生成的完整备份
         </a>
@@ -467,9 +500,10 @@ export function Library({
           </p>
           <button
             className="accent"
-            disabled={busy}
+            disabled={busy || guardedDirty}
             onClick={() =>
               run(async () => {
+                requireSavedEditors();
                 await onRestore(restore);
                 setRestore(null);
                 setMessage("备份恢复完成");

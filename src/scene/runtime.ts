@@ -1,9 +1,11 @@
-import type { PerspectiveCamera, WebGLRenderer } from "three";
+import type { PerspectiveCamera, WebGLRenderer, Scene } from "three";
 export type Shot = "A" | "B";
 export const runtime = {
   ready: false,
+  scene: null as Scene | null,
   renderedFrames: 0,
   assetStages: {} as Record<string, string>,
+  reflections: { rendered: 0, reused: 0, stationaryHz: 20 },
   progress: 0,
   moving: false,
   motion: false,
@@ -53,13 +55,14 @@ export const runtime = {
           }
         : null,
       quality: this.quality,
-      sceneRevision: "phase-02-04-sprint-v2",
+      sceneRevision: "v3-reliability-audio",
       reflectionPolicy: new URLSearchParams(location.search).has(
         "fullReflection",
       )
         ? "full"
         : "structural scene; micro-grass and nested glass transmission excluded",
       spatialBatches: !new URLSearchParams(location.search).has("unbatched"),
+      reflectionUpdates: this.reflections,
       assetStages: this.assetStages,
       samples: a.length,
       durationSeconds: sum / 1000,

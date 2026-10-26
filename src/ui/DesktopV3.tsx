@@ -20,6 +20,8 @@ export type DesktopV3Props = {
   onReturnWorld: () => void;
   onHelp: () => void;
   onOpenWorkspace?: () => void;
+  onLeaveWorkspace?: () => void;
+  soundControl?: ReactNode;
   workspace?: boolean;
   dirty?: boolean;
   counts?: Partial<Record<Kind, number>>;
@@ -133,7 +135,7 @@ export function WeatherWidget() {
   return (
     <section
       className="dv3-weather dv3-widget"
-      aria-label="天气占位，未连接实时天气服务"
+      aria-label="天气演示，非实时天气"
     >
       <header>
         <span>湖畔 · 场景演示</span>
@@ -141,7 +143,7 @@ export function WeatherWidget() {
       </header>
       <div className="dv3-weather-now">
         <strong>
-          —<span>°</span>
+          18<span>°</span>
         </strong>
         <svg viewBox="0 0 90 64" aria-hidden="true">
           <defs>
@@ -162,10 +164,10 @@ export function WeatherWidget() {
         </svg>
       </div>
       <div className="dv3-weather-footer">
-        <span>未连接天气服务</span>
-        <span>不读取定位</span>
+        <span>多云 · 最高 20° / 最低 12°</span>
+        <span>固定场景数据</span>
       </div>
-      <small>占位状态 · 接入真实天气 API 后显示实测数据</small>
+      <small>演示天气 · 非实时 · 不读取定位</small>
     </section>
   );
 }
@@ -465,6 +467,8 @@ export default function DesktopV3({
   onReturnWorld,
   onHelp,
   onOpenWorkspace,
+  onLeaveWorkspace,
+  soundControl,
   workspace = false,
   dirty = false,
   counts,
@@ -568,6 +572,7 @@ export default function DesktopV3({
           本地编辑工作区
         </button>
         <div className="dv3-status">
+          {soundControl}
           <button
             className="dv3-simulated-status"
             aria-label="Wi-Fi 和电池为演示状态"
@@ -625,6 +630,17 @@ export default function DesktopV3({
                 </button>
               ))}
               <hr />
+              {workspace && (
+                <button
+                  role="menuitem"
+                  onClick={() => {
+                    onLeaveWorkspace?.();
+                    closeMenus();
+                  }}
+                >
+                  返回公开浏览<span>保留本地草稿</span>
+                </button>
+              )}
               <button
                 role="menuitem"
                 onClick={() => {

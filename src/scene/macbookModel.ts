@@ -18,6 +18,7 @@ export const MACBOOK = {
   hingeZ: 0.104,
   hingeY: 0.005,
   screenBottomBezel: 0.006,
+  screenPlaneZ: -(0.0034 / 2 + 0.00024),
   baseX: -3.6,
   baseY: 2.1305,
   baseZ: 2.98,
@@ -38,6 +39,7 @@ export const MACBOOK_SCREEN = (() => {
     baseZ,
     hingeY,
     hingeZ,
+    screenPlaneZ,
   } = MACBOOK;
   const pivotY = baseY + hingeY;
   const pivotZ = baseZ + hingeZ;
@@ -47,16 +49,17 @@ export const MACBOOK_SCREEN = (() => {
   const point = (halfWidth: number, alongLid: number) =>
     [
       baseX + halfWidth,
-      pivotY + alongLid * cos,
-      pivotZ + alongLid * sin,
+      pivotY + alongLid * cos - screenPlaneZ * sin,
+      pivotZ + alongLid * sin + screenPlaneZ * cos,
     ] as const;
   const top = point(0, centerAlongLid + displayHeight / 2);
   const bottom = point(0, centerAlongLid - displayHeight / 2);
   return {
+    normal: [0, sin, -cos] as const,
     center: [
       baseX,
-      pivotY + centerAlongLid * cos,
-      pivotZ + centerAlongLid * sin,
+      pivotY + centerAlongLid * cos - screenPlaneZ * sin,
+      pivotZ + centerAlongLid * sin + screenPlaneZ * cos,
     ] as const,
     corners: [
       [top[0] + displayWidth / 2, top[1], top[2]],
@@ -68,5 +71,16 @@ export const MACBOOK_SCREEN = (() => {
 })();
 
 /** Diagonal in inches, derived rather than typed in. */
-export const MACBOOK_DISPLAY_DIAGONAL_INCHES =
-  (Math.hypot(MACBOOK.displayWidth, MACBOOK.displayHeight) / 0.0254) as number;
+export const MACBOOK_DISPLAY_DIAGONAL_INCHES = (Math.hypot(
+  MACBOOK.displayWidth,
+  MACBOOK.displayHeight,
+) / 0.0254) as number;
+
+/** Original aluminium finish palette; callers may also supply a custom bodyColor. */
+export const MACBOOK_FINISHES = {
+  silver: "#b8bec4",
+  skyBlue: "#a9bdc9",
+  starlight: "#c7bdac",
+  midnight: "#343c48",
+} as const;
+export type MacBookFinish = keyof typeof MACBOOK_FINISHES;

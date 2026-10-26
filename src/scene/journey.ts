@@ -12,7 +12,7 @@ import {
 } from "./architecture.ts";
 import { groundHeight } from "./landscape.ts";
 import { Euler } from "three/src/math/Euler.js";
-import { Walker, canStep, planSafePath } from "./locomotion.ts";
+import { Walker, canStep, planSafePath, canMoveDoor } from "./locomotion.ts";
 export type JourneyPhase =
   | "BOOT"
   | "LAKESHORE_IDLE"
@@ -110,8 +110,8 @@ function desiredSpeed(distance: number) {
   if (p[2] < 8.7 && p[2] > 6.8 && Math.abs(p[0] - 1.16) < 1) return 0.72;
   if (distance > ROUTE_ANCHORS.porch && distance < ROUTE_ANCHORS.room)
     return 1.35;
-  if (distance > ROUTE_ANCHORS.room) return 1.60;
-  return 2.60;
+  if (distance > ROUTE_ANCHORS.room) return 1.6;
+  return 2.6;
 }
 function travel(t: number): number {
   const a = 0.13,
@@ -309,16 +309,37 @@ export function sampleTour(time: number) {
   };
 }
 /** Convert a physical route distance to its corresponding moving cinematic beat. */
-function timeAtDistance(distance:number){
- let offset=0;
- for(const b of TOUR_BEATS){
-  if(b.span && distance>=b.from-.001 && distance<=b.to+.001){
-   let lo=0,hi=1;for(let i=0;i<32;i++){const m=(lo+hi)/2;if(b.span.at(m)<distance)lo=m;else hi=m;}
-   return offset+(lo+hi)/2*b.duration;
-  }offset+=b.duration;
- }return distance>=ROUTE_ANCHORS.desk?TOUR_DURATION:0;
+function timeAtDistance(distance: number) {
+  let offset = 0;
+  for (const b of TOUR_BEATS) {
+    if (b.span && distance >= b.from - 0.001 && distance <= b.to + 0.001) {
+      let lo = 0,
+        hi = 1;
+      for (let i = 0; i < 32; i++) {
+        const m = (lo + hi) / 2;
+        if (b.span.at(m) < distance) lo = m;
+        else hi = m;
+      }
+      return offset + ((lo + hi) / 2) * b.duration;
+    }
+    offset += b.duration;
+  }
+  return distance >= ROUTE_ANCHORS.desk ? TOUR_DURATION : 0;
 }
-function nearestRoute(position:Vector3){let best=0,error=Infinity;for(let i=0;i<=600;i++){const d=total*i/600,p=routePosition(d),e=p.distanceToSquared(position);if(e<error){error=e;best=d;}}return best;}
+function nearestRoute(position: Vector3) {
+  let best = 0,
+    error = Infinity;
+  for (let i = 0; i <= 600; i++) {
+    const d = (total * i) / 600,
+      p = routePosition(d),
+      e = p.distanceToSquared(position);
+    if (e < error) {
+      error = e;
+      best = d;
+    }
+  }
+  return best;
+}
 export type JourneySnapshot = {
   phase: JourneyPhase;
   label: string;
@@ -348,10 +369,17 @@ export class Journey {
   position = routePosition(0);
   quaternion = lookRotation(this.position, LAKE);
   fov = 52;
-  readonly walker=new Walker();
-  private connector:{points:Vector3[];index:number;distance:number;after:()=>void}|null=null;
-  private doorTarget=0;
-  private resumeOffset=new Vector3();
+  readonly walker = new Walker();
+  private connector: {
+    points: Vector3[];
+    index: number;
+    distance: number;
+    after: () => void;
+  } | null = null;
+  private doorTarget = 0;
+  private wasNearDoor = false;
+  private manualDoorOverride = false;
+  private resumeOffset = new Vector3();
   private autoIdle = 0;
   private running = false;
   private isAuto = false;
@@ -458,7 +486,10 @@ export class Journey {
   }
   setBlocked(value: boolean) {
     this.blocked = value;
-    if (value) {this.autoIdle = 0;this.clearMovement();}
+    if (value) {
+      this.autoIdle = 0;
+      this.clearMovement();
+    }
   }
   startGuide(automatic = false) {
     if (
@@ -470,10 +501,12 @@ export class Journey {
       this.navigate("desk");
       return;
     }
-    if(this.connectToRoute(()=>this.startGuide(automatic)))return;
+    if (this.connectToRoute(() => this.startGuide(automatic))) return;
     this.clearMovement();
-    this.resumeOffset.copy(this.position).sub(routePosition(nearestRoute(this.position)));
-    this.resumeBlend=0;
+    this.resumeOffset
+      .copy(this.position)
+      .sub(routePosition(nearestRoute(this.position)));
+    this.resumeBlend = 0;
     this.navigation = null;
     this.autoUsed = true;
     this.isAuto = automatic;
@@ -540,30 +573,86 @@ export class Journey {
     this.emit();
   }
   look(dx: number, dy: number) {
-    if (["ENTERING_DESKTOP","EXITING_DESKTOP","DESKTOP"].includes(this.phase)) return;
+    if (["ENTERING_DESKTOP", "EXITING_DESKTOP", "DESKTOP"].includes(this.phase))
+      return;
     this.interact();
-    const e=new Euler().setFromQuaternion(this.quaternion,"YXZ");
-    e.y-=dx*.0032;e.x=Math.max(-1.40,Math.min(1.40,e.x-dy*.0028));e.z=0;
-    this.quaternion.setFromEuler(e);this.baseRotation.copy(this.quaternion);
+    const e = new Euler().setFromQuaternion(this.quaternion, "YXZ");
+    e.y -= dx * 0.0032;
+    e.x = Math.max(-1.4, Math.min(1.4, e.x - dy * 0.0028));
+    e.z = 0;
+    this.quaternion.setFromEuler(e);
+    this.baseRotation.copy(this.quaternion);
   }
-  setMoveInput(forward:number,strafe:number,sprint=false){
-    if(!this.ready||this.blocked||["ENTERING_DESKTOP","EXITING_DESKTOP","DESKTOP"].includes(this.phase))return;
-    if(forward||strafe){this.interact();this.phase="MANUAL_EXPLORATION";this.label="WASD 自由探索 · 鼠标观察";}
-    this.walker.input(forward,strafe,sprint);this.emit();
+  setMoveInput(forward: number, strafe: number, sprint = false) {
+    if (
+      !this.ready ||
+      this.blocked ||
+      ["ENTERING_DESKTOP", "EXITING_DESKTOP", "DESKTOP"].includes(this.phase)
+    )
+      return;
+    if (forward || strafe) {
+      this.interact();
+      this.phase = "MANUAL_EXPLORATION";
+      this.label = "WASD 自由探索 · 鼠标观察";
+    }
+    this.walker.input(forward, strafe, sprint);
+    this.emit();
   }
-  clearMovement(){this.walker.clear();}
-  toggleDoor(){this.interact();this.doorTarget=this.door>.5?0:1;}
+  clearMovement() {
+    this.walker.clear();
+  }
+  toggleDoor() {
+    this.interact();
+    this.manualDoorOverride = true;
+    this.doorTarget = this.door > 0.5 ? 0 : 1;
+  }
   /** Verification-only pose override; never used by the product journey. */
-  setPose(position:number[],target:number[]){const eye=new Vector3(...position);this.position.copy(eye);this.quaternion.copy(lookRotation(eye,target as unknown as Point));this.baseRotation.copy(this.quaternion);this.emit();}
-  get canUseComputer(){const p=worldToCabin(this.position.toArray());return Math.hypot(p[0]+3.6,p[2]-1.1)<1.45&&Math.abs(p[1]-3.02)<.35;}
-  private connectToRoute(after:()=>void){
-    const d=nearestRoute(this.position),target=routePosition(d);
-    if(this.position.distanceTo(target)<.055){this.distance=d;if(this.phase==="MANUAL_EXPLORATION")this.tourTime=timeAtDistance(d);return false;}
-    const path=planSafePath(this.position,target);
-    this.running=false;this.navigation=null;this.clearMovement();this.interacted=true;this.autoUsed=true;
-    if(!path){this.phase="MANUAL_EXPLORATION";this.label="当前位置没有安全接入路径，请先走到开阔通道";this.emit();return true;}
-    this.connector={points:path,index:0,distance:d,after};this.doorTarget=1;
-    this.phase="MANUAL_EXPLORATION";this.label="沿可通行地面接回引导路线";this.emit();return true;
+  setPose(position: number[], target: number[]) {
+    this.interrupt();
+    this.clearMovement();
+    this.phase = "MANUAL_EXPLORATION";
+    this.interacted = true;
+    const eye = new Vector3(...position);
+    this.position.copy(eye);
+    this.distance = nearestRoute(eye);
+    this.tourTime = timeAtDistance(this.distance);
+    this.quaternion.copy(lookRotation(eye, target as unknown as Point));
+    this.baseRotation.copy(this.quaternion);
+    this.emit();
+  }
+  get canUseComputer() {
+    const p = worldToCabin(this.position.toArray());
+    return (
+      Math.hypot(p[0] + 3.6, p[2] - 1.1) < 1.45 && Math.abs(p[1] - 3.02) < 0.35
+    );
+  }
+  private connectToRoute(after: () => void) {
+    const d = nearestRoute(this.position),
+      target = routePosition(d);
+    if (this.position.distanceTo(target) < 0.055) {
+      this.distance = d;
+      if (this.phase === "MANUAL_EXPLORATION")
+        this.tourTime = timeAtDistance(d);
+      return false;
+    }
+    const path = planSafePath(this.position, target);
+    this.running = false;
+    this.navigation = null;
+    this.clearMovement();
+    this.interacted = true;
+    this.autoUsed = true;
+    if (!path) {
+      this.phase = "MANUAL_EXPLORATION";
+      this.label = "当前位置没有安全接入路径，请先走到开阔通道";
+      this.emit();
+      return true;
+    }
+    this.connector = { points: path, index: 0, distance: d, after };
+    this.doorTarget = 1;
+    this.phase = "MANUAL_EXPLORATION";
+    this.label = "沿可通行地面接回引导路线";
+    this.emit();
+    return true;
   }
   navigate(destination: "lake" | "room" | "desk") {
     if (
@@ -602,7 +691,7 @@ export class Journey {
       this.emit();
       return;
     }
-    if(this.connectToRoute(()=>this.navigate(destination)))return;
+    if (this.connectToRoute(() => this.navigate(destination))) return;
     this.clearMovement();
     if (destination === "desk" && this.distance < ROUTE_ANCHORS.room - 0.05) {
       this.startGuide(false);
@@ -616,6 +705,12 @@ export class Journey {
           : destination === "lake"
             ? "MANUAL_EXPLORATION"
             : "CABIN_INTERIOR";
+      this.label =
+        destination === "desk"
+          ? "请点击 Mac"
+          : destination === "lake"
+            ? "已返回湖岸 · 可以自由探索"
+            : "已到达木屋客厅";
       this.emit();
       return;
     }
@@ -649,8 +744,13 @@ export class Journey {
     this.emit();
   }
   requestDesktop() {
-    if (!this.canUseComputer || ["DESKTOP","ENTERING_DESKTOP","EXITING_DESKTOP"].includes(this.phase)) return false;
-    this.interrupt();this.clearMovement();
+    if (
+      !this.canUseComputer ||
+      ["DESKTOP", "ENTERING_DESKTOP", "EXITING_DESKTOP"].includes(this.phase)
+    )
+      return false;
+    this.interrupt();
+    this.clearMovement();
     this.interacted = true;
     this.savedDesk = {
       position: this.position.clone(),
@@ -699,26 +799,82 @@ export class Journey {
   update(dt: number, visible = true) {
     if (!this.ready || !visible || this.blocked) return;
     const step = Math.max(0, Math.min(dt, 0.075));
-    const local=worldToCabin(this.position.toArray());
-    if(Math.abs(local[0]-1.11)<1.8&&Math.abs(local[2]-4.5)<2.4)this.doorTarget=1;
-    if(!this.running&&!this.navigation)this.door+=Math.sign(this.doorTarget-this.door)*Math.min(Math.abs(this.doorTarget-this.door),step/0.65);
-    if(this.connector){
-      const c=this.connector,target=c.points[c.index],delta=target.clone().sub(this.position),horizontal=Math.hypot(delta.x,delta.z);
-      if(horizontal<.035&&Math.abs(delta.y)<.28){this.walker.clear();this.position.copy(target);c.index++;if(c.index>=c.points.length){this.connector=null;this.distance=c.distance;this.tourTime=timeAtDistance(c.distance);c.after();}}
-      else {
-       const rotation=lookRotation(this.position,[target.x,this.position.y,target.z]);
-       this.quaternion.slerp(rotation,1-Math.exp(-step*4));
-       this.walker.input(Math.min(1,horizontal/.20),0,true);
-       this.walker.update(this.position,rotation,step,this.door);
-       if(this.walker.lastCollision){this.connector=null;this.clearMovement();this.label="接入路径受阻，请手动离开障碍后继续";this.emit();}
+    const local = worldToCabin(this.position.toArray());
+    const nearDoor =
+      Math.abs(local[0] - 1.11) < 1.8 && Math.abs(local[2] - 4.5) < 2.4;
+    if (!nearDoor) this.manualDoorOverride = false;
+    if (nearDoor && !this.wasNearDoor && !this.manualDoorOverride)
+      this.doorTarget = 1;
+    this.wasNearDoor = nearDoor;
+    if (!this.running && !this.navigation) {
+      const next =
+        this.door +
+        Math.sign(this.doorTarget - this.door) *
+          Math.min(Math.abs(this.doorTarget - this.door), step / 0.65);
+      if (next >= this.door || canMoveDoor(this.position, this.door, next))
+        this.door = next;
+    }
+    if (this.connector) {
+      const c = this.connector,
+        target = c.points[c.index],
+        delta = target.clone().sub(this.position),
+        horizontal = Math.hypot(delta.x, delta.z);
+      if (horizontal < 0.035 && Math.abs(delta.y) < 0.28) {
+        this.walker.clear();
+        this.position.copy(target);
+        c.index++;
+        if (c.index >= c.points.length) {
+          this.connector = null;
+          this.distance = c.distance;
+          this.tourTime = timeAtDistance(c.distance);
+          c.after();
+        }
+      } else {
+        const rotation = lookRotation(this.position, [
+          target.x,
+          this.position.y,
+          target.z,
+        ]);
+        this.quaternion.rotateTowards(rotation, step * 1.65);
+        // A* has proved this straight segment clear. Follow that exact swept
+        // vector and brake before its endpoint; do not carry sideways inertia
+        // through a stair-guard corner or re-project into world-axis steps.
+        const onStair =
+          Math.abs(local[0] + 4.875) < 0.8 &&
+          local[2] > -3.6 &&
+          local[2] < 0.55;
+        const speed = onStair ? 1.05 : 2.2;
+        const amount = Math.min(horizontal, speed * step);
+        if (!this.walker.follow(this.position, target, amount, this.door)) {
+          // The only dynamic obstacle is the opening door: wait for it instead
+          // of discarding a valid route during its opening animation.
+          if (this.walker.lastCollision === "door" && this.doorTarget === 1)
+            return;
+          this.connector = null;
+          this.clearMovement();
+          this.label = "接入路径受阻，请手动离开障碍后继续";
+          this.emit();
+        }
       }
       return;
     }
-    if(!this.running&&!this.navigation&&!["ENTERING_DESKTOP","EXITING_DESKTOP","DESKTOP"].includes(this.phase)){
-      if(this.walker.forward||this.walker.strafe||this.walker.velocity.lengthSq()>0){
-       this.walker.update(this.position,this.quaternion,step,this.door);this.distance=nearestRoute(this.position);
-       if(this.canUseComputer){this.phase="DESK_READY";this.label="书桌在眼前 · 点击 Mac 打开资料";}
-       this.emit();
+    if (
+      !this.running &&
+      !this.navigation &&
+      !["ENTERING_DESKTOP", "EXITING_DESKTOP", "DESKTOP"].includes(this.phase)
+    ) {
+      if (
+        this.walker.forward ||
+        this.walker.strafe ||
+        this.walker.velocity.lengthSq() > 0
+      ) {
+        this.walker.update(this.position, this.quaternion, step, this.door);
+        this.distance = nearestRoute(this.position);
+        if (this.canUseComputer) {
+          this.phase = "DESK_READY";
+          this.label = "书桌在眼前 · 点击 Mac 打开资料";
+        }
+        this.emit();
       }
     }
     if (
@@ -735,12 +891,17 @@ export class Journey {
       this.rate = Math.min(1, this.rate + step / 1.0);
       this.tourTime = Math.min(TOUR_DURATION, this.tourTime + step * this.rate);
       const sample = sampleTour(this.tourTime);
-      if(!canStep(this.position,sample.position,sample.door)){
-        this.interrupt();this.label="引导通道受阻，请手动探索后重新接入";this.emit();return;
+      if (!canStep(this.position, sample.position, sample.door)) {
+        this.interrupt();
+        this.label = "引导通道受阻，请手动探索后重新接入";
+        this.emit();
+        return;
       }
       this.resumeBlend = Math.min(1, this.resumeBlend + step / 1.4);
       // Adopt the authored route from the retained pose instead of snapping onto it.
-      this.position.copy(sample.position).addScaledVector(this.resumeOffset, 1 - ease(this.resumeBlend));
+      this.position
+        .copy(sample.position)
+        .addScaledVector(this.resumeOffset, 1 - ease(this.resumeBlend));
       this.quaternion.copy(sample.quaternion);
       if (this.resumeRotation && this.resumeBlend < 1)
         this.quaternion
@@ -789,8 +950,12 @@ export class Journey {
       } else {
         n.elapsed += step;
         this.distance = n.span.at(Math.min(1, n.elapsed / n.span.duration));
-        const nextPosition=routePosition(this.distance);
-        if(!canStep(this.position,nextPosition,this.door)){this.interrupt();this.label="安全路线被阻挡，请手动调整位置";return;}
+        const nextPosition = routePosition(this.distance);
+        if (!canStep(this.position, nextPosition, this.door)) {
+          this.interrupt();
+          this.label = "安全路线被阻挡，请手动调整位置";
+          return;
+        }
         this.position.copy(nextPosition);
         this.quaternion.slerp(targetRotation, 1 - Math.exp(-step * 3.2));
       }
@@ -869,10 +1034,17 @@ export class Journey {
       position: this.position.toArray(),
       quaternion: this.quaternion.toArray(),
       eyeHeight: EYE_HEIGHT,
-      freeMovement:{forward:this.walker.forward,strafe:this.walker.strafe,velocity:this.walker.velocity.toArray(),collision:this.walker.lastCollision},
-      safeConnector:this.connector?{remaining:this.connector.points.length-this.connector.index}:null,
-      canUseComputer:this.canUseComputer,
-      fov:this.fov,
+      freeMovement: {
+        forward: this.walker.forward,
+        strafe: this.walker.strafe,
+        velocity: this.walker.velocity.toArray(),
+        collision: this.walker.lastCollision,
+      },
+      safeConnector: this.connector
+        ? { remaining: this.connector.points.length - this.connector.index }
+        : null,
+      canUseComputer: this.canUseComputer,
+      fov: this.fov,
       beats: TOUR_BEATS.map((b) => ({
         label: b.label,
         phase: b.phase,

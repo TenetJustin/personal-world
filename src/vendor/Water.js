@@ -254,7 +254,30 @@ class Water extends Mesh {
       this.geometry.dispose();
     };
 
+    // At a stationary viewpoint, only foliage changes in the reflected scene.
+    // Keep full-resolution targets and live water shading; refresh that static
+    // reflection at 20 Hz. Any camera/projection or shadow change updates immediately.
+    const useLiveReflections = new URLSearchParams(location.search).has("liveReflections");
+    let lastReflectionAt = -Infinity;
+    const previousCamera = new Matrix4(), previousProjection = new Matrix4();
+    let reflectionValid = false;
+    scope.userData.reflectionFrames = 0;
+    scope.userData.reflectionReuses = 0;
     scope.onBeforeRender = function (renderer, scene, camera) {
+      eye.setFromMatrixPosition(camera.matrixWorld);
+      const now = performance.now();
+      if (reflectionValid && !useLiveReflections &&
+          previousCamera.equals(camera.matrixWorld) && previousProjection.equals(camera.projectionMatrix) &&
+          !renderer.shadowMap.needsUpdate && now-lastReflectionAt<50) {
+        scope.userData.reflectionReuses++;
+        return;
+      }
+      lastReflectionAt=now;
+      previousCamera.copy(camera.matrixWorld);
+      previousProjection.copy(camera.projectionMatrix);
+      reflectionValid=true;
+      scope.userData.reflectionFrames++;
+
       mirrorWorldPosition.setFromMatrixPosition(scope.matrixWorld);
       cameraWorldPosition.setFromMatrixPosition(camera.matrixWorld);
 

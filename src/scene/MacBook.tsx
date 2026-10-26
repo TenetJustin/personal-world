@@ -14,121 +14,51 @@ import { drawScreenPreview } from "./screenPreview";
 import { MACBOOK } from "./macbookModel.ts";
 export { MACBOOK };
 
-const KEY_PITCH_X = 0.0182;
-const KEY_PITCH_Z = 0.0168;
-const KEY_GAP = 0.0024;
-const KEY_TOP = MACBOOK.baseThickness + 0.0032;
-
-type Key = { label: string; units: number; row: number; x: number };
-
-const ROWS: { label: string; units: number }[][] = [
-  [
-    { label: "esc", units: 1 },
-    ...Array.from({ length: 12 }, (_, i) => ({
-      label: `F${i + 1}`,
-      units: 1,
-    })),
-    { label: "⏻", units: 1 },
-  ],
-  [
-    { label: "`", units: 1 },
-    ...["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"].map((l) => ({
-      label: l,
-      units: 1,
-    })),
-    { label: "-", units: 1 },
-    { label: "=", units: 1 },
-    { label: "⌫", units: 1.5 },
-  ],
-  [
-    { label: "⇥", units: 1.5 },
-    ...["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"].map((l) => ({
-      label: l,
-      units: 1,
-    })),
-    { label: "[", units: 1 },
-    { label: "]", units: 1 },
-    { label: "\\", units: 1 },
-  ],
-  [
-    { label: "⇪", units: 1.75 },
-    ...["A", "S", "D", "F", "G", "H", "J", "K", "L"].map((l) => ({
-      label: l,
-      units: 1,
-    })),
-    { label: ";", units: 1 },
-    { label: "'", units: 1 },
-    { label: "↩", units: 1.75 },
-  ],
-  [
-    { label: "⇧", units: 2.25 },
-    ...["Z", "X", "C", "V", "B", "N", "M"].map((l) => ({
-      label: l,
-      units: 1,
-    })),
-    { label: ",", units: 1 },
-    { label: ".", units: 1 },
-    { label: "/", units: 1 },
-    { label: "⇧", units: 2.25 },
-  ],
-  [
-    { label: "fn", units: 1 },
-    { label: "⌃", units: 1 },
-    { label: "⌥", units: 1.25 },
-    { label: "⌘", units: 1.25 },
-    { label: "space", units: 5 },
-    { label: "⌘", units: 1.25 },
-    { label: "⌥", units: 1.25 },
-    { label: "←", units: 0.5 },
-    { label: "↑", units: 0.5 },
-    { label: "↓", units: 0.5 },
-    { label: "→", units: 0.5 },
-  ],
-];
-
-/** Row 0 is the back row (function row). */
-const KEY_ROWS_BACK_Z = 0.0935;
-
-function buildKeys(): Key[] {
-  const keys: Key[] = [];
-  ROWS.forEach((row, rowIndex) => {
-    const total = row.reduce((sum, key) => sum + key.units, 0);
-    let cursor = -total / 2;
-    for (const key of row) {
-      keys.push({
-        label: key.label,
-        units: key.units,
-        row: rowIndex,
-        x: cursor + key.units / 2,
-      });
-      cursor += key.units;
-    }
-  });
-  return keys;
-}
-
-function legendCanvas(keys: Key[]) {
-  const scale = 6000;
-  const width = Math.round(14.5 * KEY_PITCH_X * scale);
-  const height = Math.round(6 * KEY_PITCH_Z * scale);
+import {
+  KEYBOARD,
+  buildMacBookKeys,
+  keyLegendUV,
+  type MacBookKey,
+} from "./macbookKeyboard.ts";
+import { MACBOOK_FINISHES, type MacBookFinish } from "./macbookModel.ts";
+const KEY_TOP = MACBOOK.baseThickness + KEYBOARD.keyHeight;
+function legendCanvas(keys: MacBookKey[]) {
   const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
+  canvas.width = 2048;
+  canvas.height = 784;
   const context = canvas.getContext("2d")!;
-  context.clearRect(0, 0, width, height);
+  context.clearRect(0, 0, canvas.width, canvas.height);
   context.textAlign = "center";
   context.textBaseline = "middle";
+  context.fillStyle = "#e8ebee";
   for (const key of keys) {
-    const x = (key.x * KEY_PITCH_X + (14.5 * KEY_PITCH_X) / 2) * scale;
-    const z =
-      KEY_ROWS_BACK_Z - key.row * KEY_PITCH_Z + (6 * KEY_PITCH_Z) / 2;
-    const y = (1 - z / (6 * KEY_PITCH_Z)) * height;
-    const size = Math.min(width / 90, height / 7.2) * (key.units > 1 ? 0.9 : 1);
-    context.fillStyle = key.units > 3 ? "#aeb5ba" : "#e7eaec";
-    context.font = `${key.units > 3 ? 500 : 600} ${Math.round(size * 1.15)}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
-    context.fillText(key.label, x, y);
+    if (!key.label || key.label === "Touch ID") continue;
+    const [u, v] = keyLegendUV(key);
+    const size = key.label.length > 3 ? 15 : 20;
+    context.font = `500 ${size}px Arial, Helvetica, sans-serif`;
+    context.fillText(key.label, u * canvas.width, v * canvas.height);
   }
   return canvas;
+}
+function labelPlane() {
+  const x = KEYBOARD.width / 2,
+    near = KEYBOARD.centerZ - KEYBOARD.depth / 2,
+    far = KEYBOARD.centerZ + KEYBOARD.depth / 2;
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(
+      [x, 0, far, -x, 0, far, -x, 0, near, x, 0, near],
+      3,
+    ),
+  );
+  geometry.setAttribute(
+    "uv",
+    new THREE.Float32BufferAttribute([0, 1, 1, 1, 1, 0, 0, 0], 2),
+  );
+  geometry.setIndex([0, 2, 1, 0, 3, 2]);
+  geometry.computeVertexNormals();
+  return geometry;
 }
 
 function glareCanvas() {
@@ -163,17 +93,21 @@ function shadowCanvas() {
 
 export function MacBook({
   onComputerClick,
+  finish = "silver",
+  bodyColor,
 }: {
   onComputerClick?: () => void;
+  finish?: MacBookFinish;
+  bodyColor?: string;
 }) {
   const resources = useMemo(() => {
-    const keys = buildKeys();
+    const keys = buildMacBookKeys();
     const keyGeometry = new RoundedBoxGeometry(
-      KEY_PITCH_X - KEY_GAP,
-      0.0032,
-      KEY_PITCH_Z - KEY_GAP,
+      KEYBOARD.pitchX - KEYBOARD.gap,
+      KEYBOARD.keyHeight,
+      KEYBOARD.pitchZ - KEYBOARD.gap,
       2,
-      0.0011,
+      0.00035,
     );
     const keyMaterial = new THREE.MeshPhysicalMaterial({
       color: "#14161a",
@@ -193,11 +127,11 @@ export function MacBook({
     const dummy = new THREE.Object3D();
     keys.forEach((key, index) => {
       dummy.position.set(
-        key.x * KEY_PITCH_X,
-        MACBOOK.baseThickness + 0.0016,
-        KEY_ROWS_BACK_Z - key.row * KEY_PITCH_Z,
+        key.x,
+        MACBOOK.baseThickness + KEYBOARD.keyHeight / 2,
+        key.z,
       );
-      dummy.scale.set(key.units, 1, 1);
+      dummy.scale.set(key.units, 1, key.heightScale);
       dummy.updateMatrix();
       keyMesh.setMatrixAt(index, dummy.matrix);
     });
@@ -230,10 +164,23 @@ export function MacBook({
       4,
       0.0016,
     );
-    const trackpadGeometry = new RoundedBoxGeometry(0.132, 0.0008, 0.075, 3, 0.002);
-    const trackpadBorder = new RoundedBoxGeometry(0.137, 0.0006, 0.080, 3, 0.0025);
+    const trackpadGeometry = new RoundedBoxGeometry(
+      0.132,
+      0.0008,
+      0.075,
+      3,
+      0.002,
+    );
+    const trackpadBorder = new RoundedBoxGeometry(
+      0.137,
+      0.0006,
+      0.08,
+      3,
+      0.0025,
+    );
     return {
       keys,
+      labelGeometry: labelPlane(),
       keyMesh,
       trackpadGeometry,
       trackpadBorder,
@@ -256,6 +203,7 @@ export function MacBook({
     );
     return () => {
       cancelAnimationFrame(frame);
+      resources.labelGeometry.dispose();
       resources.keyGeometry.dispose();
       resources.keyMaterial.dispose();
       resources.keyMesh.dispose();
@@ -272,6 +220,8 @@ export function MacBook({
 
   const { displayWidth, displayHeight, lidHeight, lidThickness } = MACBOOK;
   const displayCenterY = MACBOOK.screenBottomBezel + displayHeight / 2;
+  const aluminium = bodyColor ?? MACBOOK_FINISHES[finish];
+  const touchID = resources.keys.find((k) => k.label === "Touch ID")!;
 
   return (
     <group
@@ -311,7 +261,7 @@ export function MacBook({
         receiveShadow
       >
         <meshPhysicalMaterial
-          color="#9fa7ad"
+          color={aluminium}
           metalness={0.88}
           roughness={0.34}
           clearcoat={0.35}
@@ -319,36 +269,50 @@ export function MacBook({
           envMapIntensity={1.1}
         />
       </mesh>
-      {/* Recessed keyboard well and speaker slots. */}
+      {/* Shallow key well; Air speakers vent at the hinge, without side grilles. */}
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, MACBOOK.baseThickness + 0.0001, 0.0505]}
+        position={[0, MACBOOK.baseThickness + 0.0001, KEYBOARD.centerZ]}
       >
-        <planeGeometry args={[0.2695, 0.1035]} />
-        <meshStandardMaterial color="#050607" roughness={0.92} metalness={0.15} envMapIntensity={0.25} />
+        <planeGeometry
+          args={[KEYBOARD.width + 0.003, KEYBOARD.depth + 0.001]}
+        />
+        <meshStandardMaterial color="#101114" roughness={0.8} />
       </mesh>
-      {[-0.1415, 0.1415].map((x) => (
-        <mesh
-          key={x}
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[x, MACBOOK.baseThickness + 0.0001, 0.049]}
-        >
-          <planeGeometry args={[0.0075, 0.098]} />
-          <meshStandardMaterial color="#0c0d0f" roughness={0.9} />
-        </mesh>
-      ))}
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, MACBOOK.baseThickness + 0.00015, 0.103]}
+      >
+        <planeGeometry args={[0.242, 0.0012]} />
+        <meshStandardMaterial color="#171a1d" roughness={0.85} />
+      </mesh>
       <primitive object={resources.keyMesh} />
       <mesh
-        rotation={[Math.PI / 2, 0, 0]}
-        position={[0, KEY_TOP + 0.0004, 0.0525]}
+        geometry={resources.labelGeometry}
+        position={[0, KEY_TOP + 0.00012, 0]}
       >
-        <planeGeometry args={[14.5 * KEY_PITCH_X, 6 * KEY_PITCH_Z]} />
         <meshBasicMaterial
           map={resources.legends}
           transparent
           depthWrite={false}
-          side={THREE.DoubleSide}
           toneMapped={false}
+        />
+      </mesh>
+      {/* Touch ID has a recessed round sensor inside its square function key. */}
+      <mesh position={[touchID.x, KEY_TOP + 0.00013, touchID.z]}>
+        <cylinderGeometry args={[0.0054, 0.0054, 0.00016, 40]} />
+        <meshStandardMaterial
+          color="#565b63"
+          roughness={0.36}
+          metalness={0.7}
+        />
+      </mesh>
+      <mesh position={[touchID.x, KEY_TOP + 0.00023, touchID.z]}>
+        <cylinderGeometry args={[0.00485, 0.00485, 0.00012, 40]} />
+        <meshPhysicalMaterial
+          color="#171a20"
+          roughness={0.26}
+          clearcoat={0.7}
         />
       </mesh>
       {/* Trackpad: recessed glass with a fine machined border. */}
@@ -356,7 +320,11 @@ export function MacBook({
         geometry={resources.trackpadBorder}
         position={[-0.001, MACBOOK.baseThickness + 0.0003, -0.055]}
       >
-        <meshStandardMaterial color="#6f777d" metalness={0.85} roughness={0.32} />
+        <meshStandardMaterial
+          color="#6f777d"
+          metalness={0.85}
+          roughness={0.32}
+        />
       </mesh>
       <mesh
         geometry={resources.trackpadGeometry}
@@ -371,29 +339,111 @@ export function MacBook({
           envMapIntensity={1.1}
         />
       </mesh>
-      {/* Ports: two USB-C on the left, MagSafe + audio on the right. */}
+      {/* Visitor-left is local +X: MagSafe and two separate USB-C sockets. */}
       {[
-        [-0.046, -MACBOOK.width / 2 + 0.0004],
-        [0.004, -MACBOOK.width / 2 + 0.0004],
-        [0.058, MACBOOK.width / 2 - 0.0004],
-      ].map(([z, x]) => (
-        <mesh key={`${z}-${x}`} position={[x, MACBOOK.baseThickness * 0.55, z]}>
-          <boxGeometry args={[0.0012, 0.0026, 0.008]} />
-          <meshStandardMaterial color="#14171a" roughness={0.55} />
-        </mesh>
+        { id: "MagSafe", z: 0.076, width: 0.0122, height: 0.0031 },
+        { id: "USB-C-1", z: 0.049, width: 0.0085, height: 0.0028 },
+        { id: "USB-C-2", z: 0.026, width: 0.0085, height: 0.0028 },
+      ].map((port) => (
+        <group
+          key={port.id}
+          name={port.id}
+          position={[
+            MACBOOK.width / 2 + 0.00004,
+            MACBOOK.baseThickness * 0.5,
+            port.z,
+          ]}
+        >
+          <mesh>
+            <boxGeometry
+              args={[0.00022, port.height + 0.00065, port.width + 0.0007]}
+            />
+            <meshStandardMaterial
+              color="#737c84"
+              metalness={0.9}
+              roughness={0.25}
+            />
+          </mesh>
+          <mesh position={[0.00013, 0, 0]}>
+            <boxGeometry args={[0.00015, port.height, port.width]} />
+            <meshStandardMaterial color="#111820" roughness={0.75} />
+          </mesh>
+          {port.id === "MagSafe" ? (
+            [-2, -1, 0, 1, 2].map((i) => (
+              <mesh key={i} position={[0.00023, 0, i * 0.00155]}>
+                <sphereGeometry args={[0.00032, 8, 6]} />
+                <meshStandardMaterial
+                  color="#b5a17b"
+                  metalness={0.85}
+                  roughness={0.35}
+                />
+              </mesh>
+            ))
+          ) : (
+            <mesh position={[0.00023, 0, 0]}>
+              <boxGeometry args={[0.00012, 0.00055, 0.0054]} />
+              <meshStandardMaterial
+                color="#687580"
+                metalness={0.55}
+                roughness={0.5}
+              />
+            </mesh>
+          )}
+        </group>
       ))}
+      <group
+        name="3.5mm-headphone-jack"
+        position={[
+          -MACBOOK.width / 2 - 0.00004,
+          MACBOOK.baseThickness * 0.5,
+          0.075,
+        ]}
+        rotation={[0, -Math.PI / 2, 0]}
+      >
+        <mesh>
+          <ringGeometry args={[0.00172, 0.00212, 32]} />
+          <meshStandardMaterial
+            color="#7d858e"
+            metalness={0.85}
+            roughness={0.3}
+          />
+        </mesh>
+        <mesh position={[0, 0, 0.00005]}>
+          <circleGeometry args={[0.00172, 32]} />
+          <meshStandardMaterial color="#080d14" roughness={0.85} />
+        </mesh>
+        <mesh position={[0, 0, 0.00007]}>
+          <ringGeometry args={[0.00115, 0.00135, 32]} />
+          <meshStandardMaterial
+            color="#8c805c"
+            metalness={0.65}
+            roughness={0.5}
+          />
+        </mesh>
+      </group>
       <mesh
         position={[0, MACBOOK.hingeY, MACBOOK.hingeZ]}
         rotation={[0, 0, Math.PI / 2]}
       >
         <cylinderGeometry args={[0.0026, 0.0026, 0.292, 24]} />
-        <meshStandardMaterial color="#4a5056" metalness={0.85} roughness={0.4} />
+        <meshStandardMaterial
+          color="#4a5056"
+          metalness={0.85}
+          roughness={0.4}
+        />
       </mesh>
       {/* Lid group: vertical at rest, tilted 10° back. */}
-      <group position={[0, MACBOOK.hingeY, MACBOOK.hingeZ]} rotation={[MACBOOK.lidTilt, 0, 0]}>
-        <mesh geometry={resources.lidGeometry} position={[0, lidHeight / 2, 0]} castShadow>
+      <group
+        position={[0, MACBOOK.hingeY, MACBOOK.hingeZ]}
+        rotation={[MACBOOK.lidTilt, 0, 0]}
+      >
+        <mesh
+          geometry={resources.lidGeometry}
+          position={[0, lidHeight / 2, 0]}
+          castShadow
+        >
           <meshPhysicalMaterial
-            color="#9fa7ad"
+            color={aluminium}
             metalness={0.88}
             roughness={0.34}
             clearcoat={0.35}
@@ -402,11 +452,21 @@ export function MacBook({
           />
         </mesh>
         {/* Black glass surround, active panel, anti-reflective glass. */}
-        <mesh position={[0, lidHeight / 2, -lidThickness / 2 - 0.00012]}>
+        <mesh
+          position={[0, lidHeight / 2, -lidThickness / 2 - 0.00012]}
+          rotation={[0, Math.PI, 0]}
+        >
           <planeGeometry args={[displayWidth + 0.012, displayHeight + 0.011]} />
-          <meshStandardMaterial color="#050607" roughness={0.22} metalness={0.1} />
+          <meshStandardMaterial
+            color="#050607"
+            roughness={0.22}
+            metalness={0.1}
+          />
         </mesh>
-        <mesh position={[0, displayCenterY, -lidThickness / 2 - 0.00024]} rotation={[0, Math.PI, 0]}>
+        <mesh
+          position={[0, displayCenterY, MACBOOK.screenPlaneZ]}
+          rotation={[0, Math.PI, 0]}
+        >
           <planeGeometry args={[displayWidth, displayHeight]} />
           <meshBasicMaterial
             map={resources.screen}
@@ -414,7 +474,10 @@ export function MacBook({
             color="#e9ecee"
           />
         </mesh>
-        <mesh position={[0, displayCenterY, -lidThickness / 2 - 0.00042]} rotation={[0, Math.PI, 0]}>
+        <mesh
+          position={[0, displayCenterY, -lidThickness / 2 - 0.00042]}
+          rotation={[0, Math.PI, 0]}
+        >
           <planeGeometry args={[displayWidth, displayHeight]} />
           <meshPhysicalMaterial
             color="#ffffff"
@@ -428,7 +491,10 @@ export function MacBook({
             envMapIntensity={1.6}
           />
         </mesh>
-        <mesh position={[0, displayCenterY, -lidThickness / 2 - 0.00052]} rotation={[0, Math.PI, 0]}>
+        <mesh
+          position={[0, displayCenterY, -lidThickness / 2 - 0.00052]}
+          rotation={[0, Math.PI, 0]}
+        >
           <planeGeometry args={[displayWidth, displayHeight]} />
           <meshBasicMaterial
             map={resources.glare}
@@ -440,13 +506,30 @@ export function MacBook({
           />
         </mesh>
         {/* Camera notch. */}
-        <mesh position={[0, displayCenterY + displayHeight / 2 - 0.0018, -lidThickness / 2 - 0.0005]}>
-          <boxGeometry args={[0.0138, 0.0042, 0.0006]} />
+        <mesh
+          position={[
+            0,
+            displayCenterY + displayHeight / 2 - 0.0028,
+            -lidThickness / 2 - 0.0005,
+          ]}
+        >
+          <boxGeometry args={[0.0238, 0.0062, 0.0006]} />
           <meshStandardMaterial color="#050607" roughness={0.4} />
         </mesh>
-        <mesh position={[0, displayCenterY + displayHeight / 2 - 0.0035, -lidThickness / 2 - 0.0009]}>
+        <mesh
+          position={[
+            0,
+            displayCenterY + displayHeight / 2 - 0.0035,
+            -lidThickness / 2 - 0.0009,
+          ]}
+          rotation={[0, Math.PI, 0]}
+        >
           <circleGeometry args={[0.0011, 16]} />
-          <meshStandardMaterial color="#0a1a24" metalness={0.4} roughness={0.15} />
+          <meshStandardMaterial
+            color="#0a1a24"
+            metalness={0.4}
+            roughness={0.15}
+          />
         </mesh>
       </group>
     </group>

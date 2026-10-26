@@ -51,8 +51,9 @@ test("clickable screen quad is derived from the model, not typed twice", () => {
   );
   const diagonal = Math.hypot(br[0] - tl[0], br[1] - tl[1], br[2] - tl[2]);
   assert.ok(
-    Math.abs(diagonal - Math.hypot(MACBOOK.displayWidth, MACBOOK.displayHeight)) <
-      1e-12,
+    Math.abs(
+      diagonal - Math.hypot(MACBOOK.displayWidth, MACBOOK.displayHeight),
+    ) < 1e-12,
   );
   assert.ok(tl[2] > bl[2], "the lid leans back, so the top edge sits deeper");
 });
@@ -85,4 +86,80 @@ test("DOM bridge homography maps the real display corners without drift", () => 
     const [u, v] = project(x, y);
     assert.ok(Math.hypot(u - quad[index][0], v - quad[index][1]) < 1e-6);
   });
+});
+
+import { Matrix4, Vector3 } from "three";
+import {
+  KEYBOARD,
+  buildMacBookKeys,
+  keyLegendUV,
+} from "../src/scene/macbookKeyboard.ts";
+
+test("all 78 ANSI key legends occupy their matching physical cap positions, including the inverted-T arrows", () => {
+  const keys = buildMacBookKeys();
+  assert.equal(keys.length, 78);
+  assert.equal(keys.filter((k) => /^F\d+$/.test(k.label)).length, 12);
+  assert.equal(keys.filter((k) => k.label === "Touch ID").length, 1);
+  for (const key of keys) {
+    const [u, v] = keyLegendUV(key);
+    assert.ok(
+      u > 0 && u < 1 && v > 0 && v < 1,
+      `${key.label}: glyph must remain inside canvas`,
+    );
+    const physicalX = KEYBOARD.width / 2 - u * KEYBOARD.width;
+    const physicalZ =
+      KEYBOARD.centerZ + KEYBOARD.depth / 2 - v * KEYBOARD.depth;
+    assert.ok(
+      Math.abs(physicalX - key.x) < 1e-12 &&
+        Math.abs(physicalZ - key.z) < 1e-12,
+      `${key.label}: texture plane and cap centres agree`,
+    );
+    assert.ok(
+      Math.abs(key.x) + ((KEYBOARD.pitchX - KEYBOARD.gap) * key.units) / 2 <
+        KEYBOARD.width / 2,
+    );
+  }
+  const arrow = (label: string) => keys.find((k) => k.label === label)!;
+  assert.equal(arrow("↑").x, arrow("↓").x);
+  assert.equal(arrow("←").z, arrow("↓").z);
+  assert.equal(arrow("→").z, arrow("↓").z);
+  assert.ok(arrow("↑").z > arrow("↓").z);
+  assert.ok(
+    arrow("←").x > arrow("↓").x && arrow("↓").x > arrow("→").x,
+    "visitor-left is local positive X",
+  );
+  for (const label of ["←", "↑", "↓", "→"])
+    assert.equal(arrow(label).heightScale, 0.5);
+});
+
+test("screen corners are the actual mesh corners including the face depth and lid transform", () => {
+  const centerY = MACBOOK.screenBottomBezel + MACBOOK.displayHeight / 2;
+  const lid = new Matrix4().makeRotationX(MACBOOK.lidTilt);
+  lid.setPosition(
+    MACBOOK.baseX,
+    MACBOOK.baseY + MACBOOK.hingeY,
+    MACBOOK.baseZ + MACBOOK.hingeZ,
+  );
+  const face = new Matrix4().makeRotationY(Math.PI);
+  face.setPosition(0, centerY, MACBOOK.screenPlaneZ);
+  const transform = lid.clone().multiply(face);
+  const actual = [
+    [-1, 1],
+    [1, 1],
+    [1, -1],
+    [-1, -1],
+  ].map(([x, y]) =>
+    new Vector3(
+      (x * MACBOOK.displayWidth) / 2,
+      (y * MACBOOK.displayHeight) / 2,
+      0,
+    ).applyMatrix4(transform),
+  );
+  actual.forEach((point, i) =>
+    assert.ok(
+      point.distanceTo(new Vector3(...MACBOOK_SCREEN.corners[i])) < 1e-12,
+    ),
+  );
+  const normal = new Vector3(0, 0, 1).transformDirection(transform);
+  assert.ok(normal.distanceTo(new Vector3(...MACBOOK_SCREEN.normal)) < 1e-12);
 });
