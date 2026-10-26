@@ -99,6 +99,7 @@ export type WalkCollider={id:string;minX:number;maxX:number;minZ:number;maxZ:num
 export const WALK_COLLIDERS: readonly WalkCollider[] = [
   { id:"desk", minX:-4.55,maxX:-2.65,minZ:2.525,maxZ:3.375,minY:1.37,maxY:2.13 },
   { id:"desk-chair", minX:-2.55,maxX:-1.95,minZ:2.62,maxZ:3.32,minY:1.37,maxY:2.31 },
+  { id:"record-player-cabinet", minX:-5.56,maxX:-4.44,minZ:1.24,maxZ:2.22,minY:1.37,maxY:2.44 },
   { id:"sofa", minX:2.40,maxX:4.95,minZ:1.72,maxZ:3.05,minY:1.37,maxY:2.31 },
   { id:"coffee-table", minX:2.90,maxX:4.10,minZ:.45,maxZ:1.10,minY:1.37,maxY:1.80 },
   { id:"fireplace-hearth", minX:4.40,maxX:5.80,minZ:-1.05,maxZ:1.05,minY:1.37,maxY:4.03 },

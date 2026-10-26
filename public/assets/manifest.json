@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-10-26T03:30:00.000Z",
-  "sceneRevision": "v3-candidate",
+  "generatedAt": "2026-10-26T11:10:00.000Z",
+  "sceneRevision": "v3-welcome-audio-turntable",
   "files": [
     {
       "file": "alps-background-4k.hdr",
@@ -177,6 +177,14 @@
       ],
       "bytes": 335118,
       "sha256": "d1eb2d3bfe6bba9e0be1f2d427c97410b4c1cc99064265071a9a1e26628d1962"
+    },
+    {
+      "file": "record-player.glb",
+      "sourceIds": [
+        "poly-pizza-fuJ36BL9Yxe"
+      ],
+      "bytes": 30036,
+      "sha256": "50289117ba378acfd62145ff85ba13b230db785d67c76332582292350a08b032"
     },
     {
       "file": "rocks.glb",

@@ -1,4 +1,6 @@
-/** Original, quiet generative ambience. No microphone, network, music or third-party recordings. */
+import { assetURL } from "../site.ts";
+
+/** Licensed recordings provide the audible beds; synthesis remains only for room/fire detail. */
 export type AmbienceMix = { indoor: number; outdoor: number; fire: number };
 export function ambienceMix(
   local: readonly number[],
@@ -36,6 +38,7 @@ type AudioSnapshot = {
   rms: number;
   mix: AmbienceMix;
   error: string;
+  recordPlaying: boolean;
 };
 export class Ambience {
   private context: AudioContext | null = null;
@@ -46,13 +49,21 @@ export class Ambience {
   private room: GainNode | null = null;
   private fire: GainNode | null = null;
   private birds: GainNode | null = null;
+  private outdoorTrack: GainNode | null = null;
+  private jazzTrack: GainNode | null = null;
+  private outdoorMedia: HTMLAudioElement | null = null;
+  private jazzMedia: HTMLAudioElement | null = null;
   private sources: AudioScheduledSourceNode[] = [];
   private timer: ReturnType<typeof setInterval> | null = null;
   private tick = 0;
   private desired = false;
+  private recordPlaying = false;
   private mix: AmbienceMix = { indoor: 0, outdoor: 1, fire: 0 };
   volume = 0.42;
   error = "";
+  get recordPlayerPlaying() {
+    return this.recordPlaying;
+  }
   private buffer(brown: boolean, seconds = 13) {
     const c = this.context!,
       b = c.createBuffer(1, Math.ceil(c.sampleRate * seconds), c.sampleRate);
@@ -105,6 +116,8 @@ export class Ambience {
     this.room = group();
     this.fire = group();
     this.birds = group();
+    this.outdoorTrack = group();
+    this.jazzTrack = group();
     const brown = this.buffer(true),
       white = this.buffer(false);
     const windLevel = this.bed(brown, 620, "lowpass", 0.36, this.wind);
@@ -122,6 +135,20 @@ export class Ambience {
     lfo.connect(depth).connect(windLevel.gain);
     lfo.start();
     this.sources.push(lfo);
+    const media = (path: string) => {
+      const element = new Audio(assetURL(path));
+      element.loop = true;
+      element.preload = "none";
+      element.crossOrigin = "anonymous";
+      element.addEventListener("error", () => {
+        this.error = "声音文件未能加载，请检查网络后重试";
+      });
+      return element;
+    };
+    this.outdoorMedia = media("audio/outdoor-birds.mp3");
+    this.jazzMedia = media("audio/indoor-jazz.mp3");
+    c.createMediaElementSource(this.outdoorMedia).connect(this.outdoorTrack);
+    c.createMediaElementSource(this.jazzMedia).connect(this.jazzTrack);
     this.timer = setInterval(() => this.schedule(), 650);
     this.apply();
   }
@@ -182,11 +209,19 @@ export class Ambience {
     const t = this.context.currentTime,
       fade = 0.32;
     this.master.gain.setTargetAtTime(this.desired ? this.volume : 0, t, 0.12);
-    this.wind!.gain.setTargetAtTime(this.mix.outdoor, t, fade);
-    this.water!.gain.setTargetAtTime(this.mix.outdoor, t, fade);
-    this.birds!.gain.setTargetAtTime(this.mix.outdoor, t, fade);
+    // The field recording replaces the former broad-band outdoor beds that
+    // sounded indistinct. Keep generated wind/water/birds inaudible.
+    this.wind!.gain.setTargetAtTime(0, t, fade);
+    this.water!.gain.setTargetAtTime(0, t, fade);
+    this.birds!.gain.setTargetAtTime(0, t, fade);
+    this.outdoorTrack!.gain.setTargetAtTime(this.mix.outdoor * 0.72, t, fade);
     this.room!.gain.setTargetAtTime(this.mix.indoor, t, fade);
     this.fire!.gain.setTargetAtTime(this.mix.fire, t, fade);
+    this.jazzTrack!.gain.setTargetAtTime(
+      this.recordPlaying ? this.mix.indoor * 0.68 : 0,
+      t,
+      0.45,
+    );
   }
   async enable(value: boolean) {
     this.desired = value;
@@ -194,12 +229,35 @@ export class Ambience {
     try {
       if (value && !this.context) this.init();
       if (value) await this.context?.resume();
+      if (value) {
+        await this.outdoorMedia?.play();
+        if (this.recordPlaying) await this.jazzMedia?.play();
+      } else {
+        this.outdoorMedia?.pause();
+        this.jazzMedia?.pause();
+      }
       this.apply();
     } catch (e) {
       this.desired = false;
       this.error = e instanceof Error ? e.message : String(e);
     }
     return this.desired && this.context?.state === "running";
+  }
+  async toggleRecordPlayer() {
+    this.error = "";
+    if (!this.desired && !(await this.enable(true))) return false;
+    this.recordPlaying = !this.recordPlaying;
+    try {
+      if (this.recordPlaying) await this.jazzMedia?.play();
+      else this.jazzMedia?.pause();
+    } catch (error) {
+      this.recordPlaying = false;
+      this.error =
+        error instanceof Error ? error.message : "唱片机无法开始播放";
+    }
+    this.apply();
+    window.dispatchEvent(new Event("record-player-change"));
+    return this.recordPlaying;
   }
   setVolume(value: number) {
     this.volume = Math.max(0, Math.min(1, value));
@@ -215,6 +273,8 @@ export class Ambience {
     else if (this.desired)
       try {
         await this.context.resume();
+        await this.outdoorMedia?.play();
+        if (this.recordPlaying) await this.jazzMedia?.play();
       } catch {
         this.error = "请再次点击开启环境音";
       }
@@ -271,12 +331,15 @@ export class Ambience {
       state: this.context?.state ?? "not-started",
       zone:
         this.mix.indoor > 0.6
-          ? "室内 · 壁炉与柔和室声"
-          : "室外 · 湖水、林风与鸟鸣",
+          ? this.recordPlaying
+            ? "室内 · 唱片机正在播放爵士乐"
+            : "室内 · 壁炉与柔和室声"
+          : "室外 · 真实鸟鸣与林间空气",
       volume: this.volume,
       rms,
       mix: this.mix,
       error: this.error,
+      recordPlaying: this.recordPlaying,
     };
   }
   dispose() {
@@ -288,6 +351,11 @@ export class Ambience {
       } catch {}
     });
     void this.context?.close();
+    for (const media of [this.outdoorMedia, this.jazzMedia]) {
+      media?.pause();
+      if (media) media.src = "";
+    }
+    this.outdoorMedia = this.jazzMedia = null;
     this.context = null;
   }
 }

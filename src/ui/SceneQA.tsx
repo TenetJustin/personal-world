@@ -13,6 +13,7 @@ const SHOTS = {
   mac45: { from: [-4.02, 2.42, 2.53], to: [-3.6, 2.2, 3.02] },
   keyboard: { from: [-3.62, 2.34, 2.72], to: [-3.6, 2.15, 3.0] },
   screen: { from: [-3.6, 2.245, 2.52], to: [-3.6, 2.234, 3.1] },
+  record: { from: [-3.75, 2.55, 1.2], to: [-5, 2.3, 1.73] },
 } as const;
 export function SceneQA() {
   const [open, setOpen] = useState(false),

@@ -1,5 +1,23 @@
 [
   {
+    "id": "poly-pizza-fuJ36BL9Yxe",
+    "source": "https://poly.pizza/m/fuJ36BL9Yxe",
+    "authors": {
+      "Poly by Google": "model and texture"
+    },
+    "license": "CC-BY-3.0",
+    "licenseURL": "https://creativecommons.org/licenses/by/3.0/",
+    "retrievedAt": "2026-10-26",
+    "processing": "Official GLB download; runtime PBR tuning, scale/placement and an animated vinyl overlay.",
+    "files": [
+      {
+        "path": "public/assets/record-player.glb",
+        "sourceURL": "https://static.poly.pizza/d01cbaf3-90da-4c9d-8de6-0168304c5952.glb.br",
+        "sha256": "50289117ba378acfd62145ff85ba13b230db785d67c76332582292350a08b032"
+      }
+    ]
+  },
+  {
     "id": "rock_wall_02",
     "source": "https://polyhaven.com/a/rock_wall_02",
     "authors": {

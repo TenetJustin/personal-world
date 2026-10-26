@@ -30,6 +30,7 @@ import {
   type DraftState,
 } from "./library/draftState";
 import { AmbienceControl } from "./ui/AmbienceControl";
+import { RecordPlayerPrompt } from "./ui/RecordPlayerPrompt";
 import { WorldControls } from "./ui/WorldControls";
 import { worldToCabin } from "./scene/architecture";
 import { ambience } from "./audio/ambience";
@@ -128,7 +129,14 @@ export default function App() {
     [hidden, setHidden] = useState(document.hidden),
     [help, setHelp] = useState(false),
     [diagnosticURL, setDiagnosticURL] = useState(""),
-    [sampling, setSampling] = useState(false);
+    [sampling, setSampling] = useState(false),
+    [nearRecordPlayer, setNearRecordPlayer] = useState(false),
+    [welcomeOpen, setWelcomeOpen] = useState(
+      !initial.current.kind &&
+        !initialProfile.current &&
+        !new URLSearchParams(location.search).has("study") &&
+        !new URLSearchParams(location.search).has("debug"),
+    );
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null),
     sampleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const refresh = useCallback(async () => setEntries(await readEntries()), []);
@@ -280,8 +288,15 @@ export default function App() {
     };
   }, [changeWorkspace]);
   useEffect(() => {
-    const update = () =>
-      ambience.update(worldToCabin(journey.position.toArray()), desktop);
+    const update = () => {
+      const local = worldToCabin(journey.position.toArray());
+      ambience.update(local, desktop);
+      const near =
+        !desktop &&
+        local[1] < 3.7 &&
+        Math.hypot(local[0] + 5, local[2] - 1.73) < 2.25;
+      setNearRecordPlayer((previous) => (previous === near ? previous : near));
+    };
     update();
     const timer = setInterval(update, 200);
     const visibility = () => {
@@ -295,9 +310,14 @@ export default function App() {
   }, [desktop]);
   useEffect(() => {
     journey.setBlocked(
-      help || hidden || !!worldError || (!ready && worldStarted) || desktop,
+      help ||
+        welcomeOpen ||
+        hidden ||
+        !!worldError ||
+        (!ready && worldStarted) ||
+        desktop,
     );
-  }, [help, hidden, worldError, ready, worldStarted, desktop]);
+  }, [help, welcomeOpen, hidden, worldError, ready, worldStarted, desktop]);
   useEffect(() => {
     const media = matchMedia("(prefers-reduced-motion: reduce)");
     const change = () => {
@@ -335,7 +355,7 @@ export default function App() {
     [],
   );
   useEffect(() => {
-    if (!worldStarted || desktop || help) return;
+    if (!worldStarted || desktop || help || welcomeOpen) return;
     let drag: { id: number; x: number; y: number } | null = null,
       last: { x: number; y: number } | null = null;
     const locked = () =>
@@ -418,11 +438,11 @@ export default function App() {
       window.removeEventListener("wheel", wheel);
       window.removeEventListener("keydown", key);
     };
-  }, [worldStarted, desktop, help]);
+  }, [worldStarted, desktop, help, welcomeOpen]);
   // First-person WASD + pointer-lock look. The same Walker/collision data drives
   // automatic guidance, so handing control back never changes the world model.
   useEffect(() => {
-    if (!worldStarted || desktop || help || worldError) return;
+    if (!worldStarted || desktop || help || welcomeOpen || worldError) return;
     const held = new Set<string>();
     const blockedPhase = () =>
       ["ENTERING_DESKTOP", "EXITING_DESKTOP", "DESKTOP"].includes(
@@ -472,7 +492,8 @@ export default function App() {
         apply();
       } else if (event.code === "KeyE") {
         event.preventDefault();
-        journey.toggleDoor();
+        if (nearRecordPlayer) void ambience.toggleRecordPlayer();
+        else journey.toggleDoor();
       } else if (event.code === "Escape") {
         clear();
       }
@@ -509,7 +530,7 @@ export default function App() {
       document.removeEventListener("pointerlockchange", lockChange);
       document.removeEventListener("visibilitychange", visibility);
     };
-  }, [worldStarted, desktop, help, worldError]);
+  }, [worldStarted, desktop, help, welcomeOpen, worldError, nearRecordPlayer]);
   useEffect(() => {
     if (!help) return;
     const previous = document.activeElement as HTMLElement | null,
@@ -612,6 +633,47 @@ export default function App() {
       >
         跳过 3D，直接浏览资料
       </a>
+      {welcomeOpen && !desktop && (
+        <section
+          className="welcome-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="welcome-title"
+          aria-describedby="welcome-description"
+        >
+          <div className="welcome-panel">
+            <p className="eyebrow">一封来自湖岸的邀请</p>
+            <h1 id="welcome-title">欢迎来到我的世界</h1>
+            <p id="welcome-description" className="intro">
+              这里承载着我对未来生活的一次想象。
+              <br />
+              目前网站和站主本人仍在持续完善中，欢迎随意探索。
+            </p>
+            <div className="welcome-actions">
+              <button
+                className="light-button"
+                onClick={() => {
+                  journey.interact();
+                  void ambience.enable(true);
+                  setWelcomeOpen(false);
+                }}
+              >
+                开始探索 <span aria-hidden="true">→</span>
+              </button>
+              <button
+                className="glass-button"
+                onClick={() => {
+                  journey.interact();
+                  setWelcomeOpen(false);
+                }}
+              >
+                静音进入
+              </button>
+            </div>
+            <p className="welcome-note">声音可随时在页面底部关闭</p>
+          </div>
+        </section>
+      )}
       {worldStarted && (
         <div
           className="world-canvas"
@@ -671,20 +733,12 @@ export default function App() {
             </div>
           )}
           <section className="journey-caption" aria-live="polite">
-            <p className="eyebrow">
-              FIRST PERSON /{" "}
-              {state.phase === "DESK_READY"
-                ? "ARRIVAL"
-                : journey.distance >= ROUTE_ANCHORS.porch
-                  ? "THRESHOLD"
-                  : "THE LAKESHORE"}
-            </p>
             <h1>
               {state.phase === "DESK_READY"
-                ? "A place for your stories."
+                ? "欢迎落座。"
                 : journey.distance >= ROUTE_ANCHORS.room
-                  ? "Make yourself at home."
-                  : "Take your time."}
+                  ? "请随意看看。"
+                  : "慢慢走近。"}
             </h1>
             <p>
               {state.idleSeconds
@@ -746,6 +800,7 @@ export default function App() {
               跳过引导
             </button>
           </nav>
+          <RecordPlayerPrompt visible={nearRecordPlayer && !welcomeOpen} />
           <div className="world-bottom">
             <span>WASD 移动 · 鼠标观察 · 沿湖岸前往木屋</span>
             <div>
@@ -766,7 +821,7 @@ export default function App() {
               </button>
               <a
                 className="quiet-button"
-                href={assetURL("licenses/dependencies.json")}
+                href={assetURL("licenses/README.md")}
                 target="_blank"
                 rel="noreferrer"
               >

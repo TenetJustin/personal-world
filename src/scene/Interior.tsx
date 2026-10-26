@@ -7,6 +7,7 @@ import { CABIN } from "./architecture";
 import { assetURL } from "../site";
 import { runtime } from "./runtime";
 import { MacBook } from "./MacBook";
+import { RecordPlayer } from "./RecordPlayer";
 
 /** The authored interior is one optimized GLB; navigation stays in architecture.ts. */
 export function Interior({ onComputerClick, onReady }: {
@@ -60,6 +61,7 @@ export function Interior({ onComputerClick, onReady }: {
     <group name="CABIN_INTERIOR_V3" position={[...CABIN.origin]} rotation={[0, CABIN.rotationY, 0]}>
       {model && <primitive object={model} dispose={null} />}
       <MacBook onComputerClick={onComputerClick} />
+      <RecordPlayer />
       {/* Fixture light, ember light and window bounce; no bloom or hidden giant fill light. */}
       <pointLight position={[.40, 3.32, -1.65]} color="#ffdfb0" intensity={19} distance={7} decay={2} />
       <pointLight position={[3.55, 4.42, 2.1]} color="#ffe3b9" intensity={28} distance={8} decay={2} />
