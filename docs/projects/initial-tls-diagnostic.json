@@ -1,0 +1,26 @@
+{
+  "events": [
+    {
+      "type": "network",
+      "url": "https://tenetjustin.github.io/personal-world/assets/index-CCN0O5Qv.css",
+      "error": "net::ERR_SSL_PROTOCOL_ERROR"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: net::ERR_SSL_PROTOCOL_ERROR"
+    },
+    {
+      "type": "network",
+      "url": "https://tenetjustin.github.io/personal-world/assets/index-C_BwICsa.js",
+      "error": "net::ERR_SSL_PROTOCOL_ERROR"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: net::ERR_SSL_PROTOCOL_ERROR"
+    }
+  ],
+  "body": "",
+  "scripts": [
+    "https://tenetjustin.github.io/personal-world/assets/index-C_BwICsa.js"
+  ]
+}

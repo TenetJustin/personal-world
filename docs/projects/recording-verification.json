@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-26T10:50:50.713Z",
+  "browser": "Chrome 155.0.8059.85",
+  "source": "Local final production build at /personal-world/",
+  "viewport": {
+    "width": 1440,
+    "height": 1100
+  },
+  "cycleSeconds": 36,
+  "recording": "44 seconds after full-gallery framing; real browser, original speed",
+  "start": {
+    "gallery": {
+      "top": 176.265625,
+      "bottom": 804.765625
+    },
+    "viewport": {
+      "top": 333.765625,
+      "bottom": 754.765625
+    },
+    "visibleCount": 6,
+    "allDecoded": true,
+    "time": 1000.104999983765,
+    "playState": "running",
+    "hover": false,
+    "focus": false,
+    "classes": "tarot-gallery   "
+  },
+  "end": {
+    "gallery": {
+      "top": 176.265625,
+      "bottom": 804.765625
+    },
+    "viewport": {
+      "top": 333.765625,
+      "bottom": 754.765625
+    },
+    "visibleCount": 6,
+    "allDecoded": true,
+    "time": 45066.218999985875,
+    "playState": "running",
+    "hover": false,
+    "focus": false,
+    "classes": "tarot-gallery   "
+  }
+}
