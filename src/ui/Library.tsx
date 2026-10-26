@@ -1,3 +1,6 @@
+import { PROJECT_IMAGE_LIMIT } from "../library/projectShowcase";
+import { ProjectsShowcase } from "./ProjectsShowcase";
+import { ProjectShowcaseEditor } from "./ProjectShowcaseEditor";
 import {
   Suspense,
   lazy,
@@ -118,6 +121,7 @@ export function Library({
     [sort, setSort] = useState(readOnly ? "manual" : "updated");
   const [localWorkspace, setLocalWorkspace] = useState(false);
   const [previewFirst, setPreviewFirst] = useState(true);
+  const [showcasePreview, setShowcasePreview] = useState(false);
   const inWorkspace = !readOnly && (workspace ?? localWorkspace);
   const isPublished = !inWorkspace || source === "published";
   const visibleEntries = isPublished ? published : entries;
@@ -334,6 +338,16 @@ export function Library({
       setMessage("已移入回收站，可随时恢复");
     });
   };
+  if (kind === "projects" && (readOnly || showcasePreview))
+    return (
+      <ProjectsShowcase
+        entries={visibleEntries}
+        selected={selected}
+        onSelect={onSelect}
+        loading={isPublished ? publishedLoading : loading}
+        onReturnEditor={readOnly ? undefined : () => setShowcasePreview(false)}
+      />
+    );
   return (
     <div className="library-app">
       {!readOnly && (
@@ -400,6 +414,43 @@ export function Library({
           </span>
         </div>
         <div className="toolbar-actions">
+          {!isPublished &&
+            kind === "projects" &&
+            published.some((entry) => entry.kind === "projects") && (
+              <button
+                disabled={busy || guardedDirty}
+                onClick={() =>
+                  void run(async () => {
+                    requireSavedEditors();
+                    const projects = published.filter(
+                      (entry) => entry.kind === "projects",
+                    );
+                    if (
+                      !confirm(
+                        "将当前公开项目复制到本地草稿？相同 ID 的本地项目会被替换，其他资料保留。",
+                      )
+                    )
+                      return;
+                    const backup = await encodeBackup(projects);
+                    const incoming = await decodeBackup(
+                      new Blob([backup], { type: "application/json" }),
+                    );
+                    requireSavedEditors();
+                    await onRestore(incoming);
+                    setMessage(
+                      "已复制公开项目，可编辑图片、来源说明和牌廊设置。请保存后再审核发布。",
+                    );
+                  })
+                }
+              >
+                复制公开项目为本地草稿
+              </button>
+            )}
+          {!isPublished && kind === "projects" && (
+            <button onClick={() => setShowcasePreview(true)}>
+              预览作品展示
+            </button>
+          )}
           {!isPublished && kind === "photos" && (
             <label>
               <input
@@ -799,6 +850,12 @@ export function Library({
                     />
                   </label>
                   {kind === "projects" && (
+                    <ProjectShowcaseEditor
+                      entry={draft}
+                      onChange={(value) => update("projectShowcase", value)}
+                    />
+                  )}
+                  {kind === "projects" && (
                     <label>
                       项目网址
                       <input
@@ -942,7 +999,27 @@ export function Library({
                       <ProjectImages
                         entry={draft}
                         editing
-                        onChange={(images) => update("images", images)}
+                        onChange={(images) => {
+                          update("images", images);
+                          if (draft.projectShowcase) {
+                            const ids = new Set(
+                              images.map((image) => image.id),
+                            );
+                            update("projectShowcase", {
+                              ...draft.projectShowcase,
+                              coverId: ids.has(draft.projectShowcase.coverId)
+                                ? draft.projectShowcase.coverId
+                                : "",
+                              tarotIds: draft.projectShowcase.tarotIds.filter(
+                                (id) => ids.has(id),
+                              ),
+                              imageNotes:
+                                draft.projectShowcase.imageNotes.filter(
+                                  (note) => ids.has(note.imageId),
+                                ),
+                            });
+                          }
+                        }}
                         onError={setMessage}
                         onBusy={setBusy}
                       />
@@ -1226,14 +1303,14 @@ function ProjectImages({
 }) {
   const [processing, setProcessing] = useState(false);
   const images = entry.images ?? [];
-  const maxImages = entry.kind === "notes" ? 1 : 12;
+  const maxImages = entry.kind === "notes" ? 1 : PROJECT_IMAGE_LIMIT;
   return (
     <div className="project-gallery">
       {editing && (
         <label>
           {entry.kind === "notes"
             ? "随笔封面（选填，最多 1 张）"
-            : "项目封面与截图（第一张为封面，最多 12 张）"}
+            : "项目封面与截图（最多 32 张，展示设置中可选封面）"}
           <input
             type="file"
             multiple

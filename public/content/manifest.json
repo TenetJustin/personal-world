@@ -1,7 +1,7 @@
 {
   "format": "personal-world-published",
   "version": 1,
-  "publishedAt": "2026-10-26T06:09:54.190Z",
+  "publishedAt": "2026-10-26T10:01:49.871Z",
   "records": [
     {
       "id": "2a38310a-218f-48bd-a166-e8b5c77ed007",
@@ -14,6 +14,684 @@
       "updatedAt": "2026-10-26T06:09:54.190Z",
       "category": "关于我",
       "sortOrder": 0
+    },
+    {
+      "id": "project-cityos",
+      "kind": "projects",
+      "title": "CityOS",
+      "body": "### 深圳城市灾害与内涝原型\n\n历史 v4/v5 界面探索了深圳地形、台风与级联影响的三维表达。本页五张深色界面截图来自这一阶段，不代表当前浙江工作台的页面或验证水平。\n\n### 多灾种监测、推演与决策研究\n\n把地图、情景参数、影响分析和建议放在一条研究流程中。界面中的模拟值与演示值不能直接当作实时城市观测。\n\n### 浙江四城研究工作台\n\n当前个人仓库转向宁波、台州、温州与杭州，组织公开气象、历史台风与降雨证据。SWMM、Rasterio/GDAL、Shapely 与 NetworkX 的合成案例用于方法验证，真实点位、排水边界与模型参数仍需逐城校准。",
+      "tags": "城市韧性 / 世界模型",
+      "category": "城市韧性 / 世界模型",
+      "technology": "Python, React, TypeScript, Three.js, SWMM, NetworkX",
+      "url": "",
+      "githubURL": "https://github.com/TenetJustin/cityos-flood",
+      "demoURL": "https://tenetjustin.github.io/cityos-flood/",
+      "createdAt": "2026-10-26T10:01:46.264Z",
+      "updatedAt": "2026-10-26T10:01:46.264Z",
+      "sortOrder": 0,
+      "images": [
+        {
+          "id": "cityos-0",
+          "name": "深圳原型 · 三维总览",
+          "attachment": "assets/067052ab85461520cc3f6a326d1e44747608c1959462540d3aaf8e84d82b1adc.webp",
+          "thumbnailData": "assets/f090ecb3dabba0b57b4ad1d5cd1a53e6ef19277530f98127555c66c63f9c8755.webp"
+        },
+        {
+          "id": "cityos-1",
+          "name": "v5 指挥中心界面",
+          "attachment": "assets/3010e9059212c6c27e2e7eb2b005c3760ee2713f629375fa7fb4dce3cda9e569.webp",
+          "thumbnailData": "assets/0fb133669ab48e0debdb798f3fd33e5e74a74c0693d0aad9b5c5ffaf809f01ea.webp"
+        },
+        {
+          "id": "cityos-2",
+          "name": "v4 三维态势",
+          "attachment": "assets/5a1b535c9fee6b857e511b41fab5e382b1632cb68420afa6ebc14a376a8204a3.webp",
+          "thumbnailData": "assets/d766000ddd3e7d50d31a93ed469e45be6d4d335958cc0b54c22f5080466b0831.webp"
+        },
+        {
+          "id": "cityos-3",
+          "name": "台风情景界面",
+          "attachment": "assets/28fb1f093e52edb665f51085bd3a914601eaf8db4d74c4a8e3659595d7546748.webp",
+          "thumbnailData": "assets/383bb3ef889c1f3b6b6c4638c1bdaad1705187c0fb84b2688ebd14fbc8f1bb96.webp"
+        },
+        {
+          "id": "cityos-4",
+          "name": "山竹 · 级联影响研究",
+          "attachment": "assets/64058e8bb09b788f43274e4738a9f6e6f8b1c75803ffe1be443de126f39682f2.webp",
+          "thumbnailData": "assets/4fe30199abf6e44bb6a4a43475b227cfa92314d8906e496902e95ac7c9ca3c8b.webp"
+        }
+      ],
+      "projectDetails": {
+        "summaryZH": "把灾害证据、情景推演与人工复核放进同一工作台，探索城市灾害的空间表达。",
+        "summaryEN": "城市灾害世界模型 · 从深圳原型到浙江四城研究工作台",
+        "problem": "台风、强降雨、潮位与城市空间证据分散在不同来源。CityOS 研究怎样让来源、时效、模拟假设与建议的边界一起被看见。",
+        "contribution": "参与 / 二次开发",
+        "features": "- 三维地形与地图联动的历史原型。\n- 真实来源、缺失状态、演示数据与情景假设分开展示。\n- 情景比较、影响研究与人工复核草案。",
+        "results": "当前为研究型工作台，不能包装为已投入生产的城市预警系统；不自动执行人员转移、封路或救援调度。历史截图与最新在线入口属于不同版本。",
+        "awards": "",
+        "time": "",
+        "status": "研究原型 / 浙江四城持续迭代"
+      },
+      "projectShowcase": {
+        "version": 1,
+        "galleryType": "screenshots",
+        "subtitle": "城市灾害世界模型 · 从深圳原型到浙江四城研究工作台",
+        "credits": "CityOS 项目团队；历史协作版本 JhengXu/cityos-flood。截图经团队同意用于作者个人作品展示。",
+        "upstreamURL": "https://github.com/JhengXu/cityos-flood",
+        "coverId": "cityos-0",
+        "tarotIds": [],
+        "cycleSeconds": 36,
+        "imageNotes": [
+          {
+            "imageId": "cityos-0",
+            "title": "深圳原型 · 三维总览",
+            "caption": "v5 历史界面：地形三维视图与空间态势概览。",
+            "kind": "screenshot",
+            "sourceURL": "https://github.com/TenetJustin/cityos-flood/blob/5f096c53ebdf1d5e9c17e0dccb8a6aefd2122029/outputs/screenshots/v5-final-top.jpg",
+            "revision": "5f096c53ebdf1d5e9c17e0dccb8a6aefd2122029",
+            "license": "项目团队已由作者确认授权个人网站署名展示；仓库没有通用开源许可证。"
+          },
+          {
+            "imageId": "cityos-1",
+            "title": "v5 指挥中心界面",
+            "caption": "历史研究演示，页面数值不作为实时城市预警证据。",
+            "kind": "screenshot",
+            "sourceURL": "https://github.com/TenetJustin/cityos-flood/blob/5f096c53ebdf1d5e9c17e0dccb8a6aefd2122029/outputs/screenshots/v5-command-center.jpg",
+            "revision": "5f096c53ebdf1d5e9c17e0dccb8a6aefd2122029",
+            "license": "项目团队已由作者确认授权个人网站署名展示；仓库没有通用开源许可证。"
+          },
+          {
+            "imageId": "cityos-2",
+            "title": "v4 三维态势",
+            "caption": "早期多灾种原型的空间表达与概览指标。",
+            "kind": "screenshot",
+            "sourceURL": "https://github.com/TenetJustin/cityos-flood/blob/5f096c53ebdf1d5e9c17e0dccb8a6aefd2122029/outputs/screenshots/v4-overview-3d.jpg",
+            "revision": "5f096c53ebdf1d5e9c17e0dccb8a6aefd2122029",
+            "license": "项目团队已由作者确认授权个人网站署名展示；仓库没有通用开源许可证。"
+          },
+          {
+            "imageId": "cityos-3",
+            "title": "台风情景界面",
+            "caption": "历史台风原型的事件与情景信息。",
+            "kind": "screenshot",
+            "sourceURL": "https://github.com/TenetJustin/cityos-flood/blob/5f096c53ebdf1d5e9c17e0dccb8a6aefd2122029/outputs/screenshots/v4-typhoon-3d.jpg",
+            "revision": "5f096c53ebdf1d5e9c17e0dccb8a6aefd2122029",
+            "license": "项目团队已由作者确认授权个人网站署名展示；仓库没有通用开源许可证。"
+          },
+          {
+            "imageId": "cityos-4",
+            "title": "山竹 · 级联影响研究",
+            "caption": "历史级联情景界面；示例曲线不等于已校准的预测性能。",
+            "kind": "screenshot",
+            "sourceURL": "https://github.com/TenetJustin/cityos-flood/blob/5f096c53ebdf1d5e9c17e0dccb8a6aefd2122029/outputs/screenshots/v4-cascade-mangkhut.jpg",
+            "revision": "5f096c53ebdf1d5e9c17e0dccb8a6aefd2122029",
+            "license": "项目团队已由作者确认授权个人网站署名展示；仓库没有通用开源许可证。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "project-courtcast",
+      "kind": "projects",
+      "title": "CourtCast",
+      "body": "CourtCast 将回合播放、球员标注、战术解读与解说组织在一起。本页使用作者本轮提供的封面、分析标注和播放页素材。\n\n图中呈现了进攻／防守视角、回合章节、球员信息与解说设计。保留素材中的人工标注与估算提示，不把界面数值当作本轮独立验证的模型结果。",
+      "tags": "体育科技 / AI 解说",
+      "category": "体育科技 / AI 解说",
+      "technology": "Python, Computer Vision, JavaScript, AI Commentary",
+      "url": "",
+      "githubURL": "https://github.com/TenetJustin/CourtCast",
+      "demoURL": "",
+      "createdAt": "2026-10-26T10:01:46.264Z",
+      "updatedAt": "2026-10-26T10:01:46.264Z",
+      "sortOrder": 1,
+      "images": [
+        {
+          "id": "courtcast-cover",
+          "name": "CourtCast · 项目封面",
+          "attachment": "assets/cb096cfb5e3fd6e9b1ff9186cdfb40a46a5a6916c8fc70a84bdd1cc44c81e04a.webp",
+          "thumbnailData": "assets/646454f76679c056aa45181cab6b332baca2a501b1ebb62fb52234e4a301e1b6.webp"
+        },
+        {
+          "id": "courtcast-analysis",
+          "name": "回合讲解与选择标注",
+          "attachment": "assets/52d592050883830f64e4cdc295cde966cd50db9d481bb2fd288cd56cad4167ff.webp",
+          "thumbnailData": "assets/274230963c5f36dc67d1e1254d99faf7cc347df3780a526949998d46844ace50.webp"
+        },
+        {
+          "id": "courtcast-player",
+          "name": "播放页与多视角讲解",
+          "attachment": "assets/a5083e6c5e8975d94cca00462ac033d3216f6cd3bfa3681d2591f15ed829496d.webp",
+          "thumbnailData": "assets/af16ddac1d5c758ee79d1afa80934b661ab2174e80333355328be57fcdfcee87.webp"
+        }
+      ],
+      "projectDetails": {
+        "summaryZH": "围绕篮球回合组织比赛画面、战术标注与解说，探索更容易理解的赛后分析体验。",
+        "summaryEN": "AI Basketball Analysis · 用你的眼睛，看懂每一球",
+        "problem": "从看见一球的结果，到理解当时的空间、选择与回合逻辑，需要把画面与讲解放在同一时间线上。",
+        "contribution": "参与",
+        "features": "- 回合章节、播放与讲解的信息组织。\n- 球员站位、选择与战术标注示例。\n- AI 解说与比赛记录相结合的产品探索。",
+        "results": "作品素材由作者提供。未在本轮重新运行云端分析或验证 AWS 后端。历史本地前端与作者最新版本存在差异，未把此前恢复的旧截图纳入展示。",
+        "awards": "",
+        "time": "",
+        "status": "项目演示 / 作者提供素材"
+      },
+      "projectShowcase": {
+        "version": 1,
+        "galleryType": "screenshots",
+        "subtitle": "AI Basketball Analysis · 用你的眼睛，看懂每一球",
+        "credits": "CourtCast / Team 15。仓库为私有，GitHub 链接需要已获授权的账号。比赛画面、NBA/ESPN 等标识归各自权利人，本站展示作者提供的项目示例。",
+        "upstreamURL": "",
+        "coverId": "courtcast-cover",
+        "tarotIds": [],
+        "cycleSeconds": 36,
+        "imageNotes": [
+          {
+            "imageId": "courtcast-cover",
+            "title": "CourtCast · 项目封面",
+            "caption": "作者提供的项目展示封面；保留原设计与团队署名。",
+            "kind": "artwork",
+            "sourceURL": "https://github.com/TenetJustin/CourtCast",
+            "revision": "user-supplied-2026-10-26",
+            "license": "作者在本次会话提供并要求用于个人项目展示；保留画面内原有第三方署名。比赛画面与第三方标识不随项目代码许可转授。"
+          },
+          {
+            "imageId": "courtcast-analysis",
+            "title": "回合讲解与选择标注",
+            "caption": "作者提供的分析示例，包含人工站位标注和每 100 次进攻估算提示；不是本轮后端实测。",
+            "kind": "screenshot",
+            "sourceURL": "https://github.com/TenetJustin/CourtCast",
+            "revision": "user-supplied-2026-10-26",
+            "license": "作者在本次会话提供并要求用于个人项目展示；保留画面内原有第三方署名。比赛画面与第三方标识不随项目代码许可转授。"
+          },
+          {
+            "imageId": "courtcast-player",
+            "title": "播放页与多视角讲解",
+            "caption": "作者提供的播放界面，原图局部已有裁切与模糊；保留真实画面，不补写缺失文字。",
+            "kind": "screenshot",
+            "sourceURL": "https://github.com/TenetJustin/CourtCast",
+            "revision": "user-supplied-2026-10-26",
+            "license": "作者在本次会话提供并要求用于个人项目展示；保留画面内原有第三方署名。比赛画面与第三方标识不随项目代码许可转授。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "project-mindcare",
+      "kind": "projects",
+      "title": "MindCare AI",
+      "body": "MindCare AI 以像素风心灵驿站组织多种心理支持体验。语音交流、情绪工具、艺术小屋、花园与森林共同构成产品空间。\n\n仓库描述了多智能体协作、实时语音、授权访问与咨询师工作台等模块。本页截图来自团队公开仓库，不为拍摄展示图重建模型后端。",
+      "tags": "多智能体 / 交互产品",
+      "category": "多智能体 / 交互产品",
+      "technology": "Next.js, React, FastAPI, Python, WebRTC, Multi-Agent",
+      "url": "",
+      "githubURL": "https://github.com/JhengXu/mindcare-ai",
+      "demoURL": "",
+      "createdAt": "2026-10-26T10:01:46.264Z",
+      "updatedAt": "2026-10-26T10:01:46.264Z",
+      "sortOrder": 2,
+      "images": [
+        {
+          "id": "mindcare-0",
+          "name": "像素心灵驿站",
+          "attachment": "assets/4405c0e244e18e2d8d8968c34860dfe39e5e7a7feda003f20037bc5c4a5cc043.webp",
+          "thumbnailData": "assets/6b8e6311f89bfb5d8bac3edddf75d2b85cb95559417552bb20f83fdd7ab5ce5e.webp"
+        },
+        {
+          "id": "mindcare-1",
+          "name": "情绪支持首页",
+          "attachment": "assets/6db94ff0ccf7c344fc5ed9ffb310ea45c24ad340a01d47d3b39b64b3914e5f66.webp",
+          "thumbnailData": "assets/d461bc06f4774e4f203ff8f30ab5e95958f35681ab9ebdcd034018f7a2a94c37.webp"
+        },
+        {
+          "id": "mindcare-2",
+          "name": "语音交互",
+          "attachment": "assets/b92a1b0f1b84c365ede3a52b7db74eda0b3b948b177b6b7296010f7cc1608c0e.webp",
+          "thumbnailData": "assets/309fa8559fe308991caaf5bc8e645f00018ad5f58d674de22502ef060d7f10c2.webp"
+        },
+        {
+          "id": "mindcare-3",
+          "name": "情绪工具",
+          "attachment": "assets/4ec23617b89867116fa6bc2a6ebbccb025e2664cb850669ec6093aa8e48c269d.webp",
+          "thumbnailData": "assets/251eefa3f842c347f88f5d7574955c54021f63cb97ab5402984f6b9948a68f6e.webp"
+        },
+        {
+          "id": "mindcare-4",
+          "name": "艺术小屋",
+          "attachment": "assets/852e739fdead4a635e68788f386ea0c528f6b699ff88fe7ae7ebb9a9c20e7de4.webp",
+          "thumbnailData": "assets/4b41313e3fb5a26776c805b1231969d4b0ca03e6a7c121b94ba59c7296e928e5.webp"
+        },
+        {
+          "id": "mindcare-5",
+          "name": "森林空间",
+          "attachment": "assets/49049cd47b2d0adc437e37d1e2010e6d3960b99abdf22f50c9023f4329472d61.webp",
+          "thumbnailData": "assets/b434672c6eac558d9d8012f22fe2c88ad423d3b02627695a65c19fe23eefd512.webp"
+        }
+      ],
+      "projectDetails": {
+        "summaryZH": "以像素风交互、多智能体陪伴和语音体验，构建温暖的情绪支持与自我探索空间。",
+        "summaryEN": "像素心灵驿站 · 心理支持与自我探索",
+        "problem": "情绪支持产品既需要可理解的交互，也需要明确的能力与隐私边界。项目探索陪伴、语音与日常工具如何形成连续体验。",
+        "contribution": "参与",
+        "features": "- 多智能体陪伴与交互式产品设计。\n- 语音、文字与实时交互。\n- 情绪工具、艺术小屋、花园和森林。\n- 用户授权与支持工作台的产品探索。",
+        "results": "用于情绪支持与自我探索，不提供医学诊断，不宣称具备医疗资质。截图展示的是项目界面，不能替代后端可用性、安全性或临床效果验证。",
+        "awards": "",
+        "time": "",
+        "status": "团队项目 / 研究与学习展示"
+      },
+      "projectShowcase": {
+        "version": 1,
+        "galleryType": "screenshots",
+        "subtitle": "像素心灵驿站 · 心理支持与自我探索",
+        "credits": "MindCare AI 项目团队 / JhengXu 及协作者。团队已同意本次个人网站署名展示。仓库说明限学习与研究使用；本页不授予代码或素材的通用再分发许可。",
+        "upstreamURL": "",
+        "coverId": "mindcare-0",
+        "tarotIds": [],
+        "cycleSeconds": 36,
+        "imageNotes": [
+          {
+            "imageId": "mindcare-0",
+            "title": "像素心灵驿站",
+            "caption": "产品首页与像素风视觉语言。",
+            "kind": "screenshot",
+            "sourceURL": "https://github.com/JhengXu/mindcare-ai/blob/465700e8f572a853a8f4d14b2f20ef62e22e916d/docs/screenshots/01-landing.png",
+            "revision": "465700e8f572a853a8f4d14b2f20ef62e22e916d",
+            "license": "项目团队已由作者确认授权个人网站署名展示；仓库没有通用开源许可证。"
+          },
+          {
+            "imageId": "mindcare-1",
+            "title": "情绪支持首页",
+            "caption": "日常入口与工具组织。",
+            "kind": "screenshot",
+            "sourceURL": "https://github.com/JhengXu/mindcare-ai/blob/465700e8f572a853a8f4d14b2f20ef62e22e916d/docs/screenshots/02-home.png",
+            "revision": "465700e8f572a853a8f4d14b2f20ef62e22e916d",
+            "license": "项目团队已由作者确认授权个人网站署名展示；仓库没有通用开源许可证。"
+          },
+          {
+            "imageId": "mindcare-2",
+            "title": "语音交互",
+            "caption": "语音陪伴的界面设计，非本轮模型调用结果。",
+            "kind": "screenshot",
+            "sourceURL": "https://github.com/JhengXu/mindcare-ai/blob/465700e8f572a853a8f4d14b2f20ef62e22e916d/docs/screenshots/03-voice.png",
+            "revision": "465700e8f572a853a8f4d14b2f20ef62e22e916d",
+            "license": "项目团队已由作者确认授权个人网站署名展示；仓库没有通用开源许可证。"
+          },
+          {
+            "imageId": "mindcare-3",
+            "title": "情绪工具",
+            "caption": "工具箱与日常支持入口。",
+            "kind": "screenshot",
+            "sourceURL": "https://github.com/JhengXu/mindcare-ai/blob/465700e8f572a853a8f4d14b2f20ef62e22e916d/docs/screenshots/06-heal-tools.png",
+            "revision": "465700e8f572a853a8f4d14b2f20ef62e22e916d",
+            "license": "项目团队已由作者确认授权个人网站署名展示；仓库没有通用开源许可证。"
+          },
+          {
+            "imageId": "mindcare-4",
+            "title": "艺术小屋",
+            "caption": "把表达与体验融入产品空间。",
+            "kind": "screenshot",
+            "sourceURL": "https://github.com/JhengXu/mindcare-ai/blob/465700e8f572a853a8f4d14b2f20ef62e22e916d/docs/screenshots/08-art-house.png",
+            "revision": "465700e8f572a853a8f4d14b2f20ef62e22e916d",
+            "license": "项目团队已由作者确认授权个人网站署名展示；仓库没有通用开源许可证。"
+          },
+          {
+            "imageId": "mindcare-5",
+            "title": "森林空间",
+            "caption": "产品中的森林与支持工具界面。",
+            "kind": "screenshot",
+            "sourceURL": "https://github.com/JhengXu/mindcare-ai/blob/465700e8f572a853a8f4d14b2f20ef62e22e916d/docs/screenshots/16-forest.png",
+            "revision": "465700e8f572a853a8f4d14b2f20ef62e22e916d",
+            "license": "项目团队已由作者确认授权个人网站署名展示；仓库没有通用开源许可证。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "project-moirai",
+      "kind": "projects",
+      "title": "MOIRAI",
+      "body": "MOIRAI 使用 78 张希腊神话主题原创牌面，支持单牌、三牌与凯尔特十字仪式。\n\n本页从公开分发版中精选十二张：九张大阿尔卡那与三张小阿尔卡那，以人物、色彩与构图形成连续的艺术牌廊。所有牌面保留完整纵向比例。\n\n原项目使用规则驱动的本地解读与设备内命运档案，不连接 AI 或第三方解读接口。作品页的牌廊使用 CSS 动画，另无新增 WebGL 画布。",
+      "tags": "原创数字艺术 / 仪式交互",
+      "category": "原创数字艺术 / 仪式交互",
+      "technology": "React, TypeScript, Three.js, Framer Motion, Web Audio, PWA",
+      "url": "",
+      "githubURL": "https://github.com/TenetJustin/MOIRAI-public-app",
+      "demoURL": "https://tenetjustin.github.io/MOIRAI-public-app/",
+      "createdAt": "2026-10-26T10:01:46.264Z",
+      "updatedAt": "2026-10-26T10:01:46.264Z",
+      "sortOrder": 3,
+      "images": [
+        {
+          "id": "m00",
+          "name": "The Fool · 愚者",
+          "attachment": "assets/94016beffe156db54f017682cb7e297b5ad4d463e1b9fcf71cda499f68c2089f.webp",
+          "thumbnailData": "assets/95ea93255f313eaaacf8e7997d41b0ec9da454fe68b49b3c3b03303b1e5464ab.webp"
+        },
+        {
+          "id": "m01",
+          "name": "The Magician · 魔术师",
+          "attachment": "assets/ffd51a08dcf475713282761137950cc060dda015cca6cfa44ee5179a1b92bede.webp",
+          "thumbnailData": "assets/d64fd8410438c8f3adf8f48b07156a733f6c458bf1fb31614ca978203e04ff36.webp"
+        },
+        {
+          "id": "m02",
+          "name": "The High Priestess · 女祭司",
+          "attachment": "assets/d9d1dfa6efac73e447f2bb241580e5d2e35550c2f46724ee686bdcf53e72fb48.webp",
+          "thumbnailData": "assets/cc2947d43fe568975d202fed4e4fd751de6cfb1db8a433585f46182449bfe65c.webp"
+        },
+        {
+          "id": "m03",
+          "name": "The Empress · 皇后",
+          "attachment": "assets/9ed00dec0b59b923fbae7659d5bd38a1cd87f1680a9a530847757a50e196d86c.webp",
+          "thumbnailData": "assets/0bd8aea43569d9cf591cf64e46f29c0f02e2a6c40bebe7cce1fea2c08ed5bfe2.webp"
+        },
+        {
+          "id": "m06",
+          "name": "The Lovers · 恋人",
+          "attachment": "assets/8eb11890c36efb841f6c3804d5f26230c0f7ffa1a21a15092f47f8c736f94277.webp",
+          "thumbnailData": "assets/19cc87bf398dceb9660a5a57f572efb1dba5975a49557e72b47298d80eaeb5b4.webp"
+        },
+        {
+          "id": "m17",
+          "name": "The Star · 星星",
+          "attachment": "assets/f232d8240750e2a7c3355e384b6d089b0c983bc19302c2be7114f0e441360863.webp",
+          "thumbnailData": "assets/baf91ef2983adabe359afd9d5a513057ad1860be0caf4ce0e7dcb187703ccdd2.webp"
+        },
+        {
+          "id": "m18",
+          "name": "The Moon · 月亮",
+          "attachment": "assets/5bfe3fedff0fec669a1c1c509671c173299a9f550859f0c393987d8e1bb018f5.webp",
+          "thumbnailData": "assets/8f3bc275079e8eec6865423126d57cf5e20daee456d26e39e27d81f522b8e511.webp"
+        },
+        {
+          "id": "m19",
+          "name": "The Sun · 太阳",
+          "attachment": "assets/5c9183844984c11d25312701ac9503ee6f0541e16be73fc0e86488679d96ff67.webp",
+          "thumbnailData": "assets/f6f127bf4f019f7c1155d06268405d7cb29ad1fd372c9e0cee8bc701c51badeb.webp"
+        },
+        {
+          "id": "m21",
+          "name": "The World · 世界",
+          "attachment": "assets/d9e50c434499680683ce42a074e9f25b60a1c76e04db826e595bab2e3ed9adfe.webp",
+          "thumbnailData": "assets/29a4d1c4936527126491d4b645ec77918a4e6e1b264919055694972e27501cb6.webp"
+        },
+        {
+          "id": "cups-ace",
+          "name": "Ace of Cups · 圣杯一",
+          "attachment": "assets/89afcb6e827fd92e1afd2cf1fdea218be4d46c4a20b5eed94f692fb32cec7015.webp",
+          "thumbnailData": "assets/aa60be940e7ce8be59efeaa7c49f6e2b989af4b061bdf708a1e2d3514d0b331b.webp"
+        },
+        {
+          "id": "wands-ace",
+          "name": "Ace of Wands · 权杖一",
+          "attachment": "assets/cea1a960f233907aacad1db105d99d5da971fffb69ce46e808276ed9f467b354.webp",
+          "thumbnailData": "assets/d9788f7d95aa50292f59f16aadf7f1748e428cdfe198f07391926e23ba2bb3a1.webp"
+        },
+        {
+          "id": "pentacles-queen",
+          "name": "Queen of Pentacles · 星币皇后",
+          "attachment": "assets/00f48ed991a2ca3840589b71cf3434ee1e5d709f25aa100382eada5d75ea8eee.webp",
+          "thumbnailData": "assets/0e81569a163926924b7524028254b9ffc742bbfc9d84ef29ed2ca20229b50ef0.webp"
+        },
+        {
+          "id": "moirai-landing",
+          "name": "神话主题首页",
+          "attachment": "assets/f3bad411615f9897190fc110c059d560f7d529a14e6d2d7baf967b2ac9f745ff.webp",
+          "thumbnailData": "assets/de84d666108c4ed73d158ca3cff217581d838ff1ba030457e2c0c7e1d64d317f.webp"
+        },
+        {
+          "id": "moirai-ritual",
+          "name": "仪式 · 设置意图",
+          "attachment": "assets/d0670f21b2306faba2d05e377c5eb5ddf01d3757181046d344e4477d99fb4564.webp",
+          "thumbnailData": "assets/bdd184c762131cad7325abbb05b57d8b83f086fd22ac8bdf41d068fdddf49df4.webp"
+        }
+      ],
+      "projectDetails": {
+        "summaryZH": "让希腊神话、原创塔罗插画与本地优先的数字仪式，在同一个安静的空间里相遇。",
+        "summaryEN": "ORACLE OF OLYMPUS · 奥林匹斯神谕",
+        "problem": "数字塔罗不只是一张随机图片。项目探索图像、象征、节奏与个人记录怎样形成完整而克制的仪式体验。",
+        "contribution": "参与",
+        "features": "- 希腊神话主题原创牌面与对应解释。\n- 分阶段的意图、牌阵、净化、洗牌、切牌、抽牌与神谕体验。\n- 本地记录、备份恢复、PWA 与环境音。",
+        "results": "在线入口已经真实浏览器打开并进入仪式。仅使用公开分发版优化资产，不分发高清母版、Prompt、未发布图片或私有授权文件。",
+        "awards": "",
+        "time": "",
+        "status": "已公开的本地优先 PWA"
+      },
+      "projectShowcase": {
+        "version": 1,
+        "galleryType": "tarot",
+        "subtitle": "ORACLE OF OLYMPUS · 奥林匹斯神谕",
+        "credits": "© 2026 MOIRAI / TenetJustin. All rights reserved. 本次按权利人要求用于个人作品展示。公开可见不等于开源，素材不适用 Personal World 的代码许可。",
+        "upstreamURL": "",
+        "coverId": "m00",
+        "tarotIds": [
+          "m00",
+          "m01",
+          "m02",
+          "m03",
+          "m06",
+          "m17",
+          "m18",
+          "m19",
+          "m21",
+          "cups-ace",
+          "wands-ace",
+          "pentacles-queen"
+        ],
+        "cycleSeconds": 36,
+        "imageNotes": [
+          {
+            "imageId": "m00",
+            "title": "The Fool · 愚者",
+            "caption": "伊卡洛斯 Icarus",
+            "kind": "artwork",
+            "sourceURL": "https://github.com/TenetJustin/MOIRAI-public-app/blob/1c28d22b7d1ae46f9b1e47396bc707236781c43b/public/cards/fronts/m00.webp",
+            "revision": "1c28d22b7d1ae46f9b1e47396bc707236781c43b",
+            "license": "© 2026 MOIRAI / TenetJustin. All rights reserved. 权利人本次授权个人作品展示，非开放素材许可。"
+          },
+          {
+            "imageId": "m01",
+            "title": "The Magician · 魔术师",
+            "caption": "赫尔墨斯 Hermes",
+            "kind": "artwork",
+            "sourceURL": "https://github.com/TenetJustin/MOIRAI-public-app/blob/1c28d22b7d1ae46f9b1e47396bc707236781c43b/public/cards/fronts/m01.webp",
+            "revision": "1c28d22b7d1ae46f9b1e47396bc707236781c43b",
+            "license": "© 2026 MOIRAI / TenetJustin. All rights reserved. 权利人本次授权个人作品展示，非开放素材许可。"
+          },
+          {
+            "imageId": "m02",
+            "title": "The High Priestess · 女祭司",
+            "caption": "珀耳塞福涅 Persephone",
+            "kind": "artwork",
+            "sourceURL": "https://github.com/TenetJustin/MOIRAI-public-app/blob/1c28d22b7d1ae46f9b1e47396bc707236781c43b/public/cards/fronts/m02.webp",
+            "revision": "1c28d22b7d1ae46f9b1e47396bc707236781c43b",
+            "license": "© 2026 MOIRAI / TenetJustin. All rights reserved. 权利人本次授权个人作品展示，非开放素材许可。"
+          },
+          {
+            "imageId": "m03",
+            "title": "The Empress · 皇后",
+            "caption": "得墨忒耳 Demeter",
+            "kind": "artwork",
+            "sourceURL": "https://github.com/TenetJustin/MOIRAI-public-app/blob/1c28d22b7d1ae46f9b1e47396bc707236781c43b/public/cards/fronts/m03.webp",
+            "revision": "1c28d22b7d1ae46f9b1e47396bc707236781c43b",
+            "license": "© 2026 MOIRAI / TenetJustin. All rights reserved. 权利人本次授权个人作品展示，非开放素材许可。"
+          },
+          {
+            "imageId": "m06",
+            "title": "The Lovers · 恋人",
+            "caption": "厄洛斯与普绪克 Eros & Psyche",
+            "kind": "artwork",
+            "sourceURL": "https://github.com/TenetJustin/MOIRAI-public-app/blob/1c28d22b7d1ae46f9b1e47396bc707236781c43b/public/cards/fronts/m06.webp",
+            "revision": "1c28d22b7d1ae46f9b1e47396bc707236781c43b",
+            "license": "© 2026 MOIRAI / TenetJustin. All rights reserved. 权利人本次授权个人作品展示，非开放素材许可。"
+          },
+          {
+            "imageId": "m17",
+            "title": "The Star · 星星",
+            "caption": "阿斯克勒庇俄斯 Asclepius",
+            "kind": "artwork",
+            "sourceURL": "https://github.com/TenetJustin/MOIRAI-public-app/blob/1c28d22b7d1ae46f9b1e47396bc707236781c43b/public/cards/fronts/m17.webp",
+            "revision": "1c28d22b7d1ae46f9b1e47396bc707236781c43b",
+            "license": "© 2026 MOIRAI / TenetJustin. All rights reserved. 权利人本次授权个人作品展示，非开放素材许可。"
+          },
+          {
+            "imageId": "m18",
+            "title": "The Moon · 月亮",
+            "caption": "阿尔忒弥斯 Artemis",
+            "kind": "artwork",
+            "sourceURL": "https://github.com/TenetJustin/MOIRAI-public-app/blob/1c28d22b7d1ae46f9b1e47396bc707236781c43b/public/cards/fronts/m18.webp",
+            "revision": "1c28d22b7d1ae46f9b1e47396bc707236781c43b",
+            "license": "© 2026 MOIRAI / TenetJustin. All rights reserved. 权利人本次授权个人作品展示，非开放素材许可。"
+          },
+          {
+            "imageId": "m19",
+            "title": "The Sun · 太阳",
+            "caption": "赫利俄斯 Helios",
+            "kind": "artwork",
+            "sourceURL": "https://github.com/TenetJustin/MOIRAI-public-app/blob/1c28d22b7d1ae46f9b1e47396bc707236781c43b/public/cards/fronts/m19.webp",
+            "revision": "1c28d22b7d1ae46f9b1e47396bc707236781c43b",
+            "license": "© 2026 MOIRAI / TenetJustin. All rights reserved. 权利人本次授权个人作品展示，非开放素材许可。"
+          },
+          {
+            "imageId": "m21",
+            "title": "The World · 世界",
+            "caption": "盖亚 Gaia",
+            "kind": "artwork",
+            "sourceURL": "https://github.com/TenetJustin/MOIRAI-public-app/blob/1c28d22b7d1ae46f9b1e47396bc707236781c43b/public/cards/fronts/m21.webp",
+            "revision": "1c28d22b7d1ae46f9b1e47396bc707236781c43b",
+            "license": "© 2026 MOIRAI / TenetJustin. All rights reserved. 权利人本次授权个人作品展示，非开放素材许可。"
+          },
+          {
+            "imageId": "cups-ace",
+            "title": "Ace of Cups · 圣杯一",
+            "caption": "圣杯组 · 情感与连接",
+            "kind": "artwork",
+            "sourceURL": "https://github.com/TenetJustin/MOIRAI-public-app/blob/1c28d22b7d1ae46f9b1e47396bc707236781c43b/public/cards/fronts/cups-ace.webp",
+            "revision": "1c28d22b7d1ae46f9b1e47396bc707236781c43b",
+            "license": "© 2026 MOIRAI / TenetJustin. All rights reserved. 权利人本次授权个人作品展示，非开放素材许可。"
+          },
+          {
+            "imageId": "wands-ace",
+            "title": "Ace of Wands · 权杖一",
+            "caption": "权杖组 · 火种与创造",
+            "kind": "artwork",
+            "sourceURL": "https://github.com/TenetJustin/MOIRAI-public-app/blob/1c28d22b7d1ae46f9b1e47396bc707236781c43b/public/cards/fronts/wands-ace.webp",
+            "revision": "1c28d22b7d1ae46f9b1e47396bc707236781c43b",
+            "license": "© 2026 MOIRAI / TenetJustin. All rights reserved. 权利人本次授权个人作品展示，非开放素材许可。"
+          },
+          {
+            "imageId": "pentacles-queen",
+            "title": "Queen of Pentacles · 星币皇后",
+            "caption": "星币组 · 丰盛与照料",
+            "kind": "artwork",
+            "sourceURL": "https://github.com/TenetJustin/MOIRAI-public-app/blob/1c28d22b7d1ae46f9b1e47396bc707236781c43b/public/cards/fronts/pentacles-queen.webp",
+            "revision": "1c28d22b7d1ae46f9b1e47396bc707236781c43b",
+            "license": "© 2026 MOIRAI / TenetJustin. All rights reserved. 权利人本次授权个人作品展示，非开放素材许可。"
+          },
+          {
+            "imageId": "moirai-landing",
+            "title": "神话主题首页",
+            "caption": "从官方在线入口拍摄的真实浏览器画面。",
+            "kind": "screenshot",
+            "sourceURL": "https://tenetjustin.github.io/MOIRAI-public-app/",
+            "revision": "1c28d22b7d1ae46f9b1e47396bc707236781c43b",
+            "license": "© 2026 MOIRAI / TenetJustin. All rights reserved. 权利人本次授权个人作品展示，非开放素材许可。"
+          },
+          {
+            "imageId": "moirai-ritual",
+            "title": "仪式 · 设置意图",
+            "caption": "从官方入口实际进入仪式，设备本地保存意图。",
+            "kind": "screenshot",
+            "sourceURL": "https://tenetjustin.github.io/MOIRAI-public-app/",
+            "revision": "1c28d22b7d1ae46f9b1e47396bc707236781c43b",
+            "license": "© 2026 MOIRAI / TenetJustin. All rights reserved. 权利人本次授权个人作品展示，非开放素材许可。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "project-seacoconut",
+      "kind": "projects",
+      "title": "Seacoconut IP Skills",
+      "body": "基于 Jinchenma 的开源 IP Skills 进行独立二次开发，保留上游 MIT 版权声明。\n\n当前公开仓库整理了 IP Builder、文章插画与视频叠加三套 Skill，内置 Seacoconut 人物三视图与角色规范。相较基础版本，仓库记录了品牌独立化、上游人物素材清理、默认人物包以及视频动作输出工作流。\n\n本页展示实际人物三视图与真实仓库文档截图；文档中的工作流不是已生成效果图。尚未取得可供本轮展示的文章成图与透明动作片段，因此不制作伪造运行成果。",
+      "tags": "Agent Skills / 二次开发",
+      "category": "Agent Skills / 二次开发",
+      "technology": "Agent Skills, Markdown, IP Packs, Image Workflow",
+      "url": "",
+      "githubURL": "https://github.com/TenetJustin/seacoconut_ip_skills",
+      "demoURL": "",
+      "createdAt": "2026-10-26T10:01:46.264Z",
+      "updatedAt": "2026-10-26T10:01:46.264Z",
+      "sortOrder": 4,
+      "images": [
+        {
+          "id": "seacoconut-turnaround",
+          "name": "Seacoconut · 角色三视图",
+          "attachment": "assets/c910d2d0071c601585b80895857156a6df95cc3babff2f893d4031709e50d395.webp",
+          "thumbnailData": "assets/72589d15798f6f398946c01ea8b8a84dd362ce95472e8c24eee6f738262c660c.webp"
+        },
+        {
+          "id": "seacoconut-article",
+          "name": "文章插画 Skill · 仓库文档",
+          "attachment": "assets/86cc539a21449ff951d8ceab9192451be568fbe52b6eac07f7a782c1cfd92416.webp",
+          "thumbnailData": "assets/a699fe52f22c0e4a2156238c6af6f53f81f285763d4704e041ff710c89395685.webp"
+        },
+        {
+          "id": "seacoconut-video",
+          "name": "视频叠加 Skill · 仓库文档",
+          "attachment": "assets/1fe8804871a6a08c54397d0db815182fa0b58a603a00393f2183ee283edda425.webp",
+          "thumbnailData": "assets/763e4e439967b9f0b951ab4a49db933ba1c7a8e9017856afece8dde4e7839210.webp"
+        }
+      ],
+      "projectDetails": {
+        "summaryZH": "围绕原创人物 IP，组织三视图、文章插画与视频叠加素材的可复用工作流。",
+        "summaryEN": "可携带的人物身份 · 可复用的 Agent 工作流",
+        "problem": "在不同文章和视频中重复使用人物 IP，需要身份、规范与输出格式保持一致，而不是每次从一张新人物图重新开始。",
+        "contribution": "二次开发",
+        "features": "- 人物包导入、激活与切换的规范。\n- 完整文章阅读、人物一致性与插画流程。\n- 短动作、透明背景与色键回退的输出约定。",
+        "results": "基础版本，后续视觉规范与工作流仍在迭代。代码与共享文档保留上游 MIT；Seacoconut 人物资产在其 manifest 中标记为 private，本次由权利人明确要求用于个人作品展示，不改为 MIT。",
+        "awards": "",
+        "time": "",
+        "status": "基础版本 / 持续迭代"
+      },
+      "projectShowcase": {
+        "version": 1,
+        "galleryType": "screenshots",
+        "subtitle": "可携带的人物身份 · 可复用的 Agent 工作流",
+        "credits": "二次开发：TenetJustin / Seacoconut。上游：Jinchenma（金尘马）· jinchenma94/jinchenma-ip-skills，MIT License。Seacoconut 人物资产独立保留权利。",
+        "upstreamURL": "https://github.com/jinchenma94/jinchenma-ip-skills",
+        "coverId": "seacoconut-turnaround",
+        "tarotIds": [],
+        "cycleSeconds": 36,
+        "imageNotes": [
+          {
+            "imageId": "seacoconut-turnaround",
+            "title": "Seacoconut · 角色三视图",
+            "caption": "公开仓库分发的人物正面、侧面与背面，按作者指令展示。",
+            "kind": "artwork",
+            "sourceURL": "https://github.com/TenetJustin/seacoconut_ip_skills/blob/44bec99f8984b4d4c0335da6d81f0f701ac9ad3c/skills/seacoconut-ip-article-illustrations/assets/ip-packs/seacoconut/assets/turnaround.png",
+            "revision": "44bec99f8984b4d4c0335da6d81f0f701ac9ad3c",
+            "license": "人物资产 private；本次按权利人要求展示，非 MIT 素材。"
+          },
+          {
+            "imageId": "seacoconut-article",
+            "title": "文章插画 Skill · 仓库文档",
+            "caption": "真实 GitHub 文档页面截图，展示工作流说明；不是生成作品样例。",
+            "kind": "workflow",
+            "sourceURL": "https://github.com/TenetJustin/seacoconut_ip_skills/blob/44bec99f8984b4d4c0335da6d81f0f701ac9ad3c/skills/seacoconut-ip-article-illustrations/SKILL.md",
+            "revision": "44bec99f8984b4d4c0335da6d81f0f701ac9ad3c",
+            "license": "MIT 共享工作流文档，保留 Jinchenma 原版权声明与本项目署名。"
+          },
+          {
+            "imageId": "seacoconut-video",
+            "title": "视频叠加 Skill · 仓库文档",
+            "caption": "真实 GitHub 文档页面截图，说明输入和输出约定；不冒充已生成透明视频。",
+            "kind": "workflow",
+            "sourceURL": "https://github.com/TenetJustin/seacoconut_ip_skills/blob/44bec99f8984b4d4c0335da6d81f0f701ac9ad3c/skills/seacoconut-ip-video-overlays/SKILL.md",
+            "revision": "44bec99f8984b4d4c0335da6d81f0f701ac9ad3c",
+            "license": "MIT 共享工作流文档，保留 Jinchenma 原版权声明与本项目署名。"
+          }
+        ]
+      }
     }
   ]
 }

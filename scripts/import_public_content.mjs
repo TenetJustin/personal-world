@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { PROJECT_IMAGE_LIMIT } from "../src/library/projectShowcase.ts";
 // Only explicit reviewed packages enter public/content; complete backups are rejected.
 import {
   readFile,
@@ -36,6 +37,7 @@ const fields = new Set([
   "fileName",
   "structuredProfile",
   "projectDetails",
+  "projectShowcase",
   "photoTakenAt",
   "photoLocation",
   "photoLocationPublic",
@@ -138,7 +140,11 @@ export async function validatePublicPackage(data) {
       r.images !== undefined &&
       (!Array.isArray(r.images) ||
         r.images.length >
-          (r.kind === "projects" ? 12 : r.kind === "notes" ? 1 : 50))
+          (r.kind === "projects"
+            ? PROJECT_IMAGE_LIMIT
+            : r.kind === "notes"
+              ? 1
+              : 50))
     )
       throw new Error("项目图片数量无效");
     const imageAssets = [];

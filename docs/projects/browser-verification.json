@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-26T10:17:17.857Z",
+  "base": "http://127.0.0.1:5202/personal-world/",
+  "browser": "155.0.8059.85",
+  "checks": [
+    "进入资料前未下载整套项目图片；备忘录仅加载内容元数据",
+    "五个项目卡片；访客无编辑或上传；作品展示无新增 Canvas，直接路由不启动 3D 场景",
+    "CityOS 详情，5 张素材",
+    "大图模态框、左右切换、Escape 与焦点恢复",
+    "CourtCast 详情，3 张素材",
+    "MindCare AI 详情，6 张素材",
+    "Seacoconut IP Skills 详情，3 张素材",
+    "MOIRAI 悬停暂停、键盘焦点暂停、离开后恢复",
+    "12 张真实牌面、两组等宽循环、复制组不重复进入辅助技术或 Tab 顺序",
+    "Reduced Motion 停止动画并保留可操作主牌廊",
+    "详情深链接刷新可用",
+    "390×844 手机视口真实触摸事件横滑 352.0px；非实体手机",
+    "真实 Chrome DOM 连续录制超过完整 36 秒周期，未加速；循环期间无空白牌面"
+  ],
+  "errors": [],
+  "failures": [],
+  "loop": {
+    "cycleSeconds": 36,
+    "recordedMotionMs": 39000.056000008495,
+    "start": {
+      "time": 549.9780000191964,
+      "width": 6720,
+      "playState": "running",
+      "images": true
+    },
+    "end": {
+      "time": 39550.03400002769,
+      "width": 6720,
+      "playState": "running",
+      "images": true
+    },
+    "groups": [
+      {
+        "width": 3360,
+        "items": 12,
+        "ariaHidden": null
+      },
+      {
+        "width": 3360,
+        "items": 12,
+        "ariaHidden": "true"
+      }
+    ]
+  },
+  "videoPath": "Local delivery: moirai-continuous-loop.webm / moirai-continuous-loop.mp4",
+  "limitations": [
+    "Touch is a desktop emulation, not a physical phone.",
+    "Loop continuity is checked through real recording, equal group geometry and visible image loading; final aesthetic judgement remains human."
+  ]
+}

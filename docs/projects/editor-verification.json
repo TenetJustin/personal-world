@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-26T10:12:57.539Z",
+  "browser": "155.0.8059.85",
+  "checks": [
+    "从公开项目显式复制5条到空白IndexedDB",
+    "编辑MOIRAI副标题、循环秒数、图片说明并保存",
+    "14张图片与12张精选牌面随v2备份保存为真实字节",
+    "独立浏览器上下文恢复备份，元数据与图片保持",
+    "旧v1/v2兼容与公开审核门禁由单元测试补充验证"
+  ],
+  "errors": [],
+  "scope": "Only clean temporary browser contexts; no user browser profile accessed. Test edits were not published."
+}

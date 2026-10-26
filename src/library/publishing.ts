@@ -1,3 +1,4 @@
+import { PROJECT_IMAGE_LIMIT } from "./projectShowcase.ts";
 import { SITE_BASE } from "../site.ts";
 import {
   type Entry,
@@ -6,7 +7,7 @@ import {
   validateEntry,
   mergeEntries,
 } from "./model.ts";
-import { dataURL, prepareImage } from "./storage.ts";
+import { dataURL, prepareImage, resolveImageBlob } from "./storage.ts";
 export type PublicRecord = Omit<
   Entry,
   "blob" | "thumbnail" | "images" | "deletedAt"
@@ -51,6 +52,7 @@ const permitted = [
   "fileName",
   "structuredProfile",
   "projectDetails",
+  "projectShowcase",
   "photoTakenAt",
   "photoLocation",
   "photoLocationPublic",
@@ -70,7 +72,22 @@ export async function createPublicPackage(
     const entry = entries.find((e) => e.id === id);
     if (!entry || entry.deletedAt)
       throw new Error("所选资料已移除，请重新审核");
-    const e = validateEntry(entry);
+    const materialized = entry.images?.some((image) => image.publicURL)
+      ? {
+          ...entry,
+          images: await Promise.all(
+            entry.images.map(async (image) => ({
+              ...image,
+              blob: await resolveImageBlob(image),
+              thumbnail:
+                image.thumbnail || image.publicThumbnailURL
+                  ? await resolveImageBlob(image, true)
+                  : undefined,
+            })),
+          ),
+        }
+      : entry;
+    const e = validateEntry(materialized);
     const r = Object.fromEntries(
       permitted.filter((k) => e[k] !== undefined).map((k) => [k, e[k]]),
     ) as unknown as PublicRecord;
@@ -105,7 +122,9 @@ export async function createPublicPackage(
           .map(async (x) => ({
             id: x.id,
             name: x.name,
-            attachment: await dataURL(await publicBlob(x.blob)),
+            attachment: await dataURL(
+              await publicBlob(await resolveImageBlob(x)),
+            ),
             ...(x.thumbnail
               ? { thumbnailData: await dataURL(await publicBlob(x.thumbnail)) }
               : {}),
@@ -170,7 +189,11 @@ export async function loadPublishedContent(base = SITE_BASE): Promise<Entry[]> {
       record.images &&
       (!Array.isArray(record.images) ||
         record.images.length >
-          (record.kind === "projects" ? 12 : record.kind === "notes" ? 1 : 50))
+          (record.kind === "projects"
+            ? PROJECT_IMAGE_LIMIT
+            : record.kind === "notes"
+              ? 1
+              : 50))
     )
       throw new Error("公开项目图片数量无效");
     if (record.photoLocation && record.photoLocationPublic !== true)
@@ -181,20 +204,40 @@ export async function loadPublishedContent(base = SITE_BASE): Promise<Entry[]> {
     const thumbnail = record.thumbnailData
       ? await attachment(record.thumbnailData)
       : undefined;
-    const images = record.images
+    const images: Entry["images"] = record.images
       ? await Promise.all(
-          record.images.map(async (image) => ({
-            id: image.id,
-            name: image.name,
-            blob: await attachment(image.attachment),
-            thumbnail: image.thumbnailData
-              ? await attachment(image.thumbnailData)
-              : undefined,
-          })),
+          record.images.map(async (image) =>
+            record.kind === "projects"
+              ? {
+                  id: image.id,
+                  name: image.name,
+                  blob: new Blob([], { type: "image/webp" }),
+                  publicURL: publicAsset(image.attachment, contentBase),
+                  publicThumbnailURL: image.thumbnailData
+                    ? publicAsset(image.thumbnailData, contentBase)
+                    : undefined,
+                }
+              : {
+                  id: image.id,
+                  name: image.name,
+                  blob: await attachment(image.attachment),
+                  thumbnail: image.thumbnailData
+                    ? await attachment(image.thumbnailData)
+                    : undefined,
+                },
+          ),
         )
       : undefined;
-    entries.push(validateEntry({ ...record, blob, thumbnail, images }));
+    const valid = validateEntry({ ...record, blob, thumbnail, images });
+    if (record.kind === "projects" && valid.images)
+      valid.images = valid.images.map((image, index) => ({
+        ...image,
+        publicURL: images![index].publicURL,
+        publicThumbnailURL: images![index].publicThumbnailURL,
+      }));
+    entries.push(valid);
   }
-  return mergeEntries([], entries);
+  mergeEntries([], entries);
+  return entries;
 }
 export const PUBLIC_KINDS = KINDS;

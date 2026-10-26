@@ -29,9 +29,17 @@ npm start
 
 网站内的 Mac 只提供备忘录、照片、作品、履历的浏览、搜索和阅读，不提供上传、资料填写、备份或发布入口。公开版忽略旧编辑 URL 与浏览器工作区偏好，也不读取访客的本地草稿。
 
-备忘录已加入 Freddie 椰子的自述；照片、作品和履历等待作者提供内容。后续通过协作会话提交文字与照片，整理、校验后更新 `public/content` 并部署。内容来源及操作见 [个人资料展示说明](docs/personal-content/README.md)。
+备忘录已加入 Freddie 椰子的自述；作品应用已加入 CityOS、CourtCast、MindCare AI、MOIRAI 和 Seacoconut IP Skills；照片和履历等待作者提供内容。后续通过协作会话提交文字与照片，整理、校验后更新 `public/content` 并部署。内容来源及操作见 [个人资料展示说明](docs/personal-content/README.md)。
 
 旧本地编辑与完整备份工具保留，仅开发服务器明确打开 `/?editor=local&app=profile` 时可用；生产构建不会启用。原 IndexedDB 没有删除或改写。**保存不等于发布**，完整备份不可提交到公开目录。
+
+## Projects 作品展示
+
+五个项目系列使用真实素材封面与详情画廊，MOIRAI 使用十二张公开分发版原创牌面构成 36 秒连续艺术牌廊。悬停、焦点和手动暂停、Reduced Motion、触摸横滑与大图查看均保留。CourtCast 采用作者本轮提供的三张图片；Seacoconut 的两张工作流图明确为仓库文档截图。
+
+- [作者编辑、备份和发布说明](docs/projects/USAGE.md)
+- [逐张素材来源与授权记录](docs/projects/asset-sources.json)
+- [素材版权边界](licenses/projects/SHOWCASE-NOTICE.md)
 
 ## 构建和 GitHub Pages
 

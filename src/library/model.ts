@@ -1,4 +1,9 @@
 import {
+  PROJECT_IMAGE_LIMIT,
+  validateShowcase,
+  type ProjectShowcaseData,
+} from "./projectShowcase.ts";
+import {
   validateProfile,
   emptyProjectDetails,
   type StructuredProfile,
@@ -18,6 +23,9 @@ export type ImageAttachment = {
   name: string;
   blob: Blob;
   thumbnail?: Blob;
+  /** Runtime-only same-origin URLs; backups materialize the bytes. */
+  publicURL?: string;
+  publicThumbnailURL?: string;
 };
 export type ResumeSections = {
   profile: string;
@@ -58,6 +66,7 @@ export type Entry = {
   resume?: ResumeSections;
   structuredProfile?: StructuredProfile;
   projectDetails?: ProjectDetails;
+  projectShowcase?: ProjectShowcaseData;
   publicationStatus?: "draft" | "ready";
   photoTakenAt?: string;
   photoLocation?: string;
@@ -172,10 +181,14 @@ export function validateEntry(value: unknown): Entry {
       !["projects", "resume", "notes"].includes(r.kind as string) ||
       !Array.isArray(r.images) ||
       r.images.length >
-        (r.kind === "projects" ? 12 : r.kind === "notes" ? 1 : 50)
+        (r.kind === "projects"
+          ? PROJECT_IMAGE_LIMIT
+          : r.kind === "notes"
+            ? 1
+            : 50)
     )
       throw new Error(
-        "图片数量或资料类型无效（项目 12 张、笔记 1 张、个人资料 50 张）",
+        "图片数量或资料类型无效（项目 32 张、笔记 1 张、个人资料 50 张）",
       );
     extra.images = r.images.map((v: Record<string, unknown>) => {
       if (
@@ -254,6 +267,10 @@ export function validateEntry(value: unknown): Entry {
   const mediaIds = new Set(extra.images?.map((i) => i.id) ?? []);
   if (mediaIds.size !== (extra.images?.length ?? 0))
     throw new Error("图片 ID 重复");
+  if (r.projectShowcase !== undefined) {
+    if (r.kind !== "projects") throw new Error("作品展示字段只适用于项目");
+    extra.projectShowcase = validateShowcase(r.projectShowcase, mediaIds);
+  }
   const refs = [
     extra.coverImageId,
     extra.structuredProfile?.about.avatarId,
@@ -291,6 +308,7 @@ export function libraryBytes(entries: Entry[]) {
         JSON.stringify(e.resume ?? {}) +
           JSON.stringify(e.structuredProfile ?? {}) +
           JSON.stringify(e.projectDetails ?? {}) +
+          JSON.stringify(e.projectShowcase ?? {}) +
           (e.photoLocation ?? "") +
           (e.photoTakenAt ?? "") +
           (e.technology ?? "") +

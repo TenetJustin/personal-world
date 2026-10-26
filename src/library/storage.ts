@@ -1,3 +1,5 @@
+import { PROJECT_IMAGE_LIMIT } from "./projectShowcase.ts";
+import type { ImageAttachment } from "./model.ts";
 import {
   type Entry,
   MAX_BACKUP,
@@ -94,13 +96,26 @@ export async function encodeBackup(entries: Entry[]) {
       ...(images
         ? {
             images: await Promise.all(
-              images.map(async ({ blob, thumbnail, ...image }) => ({
-                ...image,
-                attachment: await dataURL(blob),
-                ...(thumbnail
-                  ? { thumbnailData: await dataURL(thumbnail) }
-                  : {}),
-              })),
+              images.map(async (media) => {
+                const {
+                  blob,
+                  thumbnail,
+                  publicURL,
+                  publicThumbnailURL,
+                  ...image
+                } = media;
+                return {
+                  ...image,
+                  attachment: await dataURL(await resolveImageBlob(media)),
+                  ...(thumbnail || publicThumbnailURL
+                    ? {
+                        thumbnailData: await dataURL(
+                          await resolveImageBlob(media, true),
+                        ),
+                      }
+                    : {}),
+                };
+              }),
             ),
           }
         : {}),
@@ -142,7 +157,11 @@ export async function decodeBackup(file: Blob): Promise<Entry[]> {
       r.images !== undefined &&
       (!Array.isArray(r.images) ||
         r.images.length >
-          (r.kind === "projects" ? 12 : r.kind === "notes" ? 1 : 50))
+          (r.kind === "projects"
+            ? PROJECT_IMAGE_LIMIT
+            : r.kind === "notes"
+              ? 1
+              : 50))
     )
       throw new Error("项目图片数量无效");
     const images =
@@ -231,4 +250,29 @@ export function downloadFile(blob: Blob, name: string) {
   link.download = name;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+/** Materialize lazy public images for an explicit backup/export, never at scene boot. */
+export async function resolveImageBlob(
+  image: ImageAttachment,
+  thumbnail = false,
+): Promise<Blob> {
+  const source = thumbnail ? image.publicThumbnailURL : image.publicURL;
+  const local = thumbnail ? image.thumbnail : image.blob;
+  if (!source) {
+    if (!local) throw new Error("图片附件不存在");
+    return local;
+  }
+  const u = new URL(source);
+  if (
+    typeof location === "undefined" ||
+    u.origin !== location.origin ||
+    !/\/content\/assets\/[a-f0-9]{64}\.(webp|png|jpg|gif)$/.test(u.pathname)
+  )
+    throw new Error("公开图片来源无效");
+  const response = await fetch(u);
+  if (!response.ok) throw new Error("公开图片暂时无法下载，请重试");
+  const blob = await response.blob();
+  await validateAttachment(blob);
+  return blob;
 }
